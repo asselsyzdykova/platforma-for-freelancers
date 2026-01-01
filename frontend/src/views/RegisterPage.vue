@@ -1,0 +1,143 @@
+<template>
+  <div class="register-page">
+    <div class="register-card">
+      <h1>Create account</h1>
+      <p class="subtitle">Join FreelanceHub today</p>
+
+      <form @submit.prevent="register">
+        <div class="form-group">
+          <label>Name</label>
+          <input v-model="form.name" type="text" required />
+        </div>
+
+        <div class="form-group">
+          <label>Email</label>
+          <input v-model="form.email" type="email" required />
+        </div>
+
+        <div class="form-group">
+          <label>Password</label>
+          <input v-model="form.password" type="password" required />
+        </div>
+
+        <div class="form-group">
+          <label>Confirm password</label>
+          <input v-model="form.passwordConfirm" type="password" required />
+        </div>
+
+        <button type="submit">Register</button>
+      </form>
+
+      <p class="login-link">
+        Already have an account?
+        <RouterLink to="/login">Login</RouterLink>
+      </p>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'RegisterPage',
+  data() {
+    return {
+      form: {
+        name: '',
+        email: '',
+        password: '',
+        passwordConfirm: '',
+      },
+    }
+  },
+  methods: {
+    register() {
+      if (this.form.password !== this.form.passwordConfirm) {
+        alert('Passwords do not match')
+        return
+      }
+
+      console.log('Register data:', this.form)
+      alert('Registration successful (mock)')
+    },
+  },
+}
+</script>
+
+<style scoped>
+.register-page {
+  min-height: calc(100vh - 160px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+}
+
+.register-card {
+  width: 100%;
+  max-width: 420px;
+  background:  #f3efff;
+  padding: 32px;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+h1 {
+  margin-bottom: 8px;
+  font-size: 26px;
+  text-align: center;
+}
+
+.subtitle {
+  text-align: center;
+  color: #777;
+  margin-bottom: 24px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px;
+}
+
+label {
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+
+input {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+}
+
+input:focus {
+  outline: none;
+  border-color: #5b3df5;
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 8px;
+  background: #5b3df5;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+.login-link {
+  color: #5b4b8a;
+  margin-top: 20px;
+  text-align: center;
+  font-size: 14px;
+}
+
+
+</style>
