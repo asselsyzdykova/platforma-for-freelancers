@@ -2,7 +2,7 @@
   <div class="register-page">
     <div class="register-card">
       <h1>Create account</h1>
-      <p class="subtitle">Join FreelanceHub today</p>
+      <p class="subtitle">Join BezRab today</p>
 
       <form @submit.prevent="register">
         <div class="form-group">
@@ -37,6 +37,8 @@
 </template>
 
 <script>
+import api from '../services/axios'
+
 export default {
   name: 'RegisterPage',
   data() {
@@ -50,14 +52,34 @@ export default {
     }
   },
   methods: {
-    register() {
+    async register() {
       if (this.form.password !== this.form.passwordConfirm) {
         alert('Passwords do not match')
         return
       }
 
-      console.log('Register data:', this.form)
-      alert('Registration successful (mock)')
+      try {
+        const response = await api.post('/register', {
+          name: this.form.name,
+          email: this.form.email,
+          password: this.form.password,
+          password_confirmation: this.form.passwordConfirm,
+        })
+
+        localStorage.setItem('access_token', response.data.access_token)
+
+        alert('Registration successful!')
+        this.$router.push('/login')
+      } catch (error) {
+        console.error(error.response?.data)
+        if (error.response?.data?.errors) {
+          alert(Object.values(error.response.data.errors).flat().join('\n'))
+        } else if (error.response?.data?.message) {
+          alert(error.response.data.message)
+        } else {
+          alert('Registration failed')
+        }
+      }
     },
   },
 }
@@ -75,7 +97,7 @@ export default {
 .register-card {
   width: 100%;
   max-width: 420px;
-  background:  #f3efff;
+  background: #f3efff;
   padding: 32px;
   border-radius: 20px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
@@ -138,6 +160,4 @@ button:hover {
   text-align: center;
   font-size: 14px;
 }
-
-
 </style>
