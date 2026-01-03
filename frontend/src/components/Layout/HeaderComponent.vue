@@ -1,0 +1,100 @@
+<script setup>
+import { useUserStore } from '@/stores/userStore'
+import { useRouter } from 'vue-router'
+import { onMounted } from 'vue'
+
+const userStore = useUserStore()
+const router = useRouter()
+
+// Загружаем пользователя при монтировании (если есть в localStorage)
+onMounted(() => {
+  userStore.loadUser()
+})
+
+const logout = () => {
+  userStore.logout()
+  router.push('/login')
+}
+</script>
+
+<template>
+  <header class="site-header">
+    <div class="header-inner">
+      <img src="@/assets/BEZRAB.png" class="logo" />
+
+      <nav class="nav">
+        <RouterLink to="/" exact-active-class="active">Home</RouterLink>
+        <RouterLink to="/freelancers" exact-active-class="active">Freelancers</RouterLink>
+        <RouterLink to="/projects" exact-active-class="active">Projects</RouterLink>
+
+        <!-- Если не залогинен -->
+        <RouterLink v-if="!userStore.isLoggedIn" to="/login" exact-active-class="active">Login</RouterLink>
+        <RouterLink v-if="!userStore.isLoggedIn" to="/register" exact-active-class="active">Register</RouterLink>
+
+        <!-- Если залогинен как фрилансер -->
+        <RouterLink
+          v-if="userStore.isLoggedIn && userStore.user.role === 'freelancer'"
+          to="/freelancer-profile"
+          exact-active-class="active"
+        >
+          Profile ({{ userStore.user.name }})
+        </RouterLink>
+
+        <!-- Если залогинен как клиент -->
+        <RouterLink
+          v-if="userStore.isLoggedIn && userStore.user.role === 'user'"
+          to="/user-profile"
+          exact-active-class="active"
+        >
+          Profile ({{ userStore.user.name }})
+        </RouterLink>
+
+        <!-- Кнопка Logout -->
+        <button v-if="userStore.isLoggedIn" @click="logout">Logout</button>
+      </nav>
+    </div>
+  </header>
+</template>
+
+<style scoped>
+.site-header {
+  padding: 16px 32px;
+  background-color: #f3efff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.header-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  height: 30px;
+}
+
+.nav {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.nav .active {
+  font-weight: bold;
+  color: #5b3df5;
+}
+
+button {
+  padding: 6px 12px;
+  background: #5b3df5;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+</style>
