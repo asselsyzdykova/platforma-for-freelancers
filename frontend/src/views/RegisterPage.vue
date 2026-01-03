@@ -25,6 +25,28 @@
           <input v-model="form.passwordConfirm" type="password" required />
         </div>
 
+        <div class="form-group">
+  <label>Register as</label>
+
+  <div class="role-selector">
+    <button
+      type="button"
+      :class="{ active: form.role === 'user' }"
+      @click="form.role = 'user'"
+    >
+      👤 Client
+    </button>
+
+    <button
+      type="button"
+      :class="{ active: form.role === 'freelancer' }"
+      @click="form.role = 'freelancer'"
+    >
+      💼 Freelancer
+    </button>
+  </div>
+</div>
+
         <button type="submit">Register</button>
       </form>
 
@@ -48,6 +70,7 @@ export default {
         email: '',
         password: '',
         passwordConfirm: '',
+        role: 'user', // 👈 по умолчанию
       },
     }
   },
@@ -64,6 +87,7 @@ export default {
           email: this.form.email,
           password: this.form.password,
           password_confirmation: this.form.passwordConfirm,
+          role: this.form.role, // 👈 ВАЖНО
         })
 
         localStorage.setItem('access_token', response.data.access_token)
@@ -71,7 +95,6 @@ export default {
         alert('Registration successful!')
         this.$router.push('/login')
       } catch (error) {
-        console.error(error.response?.data)
         if (error.response?.data?.errors) {
           alert(Object.values(error.response.data.errors).flat().join('\n'))
         } else if (error.response?.data?.message) {
@@ -84,6 +107,7 @@ export default {
   },
 }
 </script>
+
 
 <style scoped>
 .register-page {
@@ -160,4 +184,30 @@ button:hover {
   text-align: center;
   font-size: 14px;
 }
+.role-selector {
+  display: flex;
+  gap: 12px;
+}
+
+.role-selector button {
+  flex: 1;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  background: white;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.role-selector button.active {
+  background: #5b3df5;
+  color: white;
+  border-color: #5b3df5;
+}
+
+.role-selector button:hover {
+  border-color: #5b3df5;
+}
+
 </style>
