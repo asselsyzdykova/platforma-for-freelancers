@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class FreelancerProfile extends Model
 {
     protected $fillable = [
-        'user_id', 'about', 'location', 'skills', 'completed_projects', 'proposals'
+        'user_id', 'about', 'location', 'skills', 'completed_projects', 'proposals', 'rating', 'reviews'
     ];
 
     protected $casts = [
