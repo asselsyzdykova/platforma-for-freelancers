@@ -26,26 +26,25 @@
         </div>
 
         <div class="form-group">
-  <label>Register as</label>
+          <label>Register as</label>
+          <div class="role-selector">
+            <button
+              type="button"
+              :class="{ active: form.role === 'user' }"
+              @click="form.role = 'user'"
+            >
+              👤 Client
+            </button>
 
-  <div class="role-selector">
-    <button
-      type="button"
-      :class="{ active: form.role === 'user' }"
-      @click="form.role = 'user'"
-    >
-      👤 Client
-    </button>
-
-    <button
-      type="button"
-      :class="{ active: form.role === 'freelancer' }"
-      @click="form.role = 'freelancer'"
-    >
-      💼 Freelancer
-    </button>
-  </div>
-</div>
+            <button
+              type="button"
+              :class="{ active: form.role === 'freelancer' }"
+              @click="form.role = 'freelancer'"
+            >
+              💼 Freelancer
+            </button>
+          </div>
+        </div>
 
         <button type="submit">Register</button>
       </form>
@@ -58,56 +57,60 @@
   </div>
 </template>
 
-<script>
-import api from '../services/axios'
+<script setup>
+import { reactive } from 'vue'
+import { useRouter } from 'vue-router'
+import api from '../../services/axios'
+import { useUserStore } from '@/stores/userStore'
 
-export default {
-  name: 'RegisterPage',
-  data() {
-    return {
-      form: {
-        name: '',
-        email: '',
-        password: '',
-        passwordConfirm: '',
-        role: 'user', // 👈 по умолчанию
-      },
+const router = useRouter()
+const userStore = useUserStore()
+
+const form = reactive({
+  name: '',
+  email: '',
+  password: '',
+  passwordConfirm: '',
+  role: 'user',
+})
+
+const register = async () => {
+  if (form.password !== form.passwordConfirm) {
+    alert('Passwords do not match')
+    return
+  }
+
+  try {
+    const response = await api.post('/register', {
+      name: form.name,
+      email: form.email,
+      password: form.password,
+      password_confirmation: form.passwordConfirm,
+      role: form.role,
+    })
+
+    // Сохраняем токен и данные пользователя в Pinia
+    userStore.setToken(response.data.access_token)
+    userStore.setUser(response.data.user)
+
+    // Редирект в профиль в зависимости от роли
+    if (form.role === 'freelancer') {
+      router.push('/freelancer-profile')
+    } else {
+      router.push('/user-profile')
     }
-  },
-  methods: {
-    async register() {
-      if (this.form.password !== this.form.passwordConfirm) {
-        alert('Passwords do not match')
-        return
-      }
 
-      try {
-        const response = await api.post('/register', {
-          name: this.form.name,
-          email: this.form.email,
-          password: this.form.password,
-          password_confirmation: this.form.passwordConfirm,
-          role: this.form.role, // 👈 ВАЖНО
-        })
-
-        localStorage.setItem('access_token', response.data.access_token)
-
-        alert('Registration successful!')
-        this.$router.push('/login')
-      } catch (error) {
-        if (error.response?.data?.errors) {
-          alert(Object.values(error.response.data.errors).flat().join('\n'))
-        } else if (error.response?.data?.message) {
-          alert(error.response.data.message)
-        } else {
-          alert('Registration failed')
-        }
-      }
-    },
-  },
+  } catch (error) {
+    if (error.response?.data?.errors) {
+      alert(Object.values(error.response.data.errors).flat().join('\n'))
+    } else if (error.response?.data?.message) {
+      alert(error.response.data.message)
+    } else {
+      alert('Registration failed')
+    }
+  }
 }
 </script>
-
 
 <style scoped>
 .register-page {
@@ -184,6 +187,7 @@ button:hover {
   text-align: center;
   font-size: 14px;
 }
+
 .role-selector {
   display: flex;
   gap: 12px;
@@ -209,5 +213,4 @@ button:hover {
 .role-selector button:hover {
   border-color: #5b3df5;
 }
-
 </style>

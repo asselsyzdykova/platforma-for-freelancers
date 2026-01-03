@@ -1,7 +1,7 @@
 <template>
   <footer class="footer">
     <div class="container">
-      <p>© 2026 FreelanceHub. All rights reserved.</p>
+      <p>© 2026 BezRab. All rights reserved.</p>
       <div class="links">
         <a href="#">Privacy</a>
         <a href="#">Terms</a>

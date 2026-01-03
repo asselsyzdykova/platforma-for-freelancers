@@ -1,3 +1,22 @@
+<script setup>
+import { useUserStore } from '@/stores/userStore'
+import { useRouter } from 'vue-router'
+import { onMounted } from 'vue'
+
+const userStore = useUserStore()
+const router = useRouter()
+
+// Загружаем пользователя при монтировании (если есть в localStorage)
+onMounted(() => {
+  userStore.loadUser()
+})
+
+const logout = () => {
+  userStore.logout()
+  router.push('/login')
+}
+</script>
+
 <template>
   <header class="site-header">
     <div class="header-inner">
@@ -7,59 +26,75 @@
         <RouterLink to="/" exact-active-class="active">Home</RouterLink>
         <RouterLink to="/freelancers" exact-active-class="active">Freelancers</RouterLink>
         <RouterLink to="/projects" exact-active-class="active">Projects</RouterLink>
-        <RouterLink to="/login" exact-active-class="active">Login</RouterLink>
-        <RouterLink to="/register" exact-active-class="active">Register</RouterLink>
+
+        <!-- Если не залогинен -->
+        <RouterLink v-if="!userStore.isLoggedIn" to="/login" exact-active-class="active">Login</RouterLink>
+        <RouterLink v-if="!userStore.isLoggedIn" to="/register" exact-active-class="active">Register</RouterLink>
+
+        <!-- Если залогинен как фрилансер -->
+        <RouterLink
+          v-if="userStore.isLoggedIn && userStore.user.role === 'freelancer'"
+          to="/freelancer-profile"
+          exact-active-class="active"
+        >
+          Profile ({{ userStore.user.name }})
+        </RouterLink>
+
+        <!-- Если залогинен как клиент -->
+        <RouterLink
+          v-if="userStore.isLoggedIn && userStore.user.role === 'user'"
+          to="/user-profile"
+          exact-active-class="active"
+        >
+          Profile ({{ userStore.user.name }})
+        </RouterLink>
+
+        <!-- Кнопка Logout -->
+        <button v-if="userStore.isLoggedIn" @click="logout">Logout</button>
       </nav>
     </div>
   </header>
 </template>
 
-<script>
-export default {
-  name: 'HeaderComponent',
-}
-</script>
-
 <style scoped>
 .site-header {
-  width: 100%;
-  background: #ffffff;
-  border-bottom: 1px solid #eee;
+  padding: 16px 32px;
+  background-color: #f3efff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .header-inner {
-  margin: 0 auto;
-  padding: 16px 24px;
-
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
 .logo {
-  width: 150px;
-  height: auto;
+  height: 30px;
 }
 
 .nav {
   display: flex;
-  gap: 24px;
+  gap: 16px;
+  align-items: center;
 }
 
-.nav a {
-  text-decoration: none;
-  color: #333;
-  font-weight: 500;
-  padding-bottom: 4px;
-  border-bottom: 2px solid transparent;
-}
-
-.nav a.active {
+.nav .active {
+  font-weight: bold;
   color: #5b3df5;
-  border-color: #5b3df5;
 }
 
-.nav a:hover {
-  opacity: 0.8;
+button {
+  padding: 6px 12px;
+  background: #5b3df5;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+button:hover {
+  opacity: 0.9;
 }
 </style>

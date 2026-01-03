@@ -40,19 +40,46 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import api from '../../services/axios'
+import { useUserStore } from '@/stores/userStore'
 
 const email = ref('')
 const password = ref('')
 const router = useRouter()
+const userStore = useUserStore()
 
-const login = () => {
-  if (email.value && password.value) {
-    console.log('Login:', email.value, password.value)
+const login = async () => {
+  if (!email.value || !password.value) {
+    alert('Please fill in all fields')
+    return
+  }
 
-    router.push('/')
+  try {
+    const response = await api.post('/login', {
+      email: email.value,
+      password: password.value,
+    })
+
+    // Сохраняем токен в store и localStorage
+    userStore.setToken(response.data.access_token)
+
+    // Сохраняем данные пользователя в store
+    userStore.setUser(response.data.user)
+
+    // Редирект на профиль
+    if (response.data.user.role === 'freelancer') {
+      router.push('/freelancer-profile')
+    } else {
+      router.push('/user-profile')
+    }
+
+  } catch (error) {
+    console.error(error)
+    alert(error.response?.data?.message || 'Login failed')
   }
 }
 </script>
+
 
 <style scoped>
 .login-page {

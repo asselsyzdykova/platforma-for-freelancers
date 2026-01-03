@@ -49,4 +49,12 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    /**
+     * Get the freelancer profile for the user.
+     */
+    public function freelancerProfile()
+    {
+        return $this->hasOne(FreelancerProfile::class);
+    }
 }

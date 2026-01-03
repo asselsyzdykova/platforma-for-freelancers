@@ -1,9 +1,11 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomePage.vue'
-import RegisterView from '../views/RegisterPage.vue'
-import FreelancersPage from '../views/FreelancersPage.vue'
-import LoginPage from '@/views/LoginPage.vue'
-import ProjectsPage from '@/views/ProjectsPage.vue'
+import HomeView from '../views/BasePages/HomePage.vue'
+import RegisterView from '../views/BasePages/RegisterPage.vue'
+import FreelancersPage from '../views/BasePages/FreelancersPage.vue'
+import LoginPage from '@/views/BasePages/LoginPage.vue'
+import ProjectsPage from '@/views/BasePages/ProjectsPage.vue'
+import FreelancerProfilePage from '@/views/FreelancerPage/FreelancerProfilePage.vue'
+import EditProfilePage from '@/views/FreelancerPage/EditProfilePage.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -38,6 +40,19 @@ const router = createRouter({
       name: 'projects',
       component: ProjectsPage,
     },
+
+    {
+  path: '/freelancer-profile',
+  name: 'FreelancerProfile',
+  component: FreelancerProfilePage,
+},
+
+{
+  path: '/edit-profile',
+  name: 'EditProfile',
+  component: EditProfilePage,
+}
+
   ],
 })
 
