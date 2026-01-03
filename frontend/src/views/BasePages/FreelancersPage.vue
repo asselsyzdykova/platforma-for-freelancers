@@ -5,6 +5,7 @@
       Browse professionals by skills, rating and location
     </p>
 
+    <!-- FILTERS -->
     <div class="filters">
       <input
         v-model="search"
@@ -20,7 +21,7 @@
       </select>
     </div>
 
-    <!-- Freelancers list -->
+    <!-- LIST -->
     <div class="freelancer-grid">
       <FreelancerCard
         v-for="freelancer in filteredFreelancers"
@@ -28,53 +29,45 @@
         :freelancer="freelancer"
       />
     </div>
+
+    <p v-if="!filteredFreelancers.length" class="empty">
+      No freelancers found
+    </p>
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref, computed, onMounted } from 'vue'
+import api from '@/services/axios'
 import FreelancerCard from '@/components/HomePage/FreelancerCard.vue'
 
-export default {
-  name: 'FreelancersPage',
-  components: {
-    FreelancerCard,
-  },
-  data() {
-    return {
-      search: '',
-      category: '',
-      freelancers: [
-        {
-          id: 1,
-          name: 'Alice Johnson',
-          role: 'Frontend',
-          rating: 4.8,
-          location: 'Nitra, Slovakia',
-          skills: ['Vue.js', 'CSS'],
-        },
-        {
-          id: 2,
-          name: 'Bob Smith',
-          role: 'Design',
-          rating: 4.6,
-          location: 'Bratislava',
-          skills: ['Figma', 'UI/UX'],
-        },
-      ],
-    }
-  },
-  computed: {
-    filteredFreelancers() {
-      return this.freelancers.filter(f =>
-        (this.category === '' || f.role === this.category) &&
-        (
-          f.name.toLowerCase().includes(this.search.toLowerCase()) ||
-          f.skills.join(' ').toLowerCase().includes(this.search.toLowerCase())
-        )
-      )
-    },
-  },
-}
+const search = ref('')
+const category = ref('')
+const freelancers = ref([])
+
+// LOAD FREELANCERS FROM BACKEND
+onMounted(async () => {
+  try {
+    const res = await api.get('/freelancers')
+    freelancers.value = res.data
+  } catch (e) {
+    console.error('Failed to load freelancers', e)
+  }
+})
+
+// FILTER LOGIC
+const filteredFreelancers = computed(() => {
+  return freelancers.value.filter(f => {
+    const matchCategory =
+      !category.value || f.role === category.value
+
+    const matchSearch =
+      f.name.toLowerCase().includes(search.value.toLowerCase()) ||
+      (f.skills || []).join(' ').toLowerCase().includes(search.value.toLowerCase())
+
+    return matchCategory && matchSearch
+  })
+})
 </script>
 
 <style scoped>
@@ -104,5 +97,10 @@ export default {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 24px;
+}
+
+.empty {
+  margin-top: 40px;
+  color: #888;
 }
 </style>

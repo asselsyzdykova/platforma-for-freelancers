@@ -5,6 +5,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\FreelancerProfileController;
+use App\Http\Controllers\Api\FreelancerListController;
+
+Route::get('/freelancers', [FreelancerListController::class, 'index']);
 
 Route::middleware('auth:sanctum')
 ->get('/me', [UserController::class, 'me']);

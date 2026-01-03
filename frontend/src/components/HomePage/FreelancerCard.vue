@@ -1,6 +1,10 @@
 <template>
   <div class="card">
-    <div class="avatar"></div>
+<img
+  :src="freelancer.avatar_url"
+  class="avatar-img"
+  alt="Avatar"
+/>
 
     <h3>{{ freelancer.name }}</h3>
     <p class="role">{{ freelancer.role }}</p>
@@ -28,6 +32,16 @@ export default {
 </script>
 
 <style scoped>
+  .avatar-img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin: 0 auto 15px;
+  display: block;
+  background: #ddd;
+}
+
 .card {
   background: #f3efff;
   padding: 32px 40px;
