@@ -59,7 +59,7 @@ const logout = () => {
 <style scoped>
 .site-header {
   padding: 16px 32px;
-  background-color: #f3efff;
+  background-color: #e6e0ff;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 

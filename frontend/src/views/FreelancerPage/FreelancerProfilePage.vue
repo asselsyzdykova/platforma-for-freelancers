@@ -1,95 +1,122 @@
 <template>
-  <div class="profile-page">
-    <div class="profile-card" v-if="user">
-      <h1>PROFILE</h1>
+  <div class="profile-layout">
+    <!-- SIDEBAR -->
+    <SidebarMenu v-if="user" :userName="user.name" />
 
-      <div class="profile-content">
+    <!-- MAIN CONTENT -->
+    <div class="profile-page">
+      <div class="profile-card" v-if="user">
+        <h1>PROFILE</h1>
 
-        <div class="left">
-          <div class="avatar">
-            <img
-              v-if="profile.avatar_url"
-              :src="profile.avatar_url"
-              alt="Avatar"
-              class="avatar-img"
-            />
-          </div>
-          <h2>{{ user.name }}</h2>
+        <div class="profile-content">
+          <div class="left">
+            <div class="avatar">
+              <img
+                v-if="profile.avatar_url"
+                :src="profile.avatar_url"
+                alt="Avatar"
+                class="avatar-img"
+              />
+            </div>
+            <h2>{{ user.name }}</h2>
 
-          <p v-if="profile.about" class="about">{{ profile.about }}</p>
+            <p v-if="profile.about" class="about">
+              {{ profile.about }}
+            </p>
 
-          <div class="skills" v-if="profile.skills && profile.skills.length">
-            <span v-for="skill in profile.skills" :key="skill">{{ skill }}</span>
-          </div>
-        </div>
-
-        <div class="right">
-          <button class="edit-btn" @click="editProfile">Edit Profile</button>
-          <p><strong>Specialization:</strong> {{ user.role }}</p>
-          <p><strong>Rating:</strong> ⭐ {{ profile.rating }} ({{ profile.reviews }})</p>
-          <p><strong>Location:</strong> 📍 {{ profile.location }}</p>
-          <p><strong>Completed projects:</strong> {{ profile.completed_projects }}</p>
-          <p><strong>Proposals:</strong> {{ profile.proposals }}</p>
-          <p><strong>Member since:</strong> {{ new Date(profile.created_at).getFullYear() }}</p>
-
-          <button class="message-btn">Send Message</button>
-        </div>
-      </div>
-
-      <section class="certificates">
-        <h2>CERTIFICATES</h2>
-        <div class="cert-wrapper">
-          <button class="arrow" @click="prevCert">◀</button>
-          <div class="cert-window">
             <div
-              class="cert-track"
-              :style="{ transform: `translateX(-${currentCert * 240}px)` }"
+              class="skills"
+              v-if="profile.skills && profile.skills.length"
             >
+              <span v-for="skill in profile.skills" :key="skill">
+                {{ skill }}
+              </span>
+            </div>
+          </div>
+
+          <div class="right">
+            <button class="edit-btn" @click="editProfile">
+              Edit Profile
+            </button>
+
+            <p><strong>Specialization:</strong> {{ user.role }}</p>
+            <p><strong>Rating:</strong> ⭐ {{ profile.rating }} ({{ profile.reviews }})</p>
+            <p><strong>Location:</strong> 📍 {{ profile.location }}</p>
+            <p><strong>Completed projects:</strong> {{ profile.completed_projects }}</p>
+            <p><strong>Proposals:</strong> {{ profile.proposals }}</p>
+            <p>
+              <strong>Member since:</strong>
+              {{ new Date(profile.created_at).getFullYear() }}
+            </p>
+
+            <button class="message-btn">Send Message</button>
+          </div>
+        </div>
+
+        <!-- CERTIFICATES -->
+        <section class="certificates">
+          <h2>CERTIFICATES</h2>
+
+          <div class="cert-wrapper">
+            <button class="arrow" @click="prevCert">◀</button>
+
+            <div class="cert-window">
               <div
-                class="cert-card"
-                v-for="(cert, index) in certificates"
-                :key="index"
+                class="cert-track"
+                :style="{ transform: `translateX(-${currentCert * 240}px)` }"
               >
-                {{ cert }}
+                <div
+                  class="cert-card"
+                  v-for="(cert, index) in certificates"
+                  :key="index"
+                >
+                  {{ cert }}
+                </div>
+              </div>
+            </div>
+
+            <button class="arrow" @click="nextCert">▶</button>
+          </div>
+        </section>
+
+        <!-- REVIEWS -->
+        <section class="reviews">
+          <h2>Reviews</h2>
+
+          <div class="reviews-box">
+            <div
+              class="review-item"
+              v-for="(review, index) in reviews"
+              :key="index"
+            >
+              <div class="review-header">
+                <div class="avatar small"></div>
+                <p>{{ review.name }} ⭐ {{ review.rating }}</p>
+              </div>
+
+              <div class="review-content">
+                <p><strong>Project name:</strong> {{ review.project }}</p>
+                <p><strong>Review:</strong> {{ review.text }}</p>
+                <p><strong>Execution time:</strong> {{ review.time }}</p>
               </div>
             </div>
           </div>
-          <button class="arrow" @click="nextCert">▶</button>
-        </div>
-      </section>
+        </section>
+      </div>
 
-      <section class="reviews">
-        <h2>Reviews</h2>
-        <div class="reviews-box">
-          <div
-            class="review-item"
-            v-for="(review, index) in reviews"
-            :key="index"
-          >
-            <div class="review-header">
-              <div class="avatar small"></div>
-              <p>{{ review.name }} ⭐ {{ review.rating }}</p>
-            </div>
-            <div class="review-content">
-              <p><strong>Project name:</strong> {{ review.project }}</p>
-              <p><strong>Review:</strong> {{ review.text }}</p>
-              <p><strong>Execution time:</strong> {{ review.time }}</p>
-            </div>
-          </div>
-        </div>
-      </section>
-    </div>
-
-    <div v-else class="loading">
-      Loading profile...
+      <div v-else class="loading">
+        Loading profile...
+      </div>
     </div>
   </div>
 </template>
+
 
 <script setup>
 import { ref, onMounted } from 'vue'
 import api from '../../services/axios'
 import { useRouter } from 'vue-router'
+import SidebarMenu from '@/components/FreelancerPageMenu/SidebarMenu.vue'
 
 const user = ref(null)
 const profile = ref({})
@@ -141,6 +168,17 @@ const editProfile = () => router.push('/edit-profile')
 </script>
 
 <style scoped>
+  .profile-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.profile-page {
+  flex: 1;
+  padding: 40px;
+  background: #f7f6ff;
+}
+
 .avatar-img {
   width: 100px;
   height: 100px;
