@@ -60,13 +60,10 @@ const login = async () => {
       password: password.value,
     })
 
-    // Сохраняем токен в store и localStorage
     userStore.setToken(response.data.access_token)
 
-    // Сохраняем данные пользователя в store
     userStore.setUser(response.data.user)
 
-    // Редирект на профиль
     if (response.data.user.role === 'freelancer') {
       router.push('/freelancer-profile')
     } else {

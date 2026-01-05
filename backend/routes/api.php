@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\FreelancerProfileController;
 use App\Http\Controllers\Api\FreelancerListController;
+use App\Http\Controllers\Api\ClientProfileController;
 
 Route::get('/freelancers', [FreelancerListController::class, 'index']);
 
@@ -15,6 +16,15 @@ Route::middleware('auth:sanctum')
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/client/profile', [ClientProfileController::class, 'show']);
+    Route::post('/client/profile', [ClientProfileController::class, 'update']);
+
+       Route::get('/client/projects', fn () => response()->json([]));
+});
+
 
 Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
 Route::middleware('auth:sanctum')->group(function () {

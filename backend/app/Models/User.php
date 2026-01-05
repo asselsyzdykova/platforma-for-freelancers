@@ -57,4 +57,9 @@ class User extends Authenticatable
     {
         return $this->hasOne(FreelancerProfile::class);
     }
+    public function clientProfile()
+    {
+    return $this->hasOne(ClientProfile::class);
+    }
+
 }

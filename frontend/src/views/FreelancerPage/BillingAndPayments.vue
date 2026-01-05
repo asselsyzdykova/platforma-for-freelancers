@@ -1,12 +1,11 @@
 <template>
   <div class="page-layout">
-    <!-- SIDEBAR -->
+
     <SidebarMenu />
     <div class="billing-page">
       <h1>Billing and payments</h1>
 
       <div class="billing-card">
-        <!-- FILTERS -->
         <div class="filters">
           <div class="filter">
             <label>Date range</label>

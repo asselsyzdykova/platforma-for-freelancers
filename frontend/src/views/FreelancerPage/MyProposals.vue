@@ -1,9 +1,7 @@
 <template>
   <div class="page-layout">
-    <!-- SIDEBAR (тот же самый) -->
     <SidebarMenu />
 
-    <!-- CONTENT -->
     <div class="content">
       <h1>My Proposals</h1>
 
@@ -15,7 +13,6 @@
         >
           <p class="project-name">{{ proposal.name }}</p>
 
-          <!-- progress bar -->
           <div class="progress">
             <div
               class="progress-fill"
@@ -23,7 +20,6 @@
             ></div>
           </div>
 
-          <!-- steps -->
           <div class="steps">
             <span>Submitted</span>
             <span>Viewed</span>

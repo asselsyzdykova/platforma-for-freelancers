@@ -5,7 +5,6 @@
       Browse professionals by skills, rating and location
     </p>
 
-    <!-- FILTERS -->
     <div class="filters">
       <input
         v-model="search"
@@ -21,7 +20,6 @@
       </select>
     </div>
 
-    <!-- LIST -->
     <div class="freelancer-grid">
       <FreelancerCard
         v-for="freelancer in filteredFreelancers"
@@ -45,7 +43,6 @@ const search = ref('')
 const category = ref('')
 const freelancers = ref([])
 
-// LOAD FREELANCERS FROM BACKEND
 onMounted(async () => {
   try {
     const res = await api.get('/freelancers')
@@ -55,7 +52,6 @@ onMounted(async () => {
   }
 })
 
-// FILTER LOGIC
 const filteredFreelancers = computed(() => {
   return freelancers.value.filter(f => {
     const matchCategory =

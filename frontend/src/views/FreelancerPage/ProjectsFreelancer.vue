@@ -1,18 +1,12 @@
 <template>
   <div class="page-layout">
-    <!-- SIDEBAR (уже существующий) -->
     <SidebarMenu />
 
-    <!-- CONTENT -->
     <div class="content">
       <h1>Projects</h1>
 
       <div class="projects-card">
-        <div
-          class="project-item"
-          v-for="(project, index) in projects"
-          :key="index"
-        >
+        <div class="project-item" v-for="(project, index) in projects" :key="index">
           <div class="project-header">
             <h3>{{ project.name }}</h3>
             <span class="status" :class="project.status">
@@ -20,25 +14,17 @@
             </span>
           </div>
 
-          <p class="client">
-            <strong>Client:</strong> {{ project.client }}
-          </p>
+          <p class="client"><strong>Client:</strong> {{ project.client }}</p>
 
           <p class="description">
             {{ project.description }}
           </p>
 
-          <!-- progress -->
           <div class="progress">
-            <div
-              class="progress-fill"
-              :style="{ width: project.progress + '%' }"
-            ></div>
+            <div class="progress-fill" :style="{ width: project.progress + '%' }"></div>
           </div>
 
-          <p class="deadline">
-            <strong>Deadline:</strong> {{ project.deadline }}
-          </p>
+          <p class="deadline"><strong>Deadline:</strong> {{ project.deadline }}</p>
         </div>
       </div>
     </div>
@@ -55,7 +41,7 @@ const projects = [
     description: 'Development of frontend part using Vue.js',
     progress: 30,
     deadline: '30 Jul 2026',
-    status: 'in-progress'
+    status: 'in-progress',
   },
   {
     name: 'Landing page',
@@ -63,7 +49,7 @@ const projects = [
     description: 'Responsive landing page for startup',
     progress: 70,
     deadline: '15 Jul 2026',
-    status: 'in-progress'
+    status: 'in-progress',
   },
   {
     name: 'Dashboard UI',
@@ -71,12 +57,12 @@ const projects = [
     description: 'UI design and implementation',
     progress: 100,
     deadline: 'Completed',
-    status: 'completed'
-  }
+    status: 'completed',
+  },
 ]
 </script>
 <style scoped>
-  .page-layout {
+.page-layout {
   display: flex;
   min-height: 100vh;
   background: #f7f6ff;
@@ -105,7 +91,7 @@ h1 {
   border-radius: 18px;
   padding: 24px;
   margin-bottom: 24px;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
 }
 
 .project-header {

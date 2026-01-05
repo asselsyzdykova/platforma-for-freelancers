@@ -1,9 +1,7 @@
 <template>
   <div class="profile-layout">
-    <!-- SIDEBAR -->
     <SidebarMenu v-if="user" :userName="user.name" />
 
-    <!-- MAIN CONTENT -->
     <div class="profile-page">
       <div class="profile-card" v-if="user">
         <h1>PROFILE</h1>
@@ -53,7 +51,6 @@
           </div>
         </div>
 
-        <!-- CERTIFICATES -->
         <section class="certificates">
           <h2>CERTIFICATES</h2>
 
@@ -79,7 +76,6 @@
           </div>
         </section>
 
-        <!-- REVIEWS -->
         <section class="reviews">
           <h2>Reviews</h2>
 
