@@ -5,11 +5,7 @@
     <div class="client-card" v-if="client">
       <div class="left">
         <div class="avatar">
-          <img
-            v-if="client.avatar_url"
-            :src="client.avatar_url"
-            alt="Avatar"
-          />
+          <img v-if="client.avatar_url" :src="client.avatar_url" alt="Avatar" />
         </div>
         <h2>{{ client.user?.name }}</h2>
         <p class="company" v-if="client.company">{{ client.company }}</p>
@@ -18,26 +14,16 @@
 
       <div class="right">
         <p><strong>Projects posted:</strong> {{ stats.posted }}</p>
-
         <p>
-          <strong>Rating:</strong>
-          ⭐ {{ client.rating ?? '—' }}
-          <span class="reviews">
-            ({{ client.reviews ?? 0 }} reviews)
-          </span>
+          <strong>Rating:</strong> ⭐ {{ client.rating ?? '—' }}
+          <span class="reviews">({{ client.reviews ?? 0 }} reviews)</span>
         </p>
-
         <p><strong>Active projects:</strong> {{ stats.active }}</p>
         <p><strong>Completed:</strong> {{ stats.completed }}</p>
         <p><strong>Member since:</strong> {{ memberSince }}</p>
 
-        <button class="edit-btn" @click="editProfile">
-          Edit profile
-        </button>
-
-        <button class="primary-btn" @click="createProject">
-          + Create project
-        </button>
+        <button class="edit-btn" @click="editProfile">Edit profile</button>
+        <button class="primary-btn" @click="createProject">+ Create project</button>
       </div>
     </div>
 
@@ -45,11 +31,7 @@
       <h2>ACTIVE PROJECTS</h2>
 
       <div v-if="projects.length" class="projects-list">
-        <div
-          class="project-card"
-          v-for="project in projects"
-          :key="project.id"
-        >
+        <div class="project-card" v-for="project in projects" :key="project.id">
           <h3>{{ project.title }}</h3>
           <p class="desc">{{ project.description }}</p>
 
@@ -61,21 +43,19 @@
 
           <div class="actions">
             <button class="secondary">View proposals</button>
-            <button class="danger">Close project</button>
+            <button class="danger" @click="closeProject(project.id)">Close project</button>
           </div>
         </div>
       </div>
 
-      <p v-else class="empty">
-        No active projects yet
-      </p>
+      <p v-else class="empty">No active projects yet</p>
     </section>
   </div>
 </template>
 
-
 <script>
 import api from "@/services/axios";
+
 
 export default {
   name: "ClientProfile",
@@ -92,9 +72,15 @@ export default {
     };
   },
 
-  async mounted() {
-    await this.loadClientProfile();
-    await this.loadClientProjects();
+  mounted() {
+    this.loadClientProfile();
+    this.loadClientProjects();
+
+    window.addEventListener("projectCreated", this.loadClientProjects);
+  },
+
+  beforeUnmount() {
+    window.removeEventListener("projectCreated", this.loadClientProjects);
   },
 
   computed: {
@@ -117,16 +103,11 @@ export default {
     async loadClientProjects() {
       try {
         const res = await api.get("/client/projects");
-
         this.projects = res.data;
 
         this.stats.posted = res.data.length;
-        this.stats.active = res.data.filter(
-          p => p.status === "In progress"
-        ).length;
-        this.stats.completed = res.data.filter(
-          p => p.status === "Completed"
-        ).length;
+        this.stats.active = res.data.filter(p => p.status === "In progress").length;
+        this.stats.completed = res.data.filter(p => p.status === "Completed").length;
       } catch (e) {
         console.warn("Projects not loaded yet (backend later)");
         console.error(e);
@@ -139,6 +120,15 @@ export default {
 
     createProject() {
       this.$router.push("/create-project");
+    },
+
+    async closeProject(projectId) {
+      try {
+        await api.post(`/client/projects/${projectId}/close`);
+        await this.loadClientProjects();
+      } catch (e) {
+        console.error(e);
+      }
     },
   },
 };

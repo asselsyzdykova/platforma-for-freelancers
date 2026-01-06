@@ -1,9 +1,7 @@
 <template>
   <div class="create-project">
     <h1>Create New Project</h1>
-    <p class="subtitle">
-      Publish your project and find the right freelancer
-    </p>
+    <p class="subtitle">Publish your project and find the right freelancer</p>
 
     <form class="card" @submit.prevent="createProject">
       <div class="field">
@@ -13,21 +11,12 @@
 
       <div class="field">
         <label>Description</label>
-        <textarea
-          v-model="project.description"
-          rows="4"
-          required
-        ></textarea>
+        <textarea v-model="project.description" rows="4" required></textarea>
       </div>
 
       <div class="field">
         <label>Budget</label>
-        <input
-          v-model="project.budget"
-          type="text"
-          placeholder="$500 – $1000"
-          required
-        />
+        <input v-model="project.budget" type="text" placeholder="$500 – $1000" required />
       </div>
 
       <div class="field">
@@ -49,7 +38,6 @@
           @keydown.enter.prevent="addTag"
           placeholder="Press Enter to add tag"
         />
-
         <div class="tags">
           <span class="tag" v-for="(tag, index) in project.tags" :key="index">
             {{ tag }}
@@ -60,15 +48,15 @@
 
       <div class="actions">
         <button type="submit" class="primary">Publish project</button>
-        <button type="button" class="secondary" @click="cancel">
-          Cancel
-        </button>
+        <button type="button" class="secondary" @click="cancel">Cancel</button>
       </div>
     </form>
   </div>
 </template>
 
 <script>
+import api from "@/services/axios";
+
 export default {
   name: "CreateProject",
 
@@ -96,10 +84,24 @@ export default {
       this.project.tags.splice(index, 1);
     },
 
-    createProject() {
-      console.log("Created project:", this.project);
+    async createProject() {
+      try {
+        const payload = {
+          ...this.project,
+          tags: this.project.tags,
+        };
 
-      this.$router.push("/projects");
+        await api.post("/client/projects", payload);
+
+        alert("Project created successfully!");
+
+        window.dispatchEvent(new Event("projectCreated"));
+
+        this.$router.push("/client-profile");
+      } catch (error) {
+        console.error(error.response?.data || error);
+        alert("Failed to create project. Check all fields.");
+      }
     },
 
     cancel() {
@@ -108,6 +110,8 @@ export default {
   },
 };
 </script>
+
+
 
 <style scoped>
 .create-project {

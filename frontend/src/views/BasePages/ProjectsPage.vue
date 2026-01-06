@@ -15,7 +15,7 @@
         <p class="description">{{ project.description }}</p>
 
         <div class="meta">
-          <span class="budget">💰 {{ project.budget }}</span>
+          <span class="budget">💰 {{ project.budget }}€</span>
           <span class="category">{{ project.category }}</span>
         </div>
 
@@ -36,40 +36,34 @@
 </template>
 
 <script>
+import api from "@/services/axios";
+
 export default {
-  name: 'ProjectsPage',
+  name: "ProjectsPage",
+
   data() {
     return {
-      projects: [
-        {
-          id: 1,
-          title: 'Landing page for startup',
-          description: 'Need a modern landing page built with Vue.js',
-          budget: '$500 – $800',
-          category: 'Frontend',
-          tags: ['Vue.js', 'HTML', 'CSS'],
-        },
-        {
-          id: 2,
-          title: 'Mobile app UI design',
-          description: 'Design UI for a mobile fitness application',
-          budget: '$300 – $600',
-          category: 'UI/UX',
-          tags: ['Figma', 'UX', 'Mobile'],
-        },
-        {
-          id: 3,
-          title: 'Backend API development',
-          description: 'REST API in Laravel for freelancer platform',
-          budget: '$800 – $1200',
-          category: 'Backend',
-          tags: ['Laravel', 'API', 'MySQL'],
-        },
-      ],
-    }
+      projects: [],
+    };
   },
-}
+
+  async mounted() {
+    await this.loadProjects();
+  },
+
+  methods: {
+    async loadProjects() {
+      try {
+        const res = await api.get("/projects");
+        this.projects = res.data;
+      } catch (e) {
+        console.error("Failed to load projects", e);
+      }
+    },
+  },
+};
 </script>
+
 
 <style scoped>
 .projects {

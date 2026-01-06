@@ -67,7 +67,7 @@ const login = async () => {
     if (response.data.user.role === 'freelancer') {
       router.push('/freelancer-profile')
     } else {
-      router.push('/user-profile')
+      router.push('/client-profile')
     }
 
   } catch (error) {
