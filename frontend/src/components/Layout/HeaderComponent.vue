@@ -6,7 +6,6 @@ import { onMounted } from 'vue'
 const userStore = useUserStore()
 const router = useRouter()
 
-// Загружаем пользователя при монтировании (если есть в localStorage)
 onMounted(() => {
   userStore.loadUser()
 })
@@ -27,11 +26,9 @@ const logout = () => {
         <RouterLink to="/freelancers" exact-active-class="active">Freelancers</RouterLink>
         <RouterLink to="/projects" exact-active-class="active">Projects</RouterLink>
 
-        <!-- Если не залогинен -->
         <RouterLink v-if="!userStore.isLoggedIn" to="/login" exact-active-class="active">Login</RouterLink>
         <RouterLink v-if="!userStore.isLoggedIn" to="/register" exact-active-class="active">Register</RouterLink>
 
-        <!-- Если залогинен как фрилансер -->
         <RouterLink
           v-if="userStore.isLoggedIn && userStore.user.role === 'freelancer'"
           to="/freelancer-profile"
@@ -40,16 +37,14 @@ const logout = () => {
           Profile ({{ userStore.user.name }})
         </RouterLink>
 
-        <!-- Если залогинен как клиент -->
         <RouterLink
           v-if="userStore.isLoggedIn && userStore.user.role === 'user'"
-          to="/user-profile"
+          to="/client-profile"
           exact-active-class="active"
         >
           Profile ({{ userStore.user.name }})
         </RouterLink>
 
-        <!-- Кнопка Logout -->
         <button v-if="userStore.isLoggedIn" @click="logout">Logout</button>
       </nav>
     </div>
@@ -59,7 +54,7 @@ const logout = () => {
 <style scoped>
 .site-header {
   padding: 16px 32px;
-  background-color: #f3efff;
+  background-color: #e6e0ff;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 

@@ -6,6 +6,14 @@ import LoginPage from '@/views/BasePages/LoginPage.vue'
 import ProjectsPage from '@/views/BasePages/ProjectsPage.vue'
 import FreelancerProfilePage from '@/views/FreelancerPage/FreelancerProfilePage.vue'
 import EditProfilePage from '@/views/FreelancerPage/EditProfilePage.vue'
+import BillingAndPayments from '@/views/FreelancerPage/BillingAndPayments.vue'
+import MyProposals from '@/views/FreelancerPage/MyProposals.vue'
+import SettingsPage from '@/views/FreelancerPage/SettingsPage.vue'
+import SupportPage from '@/views/FreelancerPage/SupportPage.vue'
+import ProjectsFreelancer from '@/views/FreelancerPage/ProjectsFreelancer.vue'
+import ClientPage from '@/views/ClientPage/ClientPage.vue'
+import EditProfileClient from '@/views/ClientPage/EditProfileClient.vue'
+import CreateProject from '@/views/ClientPage/CreateProject.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -51,8 +59,55 @@ const router = createRouter({
   path: '/edit-profile',
   name: 'EditProfile',
   component: EditProfilePage,
-}
+},
 
+{
+  path: '/billing-and-payments',
+  name: 'BillingAndPayments',
+  component: BillingAndPayments,
+},
+
+{
+  path: '/my-proposals',
+  name: 'MyProposals',
+  component: MyProposals,
+},
+
+{
+  path: '/settings',
+  name: 'Settings',
+  component: SettingsPage
+},
+
+{
+  path: '/support',
+  name: 'Support',
+  component: SupportPage
+},
+
+{
+  path: '/my-projects',
+  name: 'MyProjects',
+  component: ProjectsFreelancer,
+},
+
+{
+  path: '/client-profile',
+  name: 'ClientProfile',
+  component: ClientPage,
+},
+
+{
+  path: '/edit-client-profile',
+  name: 'EditClientProfile',
+  component: EditProfileClient,
+},
+
+{
+  path: '/create-project',
+  name: 'CreateProject',
+  component: CreateProject,
+}
   ],
 })
 

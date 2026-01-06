@@ -26,7 +26,6 @@ export const useUserStore = defineStore('user', {
       this.token = token
       localStorage.setItem('access_token', token)
     },
-    // <-- добавляем этот метод
     setUser(user) {
       this.user = user
     },

@@ -89,15 +89,13 @@ const register = async () => {
       role: form.role,
     })
 
-    // Сохраняем токен и данные пользователя в Pinia
     userStore.setToken(response.data.access_token)
     userStore.setUser(response.data.user)
 
-    // Редирект в профиль в зависимости от роли
     if (form.role === 'freelancer') {
       router.push('/freelancer-profile')
     } else {
-      router.push('/user-profile')
+      router.push('/client-profile')
     }
 
   } catch (error) {
