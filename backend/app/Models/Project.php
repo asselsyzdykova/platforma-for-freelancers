@@ -25,6 +25,11 @@ class Project extends Model
         'tags' => 'array',
     ];
 
+    public function proposals() {
+    return $this->hasMany(\App\Models\Proposal::class);
+}
+
+
     public function client()
     {
         return $this->belongsTo(User::class, 'client_id');

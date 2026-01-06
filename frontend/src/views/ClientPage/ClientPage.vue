@@ -1,7 +1,29 @@
 <template>
   <div class="client-page">
+
+    <!-- Inbox / Notifications -->
+    <section class="notifications">
+      <h2>Inbox</h2>
+
+      <div v-if="notifications.length" class="notifications-list">
+        <div
+          class="notification-card"
+          v-for="note in notifications"
+          :key="note.id"
+          :class="{ unread: !note.is_read }"
+          @click="openNotification(note)"
+        >
+          <p class="title">{{ note.title }}</p>
+          <p class="body">{{ note.body }}</p>
+          <span class="time">{{ new Date(note.created_at).toLocaleString() }}</span>
+        </div>
+      </div>
+
+      <p v-else class="empty">No notifications yet</p>
+    </section>
     <h1>CLIENT PROFILE</h1>
 
+    <!-- Client Card -->
     <div class="client-card" v-if="client">
       <div class="left">
         <div class="avatar">
@@ -27,6 +49,7 @@
       </div>
     </div>
 
+    <!-- Active Projects -->
     <section class="projects">
       <h2>ACTIVE PROJECTS</h2>
 
@@ -50,12 +73,12 @@
 
       <p v-else class="empty">No active projects yet</p>
     </section>
+
   </div>
 </template>
 
 <script>
 import api from "@/services/axios";
-
 
 export default {
   name: "ClientProfile",
@@ -69,12 +92,14 @@ export default {
         active: 0,
         completed: 0,
       },
+      notifications: [], // уведомления
     };
   },
 
   mounted() {
     this.loadClientProfile();
     this.loadClientProjects();
+    this.loadNotifications();
 
     window.addEventListener("projectCreated", this.loadClientProjects);
   },
@@ -91,6 +116,9 @@ export default {
   },
 
   methods: {
+    // -----------------------------
+    // Client profile
+    // -----------------------------
     async loadClientProfile() {
       try {
         const res = await api.get("/client/profile");
@@ -100,6 +128,9 @@ export default {
       }
     },
 
+    // -----------------------------
+    // Projects
+    // -----------------------------
     async loadClientProjects() {
       try {
         const res = await api.get("/client/projects");
@@ -123,24 +154,49 @@ export default {
     },
 
     async deleteProject(projectId) {
-  if (!confirm("Are you sure you want to delete this project?")) return;
+      if (!confirm("Are you sure you want to delete this project?")) return;
 
-  try {
-    await api.delete(`/client/projects/${projectId}`);
-    alert("Project deleted successfully!");
-    await this.loadClientProjects();
-  } catch (e) {
-    console.error("Failed to delete project", e);
-    alert("Failed to delete project");
-  }
-},
+      try {
+        await api.delete(`/client/projects/${projectId}`);
+        alert("Project deleted successfully!");
+        await this.loadClientProjects();
+      } catch (e) {
+        console.error("Failed to delete project", e);
+        alert("Failed to delete project");
+      }
+    },
+
+    // -----------------------------
+    // Notifications / Inbox
+    // -----------------------------
+    async loadNotifications() {
+      try {
+        const res = await api.get("/client/notifications");
+        this.notifications = res.data.sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+      } catch(e) {
+        console.warn("Notifications not loaded yet", e);
+      }
+    },
+
+    openNotification(note) {
+      if(!note.is_read){
+        api.post(`/client/notifications/${note.id}/read`)
+          .then(() => note.is_read = true)
+          .catch(e => console.error(e));
+      }
+
+      if(note.link) {
+        this.$router.push(note.link);
+      }
+    },
   },
 };
 </script>
 
-
 <style scoped>
-
+/* ----------------------------- */
+/* Client card & profile */
+/* ----------------------------- */
 .reviews {
   color: #777;
   font-size: 14px;
@@ -196,6 +252,9 @@ export default {
   cursor: pointer;
 }
 
+/* ----------------------------- */
+/* Projects */
+/* ----------------------------- */
 .projects h2 {
   margin-bottom: 20px;
 }
@@ -270,4 +329,56 @@ export default {
   opacity: 0.9;
 }
 
+/* ----------------------------- */
+/* Notifications / Inbox */
+/* ----------------------------- */
+.notifications {
+  margin-top: 40px;
+  margin-left: 900px;
+  text-align: right;
+}
+
+.notifications h2 {
+  margin-bottom: 20px;
+}
+
+.notifications-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.notification-card {
+  padding: 16px;
+  border-radius: 12px;
+  background: #f9f9f9;
+  cursor: pointer;
+  transition: background 0.2s;
+  border-left: 4px solid transparent;
+}
+
+.notification-card.unread {
+  background: #eef6ff;
+  border-left-color: #4f46e5;
+}
+
+.notification-card:hover {
+  background: #f0f0f0;
+}
+
+.notification-card .title {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.notification-card .body {
+  font-size: 14px;
+  color: #555;
+}
+
+.notification-card .time {
+  font-size: 12px;
+  color: #999;
+  float: right;
+}
 </style>

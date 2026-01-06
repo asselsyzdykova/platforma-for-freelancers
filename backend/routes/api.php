@@ -10,6 +10,22 @@ use App\Http\Controllers\Api\ClientProfileController;
 use App\Http\Controllers\Api\ClientProjectController;
 use App\Http\Controllers\Api\ProjectController;
 
+use App\Http\Controllers\Api\NotificationController;
+
+use App\Http\Controllers\Api\ProposalController;
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/projects/{id}/apply', [ProposalController::class, 'apply']);
+});
+
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/client/notifications', [NotificationController::class, 'index']);
+    Route::post('/client/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
+    Route::post('/notifications', [NotificationController::class, 'store']);
+});
+
+
 Route::middleware('auth:sanctum')->get('/projects', [ProjectController::class, 'index']);
 Route::middleware('auth:sanctum')->delete('/client/projects/{project}', [ProjectController::class, 'destroy']);
 

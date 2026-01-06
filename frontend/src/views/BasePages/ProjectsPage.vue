@@ -38,12 +38,13 @@
           </span>
         </div>
 
-        <button class="btn">View Project</button>
+        <button class="btn" @click="respondToJob(project)">
+          Response to a job
+        </button>
       </div>
     </div>
   </div>
 </template>
-
 
 <script>
 import api from "@/services/axios";
@@ -70,9 +71,28 @@ export default {
         console.error("Failed to load projects", e);
       }
     },
+
+    async respondToJob(project) {
+      try {
+        const message = prompt("Write your response message for the client:");
+        if (!message) return;
+
+        await api.post(`/projects/${project.id}/apply`, {
+          message: message,
+          budget: project.budget,
+        });
+
+        alert("Response sent! The client will receive a notification.");
+
+      } catch (e) {
+        console.error("Failed to send response", e);
+        alert("Failed to send response.");
+      }
+    }
   },
 };
 </script>
+
 
 
 
