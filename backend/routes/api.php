@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\ClientProjectController;
 use App\Http\Controllers\Api\ProjectController;
 
 Route::middleware('auth:sanctum')->get('/projects', [ProjectController::class, 'index']);
+Route::middleware('auth:sanctum')->delete('/client/projects/{project}', [ProjectController::class, 'destroy']);
 
 Route::get('/freelancers', [FreelancerListController::class, 'index']);
 

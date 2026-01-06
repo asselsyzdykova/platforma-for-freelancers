@@ -43,7 +43,7 @@
 
           <div class="actions">
             <button class="secondary">View proposals</button>
-            <button class="danger" @click="closeProject(project.id)">Close project</button>
+            <button class="danger" @click="deleteProject(project.id)">Delete project</button>
           </div>
         </div>
       </div>
@@ -122,14 +122,18 @@ export default {
       this.$router.push("/create-project");
     },
 
-    async closeProject(projectId) {
-      try {
-        await api.post(`/client/projects/${projectId}/close`);
-        await this.loadClientProjects();
-      } catch (e) {
-        console.error(e);
-      }
-    },
+    async deleteProject(projectId) {
+  if (!confirm("Are you sure you want to delete this project?")) return;
+
+  try {
+    await api.delete(`/client/projects/${projectId}`);
+    alert("Project deleted successfully!");
+    await this.loadClientProjects();
+  } catch (e) {
+    console.error("Failed to delete project", e);
+    alert("Failed to delete project");
+  }
+},
   },
 };
 </script>

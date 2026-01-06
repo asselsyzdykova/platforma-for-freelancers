@@ -14,12 +14,21 @@
         <h3>{{ project.title }}</h3>
         <p class="description">{{ project.description }}</p>
 
+        <div class="client" v-if="project.client">
+          <img
+            v-if="project.client.avatar_url"
+            :src="project.client.avatar_url"
+            class="avatar"
+          />
+          <span>{{ project.client.name }}</span>
+        </div>
+
         <div class="meta">
-          <span class="budget">💰 {{ project.budget }}€</span>
+          <span class="budget">💰 {{ project.budget }} €</span>
           <span class="category">{{ project.category }}</span>
         </div>
 
-        <div class="tags">
+        <div class="tags" v-if="project.tags?.length">
           <span
             class="tag"
             v-for="tag in project.tags"
@@ -35,6 +44,7 @@
   </div>
 </template>
 
+
 <script>
 import api from "@/services/axios";
 
@@ -47,8 +57,8 @@ export default {
     };
   },
 
-  async mounted() {
-    await this.loadProjects();
+  mounted() {
+    this.loadProjects();
   },
 
   methods: {
@@ -65,7 +75,57 @@ export default {
 </script>
 
 
+
 <style scoped>
+  .client {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  font-size: 14px;
+  color: #444;
+}
+
+.avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.meta {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
+.tags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.tag {
+  background: #e6e0ff;
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+}
+
+.btn {
+  background: #5b3df5;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.btn:hover {
+  opacity: 0.9;
+}
 .projects {
   max-width: 1200px;
   margin: 0 auto;
