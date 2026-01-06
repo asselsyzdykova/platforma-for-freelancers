@@ -25,6 +25,7 @@ const logout = () => {
         <RouterLink to="/" exact-active-class="active">Home</RouterLink>
         <RouterLink to="/freelancers" exact-active-class="active">Freelancers</RouterLink>
         <RouterLink to="/projects" exact-active-class="active">Projects</RouterLink>
+        <RouterLink to="/subscriptions" exact-active-class="active">Subscriptions</RouterLink>
 
         <RouterLink v-if="!userStore.isLoggedIn" to="/login" exact-active-class="active">Login</RouterLink>
         <RouterLink v-if="!userStore.isLoggedIn" to="/register" exact-active-class="active">Register</RouterLink>

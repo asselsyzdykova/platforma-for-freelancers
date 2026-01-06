@@ -14,6 +14,7 @@ import ProjectsFreelancer from '@/views/FreelancerPage/ProjectsFreelancer.vue'
 import ClientPage from '@/views/ClientPage/ClientPage.vue'
 import EditProfileClient from '@/views/ClientPage/EditProfileClient.vue'
 import CreateProject from '@/views/ClientPage/CreateProject.vue'
+import SubscriptionsPage from '@/views/BasePages/SubscriptionsPage.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -107,6 +108,12 @@ const router = createRouter({
   path: '/create-project',
   name: 'CreateProject',
   component: CreateProject,
+},
+
+{
+  path: '/subscriptions',
+  name: 'Subscriptions',
+  component: SubscriptionsPage,
 }
   ],
 })
