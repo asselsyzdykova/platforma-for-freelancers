@@ -7,6 +7,7 @@
         <h1>PROFILE</h1>
 
         <div class="profile-content">
+          <!-- LEFT -->
           <div class="left">
             <div class="avatar">
               <img
@@ -16,25 +17,26 @@
                 class="avatar-img"
               />
             </div>
+
             <h2>{{ user.name }}</h2>
 
             <p v-if="profile.about" class="about">
               {{ profile.about }}
             </p>
 
-            <div
-              class="skills"
-              v-if="profile.skills && profile.skills.length"
-            >
+            <div class="skills" v-if="profile.skills?.length">
               <span v-for="skill in profile.skills" :key="skill">
                 {{ skill }}
               </span>
             </div>
           </div>
 
+          <!-- RIGHT -->
           <div class="right">
-            <button class="edit-btn" @click="editProfile">
-              Edit Profile
+            <button class="edit-btn" @click="editProfile">Edit Profile</button>
+            <button class="inbox-btn" @click="goToInbox">
+              Inbox
+              <span v-if="hasUnread" class="inbox-dot"></span>
             </button>
 
             <p><strong>Specialization:</strong> {{ user.role }}</p>
@@ -51,6 +53,7 @@
           </div>
         </div>
 
+        <!-- CERTIFICATES -->
         <section class="certificates">
           <h2>CERTIFICATES</h2>
 
@@ -58,15 +61,8 @@
             <button class="arrow" @click="prevCert">◀</button>
 
             <div class="cert-window">
-              <div
-                class="cert-track"
-                :style="{ transform: `translateX(-${currentCert * 240}px)` }"
-              >
-                <div
-                  class="cert-card"
-                  v-for="(cert, index) in certificates"
-                  :key="index"
-                >
+              <div class="cert-track" :style="{ transform: `translateX(-${currentCert * 240}px)` }">
+                <div class="cert-card" v-for="(cert, index) in certificates" :key="index">
                   {{ cert }}
                 </div>
               </div>
@@ -76,37 +72,31 @@
           </div>
         </section>
 
+        <!-- REVIEWS -->
         <section class="reviews">
           <h2>Reviews</h2>
 
           <div class="reviews-box">
-            <div
-              class="review-item"
-              v-for="(review, index) in reviews"
-              :key="index"
-            >
+            <div class="review-item" v-for="(review, index) in reviews" :key="index">
               <div class="review-header">
                 <div class="avatar small"></div>
                 <p>{{ review.name }} ⭐ {{ review.rating }}</p>
               </div>
 
               <div class="review-content">
-                <p><strong>Project name:</strong> {{ review.project }}</p>
+                <p><strong>Project:</strong> {{ review.project }}</p>
                 <p><strong>Review:</strong> {{ review.text }}</p>
-                <p><strong>Execution time:</strong> {{ review.time }}</p>
+                <p><strong>Time:</strong> {{ review.time }}</p>
               </div>
             </div>
           </div>
         </section>
       </div>
 
-      <div v-else class="loading">
-        Loading profile...
-      </div>
+      <div v-else class="loading">Loading profile...</div>
     </div>
   </div>
 </template>
-
 
 <script setup>
 import { ref, onMounted } from 'vue'
@@ -117,6 +107,9 @@ import SidebarMenu from '@/components/FreelancerPageMenu/SidebarMenu.vue'
 const user = ref(null)
 const profile = ref({})
 const router = useRouter()
+const notifications = ref([])
+const hasUnread = ref(false)
+const goToInbox = () => router.push('/freelancer/inbox')
 
 onMounted(async () => {
   try {
@@ -134,6 +127,13 @@ onMounted(async () => {
     alert('Failed to load profile')
     router.push('/login')
   }
+
+  const notifRes = await api.get('/freelancer/notifications', {
+    headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` },
+  })
+
+  notifications.value = notifRes.data
+  hasUnread.value = notifications.value.some((n) => !n.is_read)
 })
 
 const certificates = [
@@ -142,7 +142,7 @@ const certificates = [
   'UI/UX Design Basics',
   'Backend Development Certificate',
   'Fullstack Web Development',
-  'Mobile App Development'
+  'Mobile App Development',
 ]
 
 const currentCert = ref(0)
@@ -155,16 +155,61 @@ const prevCert = () => {
 }
 
 const reviews = [
-  { name: 'Name Surname', rating: 5.0, project: 'Web platform for freelancers', text: 'Good job', time: '2 month' },
-  { name: 'John Doe', rating: 4.5, project: 'Landing page', text: 'Very professional work', time: '3 weeks' },
-  { name: 'Jane Smith', rating: 4.8, project: 'Mobile app design', text: 'Creative and timely delivery', time: '1 month' }
+  {
+    name: 'Name Surname',
+    rating: 5.0,
+    project: 'Web platform for freelancers',
+    text: 'Good job',
+    time: '2 month',
+  },
+  {
+    name: 'John Doe',
+    rating: 4.5,
+    project: 'Landing page',
+    text: 'Very professional work',
+    time: '3 weeks',
+  },
+  {
+    name: 'Jane Smith',
+    rating: 4.8,
+    project: 'Mobile app design',
+    text: 'Creative and timely delivery',
+    time: '1 month',
+  },
 ]
 
 const editProfile = () => router.push('/edit-profile')
 </script>
 
 <style scoped>
-  .profile-layout {
+.inbox-btn {
+  padding: 10px 24px;
+  background: white;
+  color: #5b4b8a;
+  border: 2px solid #5b4b8a;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: 0.2s;
+  margin-left: 12px;
+}
+
+.inbox-btn:hover {
+  background: #5b4b8a;
+  color: white;
+}
+
+.inbox-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  background: #ef4444;
+  border-radius: 50%;
+  margin-left: 8px;
+  vertical-align: middle;
+  pointer-events: none;
+}
+.profile-layout {
   display: flex;
   min-height: 100vh;
 }
@@ -230,7 +275,8 @@ h1 {
   gap: 40px;
 }
 
-.left, .right {
+.left,
+.right {
   flex: 1;
 }
 
@@ -313,7 +359,7 @@ h2 {
   height: 120px;
   background: white;
   border-radius: 20px;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -345,7 +391,7 @@ h2 {
   border-radius: 16px;
   padding: 16px;
   margin-bottom: 16px;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
 }
 
 .review-header {

@@ -15,6 +15,7 @@ class Notification extends Model
         'title',
         'body',
         'link',
+        'related_id',
         'is_read',
     ];
 

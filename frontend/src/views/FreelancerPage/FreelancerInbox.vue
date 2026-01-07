@@ -1,67 +1,88 @@
 <template>
-  <div class="inbox-page">
-    <h1>Inbox</h1>
-    <p class="subtitle">Messages and notifications from freelancers</p>
+  <div class="profile-layout">
+    <SidebarMenu v-if="user" :userName="user.name" />
+    <div class="inbox-page">
+      <h1>Inbox</h1>
+      <p class="subtitle">Messages from clients and project updates</p>
 
-    <div v-if="notifications.length" class="list">
-      <div
-        class="notification"
-        v-for="note in notifications"
-        :key="note.id"
-        :class="{ unread: !note.is_read }"
-        @click="openNotification(note)"
-      >
-        <div class="left">
-          <span v-if="!note.is_read" class="dot"></span>
-        </div>
+      <div v-if="notifications.length" class="list">
+        <div
+          class="notification"
+          v-for="note in notifications"
+          :key="note.id"
+          :class="{ unread: !note.is_read }"
+          @click="openNotification(note)"
+        >
+          <div class="left">
+            <span v-if="!note.is_read" class="dot"></span>
+          </div>
 
-        <div class="content">
-          <p class="title">{{ note.title }}</p>
-          <p class="body">{{ note.body }}</p>
-        </div>
+          <div class="content">
+            <p class="title">{{ note.title }}</p>
+            <p class="body">{{ note.body }}</p>
+          </div>
 
-        <div class="time">
-          {{ formatDate(note.created_at) }}
+          <div class="time">
+            {{ formatDate(note.created_at) }}
+          </div>
         </div>
       </div>
-    </div>
 
-    <p v-else class="empty">Inbox is empty</p>
+      <p v-else class="empty">Inbox is empty</p>
+    </div>
   </div>
 </template>
 
 <script>
 import api from '@/services/axios'
+import SidebarMenu from '@/components/FreelancerPageMenu/SidebarMenu.vue'
 
 export default {
-  name: 'ClientInbox',
+  name: 'FreelancerInbox',
+
+  components: {
+    SidebarMenu,
+  },
 
   data() {
     return {
       notifications: [],
+      user: null,
     }
   },
 
-  mounted() {
+  async mounted() {
+    await this.loadUser()
     this.loadNotifications()
   },
 
   methods: {
+    async loadUser() {
+      try {
+        const res = await api.get('/me', {
+          headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` },
+        })
+        this.user = res.data
+      } catch (e) {
+        console.error('Failed to load user', e)
+      }
+    },
+
     async loadNotifications() {
       try {
-        const res = await api.get('/client/notifications')
+        const res = await api.get('/freelancer/notifications')
         this.notifications = res.data.sort(
           (a, b) => new Date(b.created_at) - new Date(a.created_at),
         )
       } catch (e) {
-        console.error('Failed to load inbox', e)
+        console.error('Failed to load freelancer inbox', e)
       }
     },
 
     async openNotification(note) {
       try {
         if (!note.is_read) {
-          await api.post(`/client/notifications/${note.id}/read`)
+          await api.post(`/freelancer/notifications/${note.id}/read`)
           note.is_read = true
         }
 
@@ -69,23 +90,12 @@ export default {
           const resolved = this.$router.resolve(note.link)
           if (resolved && resolved.matched && resolved.matched.length) {
             this.$router.push(note.link)
-            return
-          }
-
-          if (note.link.startsWith('/projects/')) {
+          } else if (note.link.startsWith('/projects/')) {
             this.$router.push('/projects')
-            return
+          } else {
+            this.$router.push('/')
           }
         }
-
-        if (note.type === 'project_application') {
-          if (note.related_id) {
-            this.$router.push(`/application-details/${note.related_id}`)
-            return
-          }
-        }
-
-        console.warn('No route for this notification')
       } catch (e) {
         console.error('Failed to open notification', e)
       }
@@ -99,9 +109,12 @@ export default {
 </script>
 
 <style scoped>
+.profile-layout {
+  display: flex;
+  min-height: 100vh;
+}
 .inbox-page {
   max-width: 900px;
-  margin: 0 auto;
   padding: 40px 24px;
 }
 

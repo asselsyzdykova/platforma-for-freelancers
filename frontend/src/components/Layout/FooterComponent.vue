@@ -21,7 +21,7 @@ export default {
 .footer {
   background: #f3efff;
   padding: 24px 0;
-  margin-top: 40px;
+  margin-top: 300px;
 }
 
 .container {
