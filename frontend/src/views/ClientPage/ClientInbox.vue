@@ -66,6 +66,12 @@ export default {
         }
 
         if (note.link) {
+          // Direct handling for application-details to avoid router.resolve emitting warnings
+          if (note.link.startsWith('/application-details/') && note.related_id) {
+            this.$router.push({ name: 'ApplicationDetails', params: { id: note.related_id } })
+            return
+          }
+
           const resolved = this.$router.resolve(note.link)
           if (resolved && resolved.matched && resolved.matched.length) {
             this.$router.push(note.link)
@@ -80,7 +86,7 @@ export default {
 
         if (note.type === 'project_application') {
           if (note.related_id) {
-            this.$router.push(`/application-details/${note.related_id}`)
+            this.$router.push({ name: 'ApplicationDetails', params: { id: note.related_id } })
             return
           }
         }
