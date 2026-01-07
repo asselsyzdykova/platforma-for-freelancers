@@ -1,29 +1,15 @@
 <template>
   <div class="client-page">
 
-    <!-- Inbox / Notifications -->
-    <section class="notifications">
-      <h2>Inbox</h2>
+   <div class="top-bar">
+  <div class="inbox-icon" @click="goToInbox">
+    📩
+    <span v-if="hasUnread" class="unread-dot"></span>
+  </div>
+</div>
 
-      <div v-if="notifications.length" class="notifications-list">
-        <div
-          class="notification-card"
-          v-for="note in notifications"
-          :key="note.id"
-          :class="{ unread: !note.is_read }"
-          @click="openNotification(note)"
-        >
-          <p class="title">{{ note.title }}</p>
-          <p class="body">{{ note.body }}</p>
-          <span class="time">{{ new Date(note.created_at).toLocaleString() }}</span>
-        </div>
-      </div>
-
-      <p v-else class="empty">No notifications yet</p>
-    </section>
     <h1>CLIENT PROFILE</h1>
 
-    <!-- Client Card -->
     <div class="client-card" v-if="client">
       <div class="left">
         <div class="avatar">
@@ -49,7 +35,6 @@
       </div>
     </div>
 
-    <!-- Active Projects -->
     <section class="projects">
       <h2>ACTIVE PROJECTS</h2>
 
@@ -92,7 +77,7 @@ export default {
         active: 0,
         completed: 0,
       },
-      notifications: [], // уведомления
+      notifications: [],
     };
   },
 
@@ -113,12 +98,19 @@ export default {
       if (!this.client?.created_at) return "—";
       return new Date(this.client.created_at).getFullYear();
     },
+
+    hasUnread() {
+    return this.notifications.some(n => !n.is_read);
+  }
+
   },
 
   methods: {
-    // -----------------------------
-    // Client profile
-    // -----------------------------
+
+    goToInbox() {
+    this.$router.push("/client/inbox");
+  },
+
     async loadClientProfile() {
       try {
         const res = await api.get("/client/profile");
@@ -128,9 +120,6 @@ export default {
       }
     },
 
-    // -----------------------------
-    // Projects
-    // -----------------------------
     async loadClientProjects() {
       try {
         const res = await api.get("/client/projects");
@@ -166,9 +155,7 @@ export default {
       }
     },
 
-    // -----------------------------
-    // Notifications / Inbox
-    // -----------------------------
+
     async loadNotifications() {
       try {
         const res = await api.get("/client/notifications");
@@ -194,9 +181,30 @@ export default {
 </script>
 
 <style scoped>
-/* ----------------------------- */
-/* Client card & profile */
-/* ----------------------------- */
+
+  .top-bar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+}
+
+.inbox-icon {
+  position: relative;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.unread-dot {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 10px;
+  height: 10px;
+  background: #22c55e;
+  border-radius: 50%;
+}
+
+
 .reviews {
   color: #777;
   font-size: 14px;
@@ -252,9 +260,7 @@ export default {
   cursor: pointer;
 }
 
-/* ----------------------------- */
-/* Projects */
-/* ----------------------------- */
+
 .projects h2 {
   margin-bottom: 20px;
 }
@@ -329,9 +335,6 @@ export default {
   opacity: 0.9;
 }
 
-/* ----------------------------- */
-/* Notifications / Inbox */
-/* ----------------------------- */
 .notifications {
   margin-top: 40px;
   margin-left: 900px;

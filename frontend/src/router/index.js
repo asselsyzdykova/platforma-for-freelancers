@@ -15,6 +15,7 @@ import ClientPage from '@/views/ClientPage/ClientPage.vue'
 import EditProfileClient from '@/views/ClientPage/EditProfileClient.vue'
 import CreateProject from '@/views/ClientPage/CreateProject.vue'
 import SubscriptionsPage from '@/views/BasePages/SubscriptionsPage.vue'
+import ClientInbox from '@/views/ClientPage/ClientInbox.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -114,6 +115,12 @@ const router = createRouter({
   path: '/subscriptions',
   name: 'Subscriptions',
   component: SubscriptionsPage,
+},
+
+{
+  path:'/client/inbox',
+  name: 'ClientInbox',
+  component: ClientInbox
 }
   ],
 })
