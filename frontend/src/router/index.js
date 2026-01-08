@@ -14,6 +14,10 @@ import ProjectsFreelancer from '@/views/FreelancerPage/ProjectsFreelancer.vue'
 import ClientPage from '@/views/ClientPage/ClientPage.vue'
 import EditProfileClient from '@/views/ClientPage/EditProfileClient.vue'
 import CreateProject from '@/views/ClientPage/CreateProject.vue'
+import SubscriptionsPage from '@/views/BasePages/SubscriptionsPage.vue'
+import ClientInbox from '@/views/ClientPage/ClientInbox.vue'
+import FreelancerInbox from '@/views/FreelancerPage/FreelancerInbox.vue'
+import ApplicationDetails from '@/views/ClientPage/ApplicationDetails.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -107,6 +111,30 @@ const router = createRouter({
   path: '/create-project',
   name: 'CreateProject',
   component: CreateProject,
+},
+
+{
+  path: '/subscriptions',
+  name: 'Subscriptions',
+  component: SubscriptionsPage,
+},
+
+{
+  path:'/client/inbox',
+  name: 'ClientInbox',
+  component: ClientInbox
+},
+
+{
+  path: '/freelancer/inbox',
+  name: 'FreelancerInbox',
+  component: FreelancerInbox
+},
+
+{
+  path: '/application-details/:id',
+  name: 'ApplicationDetails',
+  component: ApplicationDetails,
 }
   ],
 })

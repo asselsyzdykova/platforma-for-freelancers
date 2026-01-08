@@ -1,5 +1,13 @@
 <template>
   <div class="client-page">
+
+   <div class="top-bar">
+  <div class="inbox-icon" @click="goToInbox">
+    📩
+    <span v-if="hasUnread" class="unread-dot"></span>
+  </div>
+</div>
+
     <h1>CLIENT PROFILE</h1>
 
     <div class="client-card" v-if="client">
@@ -43,19 +51,19 @@
 
           <div class="actions">
             <button class="secondary">View proposals</button>
-            <button class="danger" @click="closeProject(project.id)">Close project</button>
+            <button class="danger" @click="deleteProject(project.id)">Delete project</button>
           </div>
         </div>
       </div>
 
       <p v-else class="empty">No active projects yet</p>
     </section>
+
   </div>
 </template>
 
 <script>
 import api from "@/services/axios";
-
 
 export default {
   name: "ClientProfile",
@@ -69,12 +77,14 @@ export default {
         active: 0,
         completed: 0,
       },
+      notifications: [],
     };
   },
 
   mounted() {
     this.loadClientProfile();
     this.loadClientProjects();
+    this.loadNotifications();
 
     window.addEventListener("projectCreated", this.loadClientProjects);
   },
@@ -88,9 +98,19 @@ export default {
       if (!this.client?.created_at) return "—";
       return new Date(this.client.created_at).getFullYear();
     },
+
+    hasUnread() {
+    return this.notifications.some(n => !n.is_read);
+  }
+
   },
 
   methods: {
+
+    goToInbox() {
+    this.$router.push("/client/inbox");
+  },
+
     async loadClientProfile() {
       try {
         const res = await api.get("/client/profile");
@@ -122,20 +142,68 @@ export default {
       this.$router.push("/create-project");
     },
 
-    async closeProject(projectId) {
+    async deleteProject(projectId) {
+      if (!confirm("Are you sure you want to delete this project?")) return;
+
       try {
-        await api.post(`/client/projects/${projectId}/close`);
+        await api.delete(`/client/projects/${projectId}`);
+        alert("Project deleted successfully!");
         await this.loadClientProjects();
       } catch (e) {
-        console.error(e);
+        console.error("Failed to delete project", e);
+        alert("Failed to delete project");
+      }
+    },
+
+
+    async loadNotifications() {
+      try {
+        const res = await api.get("/client/notifications");
+        this.notifications = res.data.sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+      } catch(e) {
+        console.warn("Notifications not loaded yet", e);
+      }
+    },
+
+    openNotification(note) {
+      if(!note.is_read){
+        api.post(`/client/notifications/${note.id}/read`)
+          .then(() => note.is_read = true)
+          .catch(e => console.error(e));
+      }
+
+      if(note.link) {
+        this.$router.push(note.link);
       }
     },
   },
 };
 </script>
 
-
 <style scoped>
+
+  .top-bar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+}
+
+.inbox-icon {
+  position: relative;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.unread-dot {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 10px;
+  height: 10px;
+  background: #22c55e;
+  border-radius: 50%;
+}
+
 
 .reviews {
   color: #777;
@@ -191,6 +259,7 @@ export default {
   color: #fff;
   cursor: pointer;
 }
+
 
 .projects h2 {
   margin-bottom: 20px;
@@ -266,4 +335,53 @@ export default {
   opacity: 0.9;
 }
 
+.notifications {
+  margin-top: 40px;
+  margin-left: 900px;
+  text-align: right;
+}
+
+.notifications h2 {
+  margin-bottom: 20px;
+}
+
+.notifications-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.notification-card {
+  padding: 16px;
+  border-radius: 12px;
+  background: #f9f9f9;
+  cursor: pointer;
+  transition: background 0.2s;
+  border-left: 4px solid transparent;
+}
+
+.notification-card.unread {
+  background: #eef6ff;
+  border-left-color: #4f46e5;
+}
+
+.notification-card:hover {
+  background: #f0f0f0;
+}
+
+.notification-card .title {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.notification-card .body {
+  font-size: 14px;
+  color: #555;
+}
+
+.notification-card .time {
+  font-size: 12px;
+  color: #999;
+  float: right;
+}
 </style>
