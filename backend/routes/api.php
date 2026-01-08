@@ -19,11 +19,13 @@ use App\Http\Controllers\Api\FreelancerNotificationController;
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/projects/{id}/apply', [ProposalController::class, 'apply']);
 
-    // Client application endpoints
     Route::get('/client/applications/{id}', [ProposalController::class, 'show']);
+    Route::post('/client/applications/{id}/view', [ProposalController::class, 'view']);
     Route::post('/client/applications/{id}/review', [ProposalController::class, 'review']);
     Route::post('/client/applications/{id}/accept', [ProposalController::class, 'accept']);
     Route::post('/client/applications/{id}/reject', [ProposalController::class, 'reject']);
+
+    Route::get('/freelancer/proposals', [ProposalController::class, 'freelancerProposals']);
 
     Route::get('/client/notifications', [NotificationController::class, 'index']);
     Route::post('/client/notifications/{id}/read', [NotificationController::class, 'markAsRead']);

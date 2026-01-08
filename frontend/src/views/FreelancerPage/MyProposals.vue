@@ -6,28 +6,41 @@
       <h1>My Proposals</h1>
 
       <div class="proposals-card">
-        <div
-          class="proposal"
-          v-for="(proposal, index) in proposals"
-          :key="index"
-        >
-          <p class="project-name">{{ proposal.name }}</p>
+        <div class="proposal" v-for="proposal in proposals" :key="proposal.id">
+          <p class="project-name">{{ proposal.display.name }}</p>
 
           <div class="progress">
-            <div
-              class="progress-fill"
-              :style="{ width: proposal.progress + '%' }"
-            ></div>
+            <div class="progress-fill" :style="{ width: proposal.display.progress + '%' }"></div>
           </div>
 
           <div class="steps">
-            <span>Submitted</span>
-            <span>Viewed</span>
-            <span>Under review</span>
             <span
               :class="{
-                accepted: proposal.status === 'accepted',
-                rejected: proposal.status === 'rejected'
+                active: ['pending', 'viewed', 'under review', 'accepted', 'rejected'].includes(
+                  proposal.display.status,
+                ),
+              }"
+              >Submitted</span
+            >
+            <span
+              :class="{
+                active: ['viewed', 'under review', 'accepted', 'rejected'].includes(
+                  proposal.display.status,
+                ),
+              }"
+              >Viewed</span
+            >
+            <span
+              :class="{
+                active: ['under review', 'accepted', 'rejected'].includes(proposal.display.status),
+              }"
+              >Under review</span
+            >
+            <span
+              :class="{
+                accepted: proposal.display.statusType === 'accepted',
+                rejected: proposal.display.statusType === 'rejected',
+                active: ['accepted', 'rejected'].includes(proposal.display.status),
               }"
             >
               Accepted / Rejected
@@ -40,30 +53,43 @@
 </template>
 
 <script setup>
+import { ref, onMounted } from 'vue'
 import SidebarMenu from '@/components/FreelancerPageMenu/SidebarMenu.vue'
+import api from '@/services/axios'
 
-const proposals = [
-  {
-    name: 'Project name',
-    progress: 20,
-    status: 'submitted'
-  },
-  {
-    name: 'Project name',
-    progress: 45,
-    status: 'viewed'
-  },
-  {
-    name: 'Project name',
-    progress: 70,
-    status: 'review'
-  },
-  {
-    name: 'Project name',
-    progress: 100,
-    status: 'accepted'
+const proposals = ref([])
+
+const statusMap = {
+  Pending: { progress: 0, step: 0 },
+  Viewed: { progress: 33, step: 1 },
+  'Under Review': { progress: 66, step: 2 },
+  Accepted: { progress: 100, step: 3, type: 'accepted' },
+  Rejected: { progress: 100, step: 3, type: 'rejected' },
+}
+
+const getProposalDisplay = (proposal) => {
+  const statusInfo = statusMap[proposal.status] || statusMap['Pending']
+  return {
+    name: proposal.project_name,
+    progress: statusInfo.progress,
+    status: proposal.status.toLowerCase(),
+    statusType: statusInfo.type || null,
   }
-]
+}
+
+const loadProposals = async () => {
+  try {
+    const res = await api.get('/freelancer/proposals')
+    proposals.value = res.data.map((p) => ({
+      ...p,
+      display: getProposalDisplay(p),
+    }))
+  } catch (e) {
+    console.error('Failed to load proposals', e)
+  }
+}
+
+onMounted(loadProposals)
 </script>
 
 <style scoped>
@@ -122,7 +148,12 @@ h1 {
   display: flex;
   justify-content: space-between;
   font-size: 13px;
+  color: #999;
+}
+
+.steps span.active {
   color: #555;
+  font-weight: 500;
 }
 
 .accepted {
@@ -130,8 +161,16 @@ h1 {
   font-weight: 600;
 }
 
+.accepted.active {
+  color: #4a3aff;
+}
+
 .rejected {
   color: red;
   font-weight: 600;
+}
+
+.rejected.active {
+  color: red;
 }
 </style>

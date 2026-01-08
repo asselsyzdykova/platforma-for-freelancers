@@ -65,6 +65,34 @@ class ProposalController extends Controller
         ]);
     }
 
+    public function view($id)
+    {
+        $proposal = Proposal::with(['project', 'freelancer'])->findOrFail($id);
+        if (Auth::id() !== $proposal->project->client_id) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+
+        if ($proposal->status === 'Pending') {
+            $proposal->status = 'Viewed';
+            $proposal->save();
+
+            try {
+                Notification::create([
+                    'user_id' => $proposal->freelancer_id,
+                    'type' => 'application_status',
+                    'title' => 'Application viewed',
+                    'body' => 'Your application for "' . $proposal->project->title . '" has been viewed by the client.',
+                    'link' => '/freelancer/inbox',
+                    'related_id' => $proposal->id,
+                ]);
+            } catch (\Exception $e) {
+                logger()->error('Failed to create notification for view: ' . $e->getMessage());
+            }
+        }
+
+        return response()->json(['message' => 'Application viewed']);
+    }
+
     public function review($id)
     {
         logger()->info('Review request received', ['user_id' => Auth::id(), 'proposal_id' => $id]);
@@ -125,6 +153,24 @@ class ProposalController extends Controller
         }
 
         return response()->json(['message' => 'Proposal accepted']);
+    }
+
+    public function freelancerProposals()
+    {
+        $proposals = Proposal::where('freelancer_id', Auth::id())
+            ->with(['project', 'project.client'])
+            ->get()
+            ->map(function ($proposal) {
+                return [
+                    'id' => $proposal->id,
+                    'project_id' => $proposal->project_id,
+                    'project_name' => $proposal->project->title,
+                    'status' => $proposal->status ?? 'Pending',
+                    'created_at' => $proposal->created_at,
+                ];
+            });
+
+        return response()->json($proposals);
     }
 
     public function reject($id)

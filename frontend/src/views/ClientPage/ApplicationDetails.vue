@@ -16,70 +16,74 @@
       </div>
     </div>
 
-    <div v-else>
-      Loading application...
-    </div>
+    <div v-else>Loading application...</div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import api from "@/services/axios";
+import { ref, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import api from '@/services/axios'
 
-const route = useRoute();
-const router = useRouter();
-const application = ref(null);
+const route = useRoute()
+const router = useRouter()
+const application = ref(null)
 
 const loadApplication = async () => {
   try {
-    const res = await api.get(`/client/applications/${route.params.id}`);
-    application.value = res.data;
+    const res = await api.get(`/client/applications/${route.params.id}`)
+    application.value = res.data
   } catch (e) {
-    console.error("Failed to load application", e);
+    console.error('Failed to load application', e)
   }
-};
+}
 
-const goToFreelancerProfile = () => {
+const goToFreelancerProfile = async () => {
   if (application.value && application.value.freelancer.id) {
-    router.push(`/freelancer/${application.value.freelancer.id}`);
+    try {
+      await api.post(`/client/applications/${route.params.id}/view`)
+      application.value.status = 'Viewed'
+    } catch (e) {
+      console.error('Failed to mark as viewed', e)
+    }
+    router.push(`/freelancer/${application.value.freelancer.id}`)
   }
-};
+}
 
 const setUnderReview = async () => {
   try {
-    await api.post(`/client/applications/${route.params.id}/review`);
-    alert("Application marked as under review");
-    application.value.status = "Under Review";
+    await api.post(`/client/applications/${route.params.id}/review`)
+    alert('Application marked as under review')
+    application.value.status = 'Under Review'
   } catch (e) {
-    console.error(e);
-    alert("Failed to mark as under review");
+    console.error(e)
+    alert('Failed to mark as under review')
   }
-};
+}
 
 const acceptApplication = async () => {
   try {
-    await api.post(`/client/applications/${route.params.id}/accept`);
-    alert("Application accepted");
-    application.value.status = "Accepted";
+    await api.post(`/client/applications/${route.params.id}/accept`)
+    alert('Application accepted')
+    application.value.status = 'Accepted'
   } catch (e) {
-    console.error(e);
-    alert("Failed to accept application");
+    console.error(e)
+    alert('Failed to accept application')
   }
-};
+}
 
 const rejectApplication = async () => {
   try {
-    await api.post(`/client/applications/${route.params.id}/reject`);
-    alert("Application rejected");
-    application.value.status = "Rejected";
+    await api.post(`/client/applications/${route.params.id}/reject`)
+    alert('Application rejected')
+    application.value.status = 'Rejected'
   } catch (e) {
-    console.error(e);
-    alert("Failed to reject application");
+    console.error(e)
+    alert('Failed to reject application')
   }
-};
+}
 
-onMounted(loadApplication);
+onMounted(loadApplication)
 </script>
 
 <style scoped>
