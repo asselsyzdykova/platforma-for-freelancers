@@ -48,8 +48,6 @@
               <strong>Member since:</strong>
               {{ new Date(profile.created_at).getFullYear() }}
             </p>
-
-            <button class="message-btn">Send Message</button>
           </div>
         </div>
 
@@ -313,22 +311,6 @@ h2 {
 .right p {
   margin-bottom: 12px;
   font-size: 16px;
-}
-
-.message-btn {
-  margin-top: 20px;
-  padding: 12px 24px;
-  background: #5b4b8a;
-  color: white;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: 0.2s;
-}
-
-.message-btn:hover {
-  opacity: 0.9;
 }
 
 .loading {
