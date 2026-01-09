@@ -55,33 +55,33 @@
 </template>
 
 <script>
-import api from "@/services/axios";
+import api from '@/services/axios'
 
 export default {
-  name: "CreateProject",
+  name: 'CreateProject',
 
   data() {
     return {
       project: {
-        title: "",
-        description: "",
-        budget: "",
-        category: "",
+        title: '',
+        description: '',
+        budget: '',
+        category: '',
         tags: [],
       },
-      tagInput: "",
-    };
+      tagInput: '',
+    }
   },
 
   methods: {
     addTag() {
-      if (!this.tagInput.trim()) return;
-      this.project.tags.push(this.tagInput.trim());
-      this.tagInput = "";
+      if (!this.tagInput.trim()) return
+      this.project.tags.push(this.tagInput.trim())
+      this.tagInput = ''
     },
 
     removeTag(index) {
-      this.project.tags.splice(index, 1);
+      this.project.tags.splice(index, 1)
     },
 
     async createProject() {
@@ -89,29 +89,27 @@ export default {
         const payload = {
           ...this.project,
           tags: this.project.tags,
-        };
+        }
 
-        await api.post("/client/projects", payload);
+        await api.post('/client/projects', payload)
 
-        alert("Project created successfully!");
+        alert('Project created successfully!')
 
-        window.dispatchEvent(new Event("projectCreated"));
+        window.dispatchEvent(new Event('projectCreated'))
 
-        this.$router.push("/client-profile");
+        this.$router.push({ name: 'ClientProfile' })
       } catch (error) {
-        console.error(error.response?.data || error);
-        alert("Failed to create project. Check all fields.");
+        console.error(error.response?.data || error)
+        alert('Failed to create project. Check all fields.')
       }
     },
 
     cancel() {
-      this.$router.push("/client-profile");
+      this.$router.push({ name: 'ClientProfile' })
     },
   },
-};
+}
 </script>
-
-
 
 <style scoped>
 .create-project {

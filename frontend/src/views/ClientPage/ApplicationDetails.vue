@@ -46,7 +46,7 @@ const goToFreelancerProfile = async () => {
     } catch (e) {
       console.error('Failed to mark as viewed', e)
     }
-    router.push(`/freelancer/${application.value.freelancer.id}`)
+    router.push(`/public-profile/${application.value.freelancer.id}`)
   }
 }
 

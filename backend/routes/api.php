@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\ProposalController;
 
 use App\Http\Controllers\Api\FreelancerNotificationController;
+use App\Http\Controllers\Api\ChatController;
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/projects/{id}/apply', [ProposalController::class, 'apply']);
@@ -44,6 +45,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
      Route::get('/freelancer/profile', [FreelancerProfileController::class, 'show']);
     Route::post('/freelancer/profile', [FreelancerProfileController::class, 'update']);
+
+    // Chat
+    Route::get('/conversations', [ChatController::class, 'conversations']);
+    Route::get('/messages/{userId}', [ChatController::class, 'index']);
+    Route::post('/messages', [ChatController::class, 'store']);
 });
 
 

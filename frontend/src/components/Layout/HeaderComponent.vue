@@ -12,7 +12,7 @@ onMounted(() => {
 
 const logout = () => {
   userStore.logout()
-  router.push('/login')
+  router.push({ name: 'login' })
 }
 </script>
 
@@ -22,17 +22,28 @@ const logout = () => {
       <img src="@/assets/BEZRAB.png" class="logo" />
 
       <nav class="nav">
-        <RouterLink to="/" exact-active-class="active">Home</RouterLink>
-        <RouterLink to="/freelancers" exact-active-class="active">Freelancers</RouterLink>
-        <RouterLink to="/projects" exact-active-class="active">Projects</RouterLink>
-        <RouterLink to="/subscriptions" exact-active-class="active">Subscriptions</RouterLink>
+        <RouterLink :to="{ name: 'home' }" exact-active-class="active">Home</RouterLink>
+        <RouterLink :to="{ name: 'freelancers' }" exact-active-class="active"
+          >Freelancers</RouterLink
+        >
+        <RouterLink :to="{ name: 'projects' }" exact-active-class="active">Projects</RouterLink>
+        <RouterLink :to="{ name: 'Subscriptions' }" exact-active-class="active"
+          >Subscriptions</RouterLink
+        >
 
-        <RouterLink v-if="!userStore.isLoggedIn" to="/login" exact-active-class="active">Login</RouterLink>
-        <RouterLink v-if="!userStore.isLoggedIn" to="/register" exact-active-class="active">Register</RouterLink>
+        <RouterLink v-if="!userStore.isLoggedIn" :to="{ name: 'login' }" exact-active-class="active"
+          >Login</RouterLink
+        >
+        <RouterLink
+          v-if="!userStore.isLoggedIn"
+          :to="{ name: 'register' }"
+          exact-active-class="active"
+          >Register</RouterLink
+        >
 
         <RouterLink
           v-if="userStore.isLoggedIn && userStore.user.role === 'freelancer'"
-          to="/freelancer-profile"
+          :to="{ name: 'FreelancerProfile' }"
           exact-active-class="active"
         >
           Profile ({{ userStore.user.name }})
@@ -40,7 +51,7 @@ const logout = () => {
 
         <RouterLink
           v-if="userStore.isLoggedIn && userStore.user.role === 'user'"
-          to="/client-profile"
+          :to="{ name: 'ClientProfile' }"
           exact-active-class="active"
         >
           Profile ({{ userStore.user.name }})

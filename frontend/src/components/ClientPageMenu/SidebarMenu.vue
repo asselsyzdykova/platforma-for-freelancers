@@ -1,31 +1,23 @@
 <template>
   <aside class="sidebar">
     <nav class="menu">
-      <RouterLink :to="{ name: 'FreelancerProfile' }" class="menu-item" active-class="active">
+      <RouterLink :to="{ name: 'ClientProfile' }" class="menu-item" active-class="active">
         Profile
       </RouterLink>
 
-      <RouterLink :to="{ name: 'BillingAndPayments' }" class="menu-item" active-class="active">
-        Billing & Payments
-      </RouterLink>
-
-      <RouterLink :to="{ name: 'MyProjects' }" class="menu-item" active-class="active">
+      <RouterLink :to="{ name: 'ClientProjects' }" class="menu-item" active-class="active">
         Projects
       </RouterLink>
 
-      <RouterLink :to="{ name: 'FreelancerChats' }" class="menu-item" active-class="active">
+      <RouterLink :to="{ name: 'ClientChats' }" class="menu-item" active-class="active">
         Chats
       </RouterLink>
 
-      <RouterLink :to="{ name: 'MyProposals' }" class="menu-item" active-class="active">
-        My Proposals
-      </RouterLink>
-
-      <RouterLink :to="{ name: 'Settings' }" class="menu-item" active-class="active">
+      <RouterLink :to="{ name: 'ClientSettings' }" class="menu-item" active-class="active">
         Settings
       </RouterLink>
 
-      <RouterLink :to="{ name: 'Support' }" class="menu-item" active-class="active">
+      <RouterLink :to="{ name: 'ClientSupport' }" class="menu-item" active-class="active">
         Support
       </RouterLink>
     </nav>
@@ -36,7 +28,7 @@
 defineProps({
   userName: {
     type: String,
-    default: 'Freelancer Name',
+    default: 'Client Name',
   },
 })
 </script>
@@ -49,11 +41,6 @@ defineProps({
   padding: 30px 20px;
   display: flex;
   flex-direction: column;
-}
-
-.user-box {
-  text-align: center;
-  margin-bottom: 40px;
 }
 
 .menu {

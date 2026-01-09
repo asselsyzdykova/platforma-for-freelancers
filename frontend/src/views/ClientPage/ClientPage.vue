@@ -1,72 +1,79 @@
 <template>
-  <div class="client-page">
+  <div class="profile-layout">
+    <ClientSidebar v-if="client" :userName="client.user?.name" />
 
-   <div class="top-bar">
-  <div class="inbox-icon" @click="goToInbox">
-    📩
-    <span v-if="hasUnread" class="unread-dot"></span>
-  </div>
-</div>
-
-    <h1>CLIENT PROFILE</h1>
-
-    <div class="client-card" v-if="client">
-      <div class="left">
-        <div class="avatar">
-          <img v-if="client.avatar_url" :src="client.avatar_url" alt="Avatar" />
+    <div class="client-content">
+      <div class="top-bar">
+        <div class="inbox-icon" @click="goToInbox">
+          📩
+          <span v-if="hasUnread" class="unread-dot"></span>
         </div>
-        <h2>{{ client.user?.name }}</h2>
-        <p class="company" v-if="client.company">{{ client.company }}</p>
-        <p class="location">📍 {{ client.location }}</p>
       </div>
 
-      <div class="right">
-        <p><strong>Projects posted:</strong> {{ stats.posted }}</p>
-        <p>
-          <strong>Rating:</strong> ⭐ {{ client.rating ?? '—' }}
-          <span class="reviews">({{ client.reviews ?? 0 }} reviews)</span>
-        </p>
-        <p><strong>Active projects:</strong> {{ stats.active }}</p>
-        <p><strong>Completed:</strong> {{ stats.completed }}</p>
-        <p><strong>Member since:</strong> {{ memberSince }}</p>
+      <h1>CLIENT PROFILE</h1>
 
-        <button class="edit-btn" @click="editProfile">Edit profile</button>
-        <button class="primary-btn" @click="createProject">+ Create project</button>
+      <div class="client-card" v-if="client">
+        <div class="left">
+          <div class="avatar">
+            <img v-if="client.avatar_url" :src="client.avatar_url" alt="Avatar" />
+          </div>
+          <h2>{{ client.user?.name }}</h2>
+          <p class="company" v-if="client.company">{{ client.company }}</p>
+          <p class="location">📍 {{ client.location }}</p>
+        </div>
+
+        <div class="right">
+          <p><strong>Projects posted:</strong> {{ stats.posted }}</p>
+          <p>
+            <strong>Rating:</strong> ⭐ {{ client.rating ?? '—' }}
+            <span class="reviews">({{ client.reviews ?? 0 }} reviews)</span>
+          </p>
+          <p><strong>Active projects:</strong> {{ stats.active }}</p>
+          <p><strong>Completed:</strong> {{ stats.completed }}</p>
+          <p><strong>Member since:</strong> {{ memberSince }}</p>
+
+          <button class="edit-btn" @click="editProfile">Edit profile</button>
+          <button class="primary-btn" @click="createProject">+ Create project</button>
+        </div>
       </div>
+
+      <section class="projects">
+        <h2>ACTIVE PROJECTS</h2>
+
+        <div v-if="projects.length" class="projects-list">
+          <div class="project-card" v-for="project in projects" :key="project.id">
+            <h3>{{ project.title }}</h3>
+            <p class="desc">{{ project.description }}</p>
+
+            <div class="meta">
+              <span>💰 {{ project.budget }} €</span>
+              <span>📅 {{ project.deadline }}</span>
+              <span>📌 {{ project.status }}</span>
+            </div>
+
+            <div class="actions">
+              <button class="secondary">View proposals</button>
+              <button class="danger" @click="deleteProject(project.id)">Delete project</button>
+            </div>
+          </div>
+        </div>
+
+        <p v-else class="empty">No active projects yet</p>
+      </section>
     </div>
-
-    <section class="projects">
-      <h2>ACTIVE PROJECTS</h2>
-
-      <div v-if="projects.length" class="projects-list">
-        <div class="project-card" v-for="project in projects" :key="project.id">
-          <h3>{{ project.title }}</h3>
-          <p class="desc">{{ project.description }}</p>
-
-          <div class="meta">
-            <span>💰 {{ project.budget }} €</span>
-            <span>📅 {{ project.deadline }}</span>
-            <span>📌 {{ project.status }}</span>
-          </div>
-
-          <div class="actions">
-            <button class="secondary">View proposals</button>
-            <button class="danger" @click="deleteProject(project.id)">Delete project</button>
-          </div>
-        </div>
-      </div>
-
-      <p v-else class="empty">No active projects yet</p>
-    </section>
-
   </div>
 </template>
 
 <script>
-import api from "@/services/axios";
+import api from '@/services/axios'
+import ClientSidebar from '@/components/ClientPageMenu/SidebarMenu.vue'
 
 export default {
-  name: "ClientProfile",
+  name: 'ClientProfile',
+
+  components: {
+    ClientSidebar,
+  },
 
   data() {
     return {
@@ -78,111 +85,110 @@ export default {
         completed: 0,
       },
       notifications: [],
-    };
+    }
   },
 
   mounted() {
-    this.loadClientProfile();
-    this.loadClientProjects();
-    this.loadNotifications();
+    this.loadClientProfile()
+    this.loadClientProjects()
+    this.loadNotifications()
 
-    window.addEventListener("projectCreated", this.loadClientProjects);
+    window.addEventListener('projectCreated', this.loadClientProjects)
   },
 
   beforeUnmount() {
-    window.removeEventListener("projectCreated", this.loadClientProjects);
+    window.removeEventListener('projectCreated', this.loadClientProjects)
   },
 
   computed: {
     memberSince() {
-      if (!this.client?.created_at) return "—";
-      return new Date(this.client.created_at).getFullYear();
+      if (!this.client?.created_at) return '—'
+      return new Date(this.client.created_at).getFullYear()
     },
 
     hasUnread() {
-    return this.notifications.some(n => !n.is_read);
-  }
-
+      return this.notifications.some((n) => !n.is_read)
+    },
   },
 
   methods: {
-
     goToInbox() {
-    this.$router.push("/client/inbox");
-  },
+      this.$router.push({ name: 'ClientInbox' })
+    },
 
     async loadClientProfile() {
       try {
-        const res = await api.get("/client/profile");
-        this.client = res.data;
+        const res = await api.get('/client/profile')
+        this.client = res.data
       } catch (e) {
-        console.error("Failed to load client profile", e);
+        console.error('Failed to load client profile', e)
       }
     },
 
     async loadClientProjects() {
       try {
-        const res = await api.get("/client/projects");
-        this.projects = res.data;
+        const res = await api.get('/client/projects')
+        this.projects = res.data
 
-        this.stats.posted = res.data.length;
-        this.stats.active = res.data.filter(p => p.status === "In progress").length;
-        this.stats.completed = res.data.filter(p => p.status === "Completed").length;
+        this.stats.posted = res.data.length
+        this.stats.active = res.data.filter((p) => p.status === 'In progress').length
+        this.stats.completed = res.data.filter((p) => p.status === 'Completed').length
       } catch (e) {
-        console.warn("Projects not loaded yet (backend later)");
-        console.error(e);
+        console.warn('Projects not loaded yet (backend later)')
+        console.error(e)
       }
     },
 
     editProfile() {
-      this.$router.push("/edit-client-profile");
+      this.$router.push({ name: 'EditClientProfile' })
     },
 
     createProject() {
-      this.$router.push("/create-project");
+      this.$router.push({ name: 'CreateProject' })
     },
 
     async deleteProject(projectId) {
-      if (!confirm("Are you sure you want to delete this project?")) return;
+      if (!confirm('Are you sure you want to delete this project?')) return
 
       try {
-        await api.delete(`/client/projects/${projectId}`);
-        alert("Project deleted successfully!");
-        await this.loadClientProjects();
+        await api.delete(`/client/projects/${projectId}`)
+        alert('Project deleted successfully!')
+        await this.loadClientProjects()
       } catch (e) {
-        console.error("Failed to delete project", e);
-        alert("Failed to delete project");
+        console.error('Failed to delete project', e)
+        alert('Failed to delete project')
       }
     },
 
-
     async loadNotifications() {
       try {
-        const res = await api.get("/client/notifications");
-        this.notifications = res.data.sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
-      } catch(e) {
-        console.warn("Notifications not loaded yet", e);
+        const res = await api.get('/client/notifications')
+        this.notifications = res.data.sort(
+          (a, b) => new Date(b.created_at) - new Date(a.created_at),
+        )
+      } catch (e) {
+        console.warn('Notifications not loaded yet', e)
       }
     },
 
     openNotification(note) {
-      if(!note.is_read){
-        api.post(`/client/notifications/${note.id}/read`)
-          .then(() => note.is_read = true)
-          .catch(e => console.error(e));
+      if (!note.is_read) {
+        api
+          .post(`/client/notifications/${note.id}/read`)
+          .then(() => (note.is_read = true))
+          .catch((e) => console.error(e))
       }
 
-      if(note.link) {
-        this.$router.push(note.link);
+      if (note.link) {
+        this.$router.push(note.link)
       }
     },
   },
-};
+}
 </script>
 
 <style scoped>
-
-  .top-bar {
+.top-bar {
   display: flex;
   justify-content: flex-end;
   margin-bottom: 20px;
@@ -204,12 +210,21 @@ export default {
   border-radius: 50%;
 }
 
-
 .reviews {
   color: #777;
   font-size: 14px;
 }
 
+.profile-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.client-content {
+    width: 60%;
+    padding: 30px;
+    margin: 0 auto;
+}
 .client-page {
   max-width: 1100px;
   margin: 0 auto;
@@ -222,7 +237,7 @@ export default {
   background: #fff;
   border-radius: 16px;
   padding: 24px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
   margin-bottom: 40px;
 }
 
@@ -260,7 +275,6 @@ export default {
   cursor: pointer;
 }
 
-
 .projects h2 {
   margin-bottom: 20px;
 }
@@ -275,7 +289,7 @@ export default {
   background: #fff;
   border-radius: 14px;
   padding: 20px;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.05);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
 }
 
 .project-card h3 {

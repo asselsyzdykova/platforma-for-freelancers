@@ -91,9 +91,9 @@ export default {
           if (resolved && resolved.matched && resolved.matched.length) {
             this.$router.push(note.link)
           } else if (note.link.startsWith('/projects/')) {
-            this.$router.push('/projects')
+            this.$router.push({ name: 'projects' })
           } else {
-            this.$router.push('/')
+            this.$router.push({ name: 'home' })
           }
         }
       } catch (e) {

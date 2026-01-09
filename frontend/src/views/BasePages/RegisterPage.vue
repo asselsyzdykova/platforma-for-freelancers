@@ -51,7 +51,7 @@
 
       <p class="login-link">
         Already have an account?
-        <RouterLink to="/login">Login</RouterLink>
+        <RouterLink :to="{ name: 'login' }">Login</RouterLink>
       </p>
     </div>
   </div>
@@ -97,7 +97,6 @@ const register = async () => {
     } else {
       router.push('/client-profile')
     }
-
   } catch (error) {
     if (error.response?.data?.errors) {
       alert(Object.values(error.response.data.errors).flat().join('\n'))
