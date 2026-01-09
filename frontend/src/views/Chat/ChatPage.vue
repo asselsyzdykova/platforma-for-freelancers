@@ -1,7 +1,6 @@
 <template>
-
-    <div class="chat-page">
-      <h1>Chat with {{ partner?.name || '...' }}</h1>
+  <div class="chat-page">
+    <h1>Chat with {{ partner?.name || '...' }}</h1>
 
     <div class="messages">
       <div
@@ -26,7 +25,6 @@ import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute } from 'vue-router'
 import api from '@/services/axios'
 
-
 const route = useRoute()
 const messages = ref([])
 const body = ref('')
@@ -40,20 +38,23 @@ onMounted(async () => {
     user.value = meRes.data
 
     const partnerId = route.params.id
-    const list = await api.get('/freelancers')
-    partner.value = (list.data || []).find((f) => String(f.id) === String(partnerId))
 
     const res = await api.get(`/messages/${partnerId}`)
     messages.value = res.data || []
 
-    let echo = null
+    if (messages.value.length > 0) {
+      const firstMsg = messages.value[0]
+      partner.value =
+        firstMsg.sender_id === user.value.id
+          ? firstMsg.receiver
+          : firstMsg.sender
+    }
+
     try {
       const echoModule = await import('@/services/echo')
-      echo = echoModule.initEcho
+      const echo = echoModule.initEcho
         ? echoModule.initEcho()
-        : echoModule.default && echoModule.default.initEcho
-          ? echoModule.default.initEcho()
-          : null
+        : echoModule.default?.initEcho
 
       if (echo) {
         channel = echo.private(`user.${user.value.id}`)
