@@ -1,10 +1,6 @@
 <template>
   <div class="card">
-<img
-  :src="freelancer.avatar_url"
-  class="avatar-img"
-  alt="Avatar"
-/>
+    <img :src="freelancer.avatar_url" class="avatar-img" alt="Avatar" />
 
     <h3>{{ freelancer.name }}</h3>
     <p class="role">{{ freelancer.role }}</p>
@@ -18,7 +14,7 @@
       </span>
     </div>
 
-    <button>View Profile</button>
+    <button @click="$router.push(`/public-profile/${freelancer.id}`)">View Profile</button>
   </div>
 </template>
 
@@ -32,7 +28,7 @@ export default {
 </script>
 
 <style scoped>
-  .avatar-img {
+.avatar-img {
   width: 80px;
   height: 80px;
   border-radius: 50%;

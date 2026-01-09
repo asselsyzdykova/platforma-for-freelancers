@@ -24,17 +24,20 @@ class FreelancerProfileController extends Controller
 
     public function update(Request $request)
     {
-        $data = $request->validate([
+        $validated = $request->validate([
             'about' => 'nullable|string',
             'location' => 'nullable|string',
-            'skills' => 'nullable|array',
-            'completed_projects' => 'nullable|integer',
-            'proposals' => 'nullable|integer',
-            'rating' => 'nullable|numeric',
-            'reviews' => 'nullable|integer',
-            'created_at' => 'nullable|date',
+            'skills' => 'nullable|string',
+            'completed_projects' => 'nullable|integer|min:0',
+            'proposals' => 'nullable|integer|min:0',
             'avatar' => 'nullable|image|max:2048',
         ]);
+
+        if (!empty($validated['skills']) && is_string($validated['skills'])) {
+            $validated['skills'] = json_decode($validated['skills'], true);
+        }
+
+        $data = collect($validated)->except('avatar')->toArray();
 
         $profile = $request->user()->freelancerProfile()->updateOrCreate(
             ['user_id' => $request->user()->id],

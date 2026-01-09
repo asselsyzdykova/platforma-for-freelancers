@@ -6,6 +6,7 @@ import LoginPage from '@/views/BasePages/LoginPage.vue'
 import ProjectsPage from '@/views/BasePages/ProjectsPage.vue'
 import FreelancerProfilePage from '@/views/FreelancerPage/FreelancerProfilePage.vue'
 import EditProfilePage from '@/views/FreelancerPage/EditProfilePage.vue'
+import FreelancerPublic from '@/views/FreelancerPage/PublicProfile.vue'
 import BillingAndPayments from '@/views/FreelancerPage/BillingAndPayments.vue'
 import MyProposals from '@/views/FreelancerPage/MyProposals.vue'
 import SettingsPage from '@/views/FreelancerPage/SettingsPage.vue'
@@ -18,6 +19,7 @@ import SubscriptionsPage from '@/views/BasePages/SubscriptionsPage.vue'
 import ClientInbox from '@/views/ClientPage/ClientInbox.vue'
 import FreelancerInbox from '@/views/FreelancerPage/FreelancerInbox.vue'
 import ApplicationDetails from '@/views/ClientPage/ApplicationDetails.vue'
+import PublicProfile from '@/views/FreelancerPage/PublicProfile.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -48,94 +50,105 @@ const router = createRouter({
       component: FreelancersPage,
     },
     {
+      path: '/freelancers/:id',
+      name: 'FreelancerPublic',
+      component: FreelancerPublic,
+    },
+    {
       path: '/projects',
       name: 'projects',
       component: ProjectsPage,
     },
 
     {
-  path: '/freelancer-profile',
-  name: 'FreelancerProfile',
-  component: FreelancerProfilePage,
-},
+      path: '/freelancer-profile',
+      name: 'FreelancerProfile',
+      component: FreelancerProfilePage,
+    },
 
-{
-  path: '/edit-profile',
-  name: 'EditProfile',
-  component: EditProfilePage,
-},
+    {
+      path: '/edit-profile',
+      name: 'EditProfile',
+      component: EditProfilePage,
+    },
 
-{
-  path: '/billing-and-payments',
-  name: 'BillingAndPayments',
-  component: BillingAndPayments,
-},
+    {
+      path: '/billing-and-payments',
+      name: 'BillingAndPayments',
+      component: BillingAndPayments,
+    },
 
-{
-  path: '/my-proposals',
-  name: 'MyProposals',
-  component: MyProposals,
-},
+    {
+      path: '/my-proposals',
+      name: 'MyProposals',
+      component: MyProposals,
+    },
 
-{
-  path: '/settings',
-  name: 'Settings',
-  component: SettingsPage
-},
+    {
+      path: '/settings',
+      name: 'Settings',
+      component: SettingsPage,
+    },
 
-{
-  path: '/support',
-  name: 'Support',
-  component: SupportPage
-},
+    {
+      path: '/support',
+      name: 'Support',
+      component: SupportPage,
+    },
 
-{
-  path: '/my-projects',
-  name: 'MyProjects',
-  component: ProjectsFreelancer,
-},
+    {
+      path: '/my-projects',
+      name: 'MyProjects',
+      component: ProjectsFreelancer,
+    },
 
-{
-  path: '/client-profile',
-  name: 'ClientProfile',
-  component: ClientPage,
-},
+    {
+      path: '/client-profile',
+      name: 'ClientProfile',
+      component: ClientPage,
+    },
 
-{
-  path: '/edit-client-profile',
-  name: 'EditClientProfile',
-  component: EditProfileClient,
-},
+    {
+      path: '/edit-client-profile',
+      name: 'EditClientProfile',
+      component: EditProfileClient,
+    },
 
-{
-  path: '/create-project',
-  name: 'CreateProject',
-  component: CreateProject,
-},
+    {
+      path: '/create-project',
+      name: 'CreateProject',
+      component: CreateProject,
+    },
 
-{
-  path: '/subscriptions',
-  name: 'Subscriptions',
-  component: SubscriptionsPage,
-},
+    {
+      path: '/subscriptions',
+      name: 'Subscriptions',
+      component: SubscriptionsPage,
+    },
 
-{
-  path:'/client/inbox',
-  name: 'ClientInbox',
-  component: ClientInbox
-},
+    {
+      path: '/client/inbox',
+      name: 'ClientInbox',
+      component: ClientInbox,
+    },
 
-{
-  path: '/freelancer/inbox',
-  name: 'FreelancerInbox',
-  component: FreelancerInbox
-},
+    {
+      path: '/freelancer/inbox',
+      name: 'FreelancerInbox',
+      component: FreelancerInbox,
+    },
 
-{
-  path: '/application-details/:id',
-  name: 'ApplicationDetails',
-  component: ApplicationDetails,
-}
+    {
+      path: '/application-details/:id',
+      name: 'ApplicationDetails',
+      component: ApplicationDetails,
+    },
+
+    {
+      path: '/public-profile/:id',
+      name: 'PublicProfile',
+      component: PublicProfile,
+    }
   ],
 })
 
