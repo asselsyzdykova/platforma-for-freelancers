@@ -66,8 +66,11 @@ onMounted(async () => {
     if (response.data) {
       form.value = {
         ...form.value,
-        ...response.data,
+        about: response.data.about || '',
+        location: response.data.location || '',
         skills: response.data.skills?.join(', ') || '',
+        completed_projects: response.data.completed_projects || 0,
+        proposals: response.data.proposals || 0,
         avatarPreview: response.data.avatar_url || null,
       }
     }
@@ -93,11 +96,12 @@ const saveProfile = async () => {
     formData.append('completed_projects', form.value.completed_projects || 0)
     formData.append('proposals', form.value.proposals || 0)
 
-    form.value.skills
+    const skills = form.value.skills
       .split(',')
       .map((s) => s.trim())
       .filter((s) => s.length > 0)
-      .forEach((skill) => formData.append('skills[]', skill))
+
+    formData.append('skills', JSON.stringify(skills))
 
     if (form.value.avatar) {
       formData.append('avatar', form.value.avatar)
@@ -117,8 +121,13 @@ const saveProfile = async () => {
     alert('Profile saved successfully!')
     router.push('/freelancer-profile')
   } catch (error) {
-    console.error(error)
-    alert('Failed to save profile. Check all fields.')
+    console.error('Full error response:', error.response?.data)
+    const errors = error.response?.data?.errors || {}
+    const errorMessage =
+      Object.entries(errors)
+        .map(([key, msgs]) => `${key}: ${msgs.join(', ')}`)
+        .join('\n') || 'Failed to save profile. Check all fields.'
+    alert(errorMessage)
   }
 }
 </script>
