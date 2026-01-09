@@ -1,6 +1,5 @@
 <template>
 
-    <div v-if="!partner" class="empty">Loading...</div>
     <div class="chat-page">
       <h1>Chat with {{ partner?.name || '...' }}</h1>
 
