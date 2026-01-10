@@ -11,7 +11,7 @@ export default {
   name: 'CategoryList',
   data() {
     return {
-      categories: ['Frontend', 'Backend', 'Design', 'Mobile Apps', 'UI/UX'],
+      categories: ['Frontend', 'Backend', 'Design', 'Mobile Apps', 'UI/UX', 'Fullstack', 'DevOps', 'Data Science', 'Digital Marketing', 'Writing', 'Translation', 'Video Editing', 'Audio Editing', 'Graphics', 'Animation', 'Video Production', 'Photography', 'SEO', 'Content Creation', 'Project Management'],
     }
   },
 }

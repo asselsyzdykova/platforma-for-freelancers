@@ -17,6 +17,23 @@
         <option value="Frontend">Frontend</option>
         <option value="Backend">Backend</option>
         <option value="Design">Design</option>
+        <option value="Mobile">Mobile</option>
+        <option value="Fullstack">Fullstack</option>
+        <option value="DevOps">DevOps</option>
+        <option value="Data Science">Data Science</option>
+        <option value="Digital Marketing">Digital Marketing</option>
+        <option value="Writing">Writing</option>
+        <option value="Translation">Translation</option>
+        <option value="Video Editing">Video Editing</option>
+        <option value="Audio Editing">Audio Editing</option>
+        <option value="Graphics">Graphics</option>
+        <option value="Animation">Animation</option>
+        <option value="Video Production">Video Production</option>
+        <option value="Photography">Photography</option>
+        <option value="SEO">SEO</option>
+        <option value="Content Creation">Content Creation</option>
+        <option value="Project Management">Project Management</option>
+        <option value="Other">Software Engineering</option>
       </select>
     </div>
 
@@ -55,7 +72,7 @@ onMounted(async () => {
 const filteredFreelancers = computed(() => {
   return freelancers.value.filter(f => {
     const matchCategory =
-      !category.value || f.role === category.value
+      !category.value || (f.skills || []).includes(category.value)
 
     const matchSearch =
       f.name.toLowerCase().includes(search.value.toLowerCase()) ||

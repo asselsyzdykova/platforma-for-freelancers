@@ -16,7 +16,7 @@ class FreelancerListController extends Controller
                 return [
                     'id' => $user->id,
                     'name' => $user->name,
-                    'role' => 'Frontend',
+                    'role' => 'freelancer',
                     'about' => $user->freelancerProfile->about ?? '',
                     'rating' => $user->freelancerProfile->rating ?? 0,
                     'location' => $user->freelancerProfile->location ?? '',

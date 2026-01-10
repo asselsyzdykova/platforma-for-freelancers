@@ -31,30 +31,6 @@ export default {
     CategoryList,
     FreelancerCard,
   },
-  data() {
-    return {
-      freelancers: [
-        {
-          id: 1,
-          name: 'bebebebeeb',
-          role: 'Frontend Developer',
-          rating: 4.8,
-          reviews: 300,
-          location: 'Slovakia, Nitra',
-          skills: ['Vue.js'],
-        },
-        {
-          id: 2,
-          name: 'kfjvnkjfnvjkf',
-          role: 'UI/UX Designer',
-          rating: 4.9,
-          reviews: 210,
-          location: 'Bratislava',
-          skills: ['Figma'],
-        },
-      ],
-    }
-  },
 }
 </script>
 <style scoped>
