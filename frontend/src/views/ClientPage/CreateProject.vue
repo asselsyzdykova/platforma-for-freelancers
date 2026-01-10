@@ -28,6 +28,21 @@
           <option>UI/UX</option>
           <option>Mobile</option>
           <option>Fullstack</option>
+          <option>DevOps</option>
+          <option>Data Science</option>
+          <option>Design</option>
+          <option>Digital Marketing</option>
+          <option>Writing</option>
+          <option>Translation</option>
+          <option>Video Editing</option>
+          <option>Audio Editing</option>
+          <option>Graphics</option>
+          <option>Animation</option>
+          <option>Video Production</option>
+          <option>Photography</option>
+          <option>SEO</option>
+          <option>Content Creation</option>
+          <option>Other</option>
         </select>
       </div>
 

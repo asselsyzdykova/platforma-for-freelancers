@@ -163,6 +163,7 @@ const worldCities = [
   'Johannesburg',
   'Cape Town',
   'Lagos',
+  'Nitra',
   'Nairobi',
   'Istanbul',
   'Ankara',

@@ -26,7 +26,11 @@ const logout = () => {
         <RouterLink :to="{ name: 'freelancers' }" exact-active-class="active"
           >Freelancers</RouterLink
         >
-        <RouterLink :to="{ name: 'projects' }" exact-active-class="active">Projects</RouterLink>
+<RouterLink
+  v-if="userStore.isLoggedIn"
+  :to="{ name: 'projects' }"
+  exact-active-class="active"
+>Projects</RouterLink>
         <RouterLink :to="{ name: 'Subscriptions' }" exact-active-class="active"
           >Subscriptions</RouterLink
         >
