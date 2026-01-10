@@ -14,7 +14,7 @@
       </span>
     </div>
 
-    <RouterLink
+    <RouterLink v-if="useUserStore.isLoggedIn"
       :to="{ name: 'PublicProfile', params: { id: freelancer.id } }"
       class="view-btn"
       target="_blank"
