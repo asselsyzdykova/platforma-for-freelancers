@@ -29,11 +29,7 @@
         </div>
 
         <div class="tags" v-if="project.tags?.length">
-          <span
-            class="tag"
-            v-for="tag in project.tags"
-            :key="tag"
-          >
+          <span class="tag" v-for="tag in project.tags" :key="tag">
             {{ tag }}
           </span>
         </div>
@@ -75,77 +71,48 @@ export default {
     async respondToJob(project) {
       try {
         const message = prompt("Write your response message for the client:");
-        if (!message) return;
+        if (!message || message.trim() === "") {
+          alert("Message cannot be empty.");
+          return;
+        }
+
+        const budgetInput = prompt(
+          `Enter your proposed budget in € (current project budget: ${project.budget} €):`
+        );
+        const budget = Number(budgetInput);
+
+        if (isNaN(budget) || budget <= 0) {
+          alert("Please enter a valid number for budget.");
+          return;
+        }
 
         await api.post(`/projects/${project.id}/apply`, {
-          message: message,
-          budget: project.budget,
+          message: message.trim(),
+          budget: budget,
         });
 
         alert("Response sent! The client will receive a notification.");
-
       } catch (e) {
         console.error("Failed to send response", e);
-        alert("Failed to send response.");
+
+        if (e.response && e.response.status === 422) {
+          const errors = e.response.data.errors;
+          alert(
+            "Failed to send response:\n" +
+              Object.entries(errors)
+                .map(([field, messages]) => `${field}: ${messages.join(", ")}`)
+                .join("\n")
+          );
+        } else {
+          alert("Failed to send response. See console for details.");
+        }
       }
-    }
+    },
   },
 };
 </script>
 
-
-
-
 <style scoped>
-  .client {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 12px;
-  font-size: 14px;
-  color: #444;
-}
-
-.avatar {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-.meta {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 12px;
-  font-size: 14px;
-}
-
-.tags {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-bottom: 16px;
-}
-
-.tag {
-  background: #e6e0ff;
-  padding: 6px 12px;
-  border-radius: 12px;
-  font-size: 13px;
-}
-
-.btn {
-  background: #5b3df5;
-  color: white;
-  border: none;
-  padding: 10px 16px;
-  border-radius: 12px;
-  cursor: pointer;
-}
-
-.btn:hover {
-  opacity: 0.9;
-}
 .projects {
   max-width: 1200px;
   margin: 0 auto;
@@ -176,6 +143,22 @@ export default {
 .description {
   color: #555;
   margin-bottom: 16px;
+}
+
+.client {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  font-size: 14px;
+  color: #444;
+}
+
+.avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 .meta {
