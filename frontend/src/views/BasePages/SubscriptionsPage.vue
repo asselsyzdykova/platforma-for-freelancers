@@ -1,9 +1,7 @@
 <template>
   <div class="subscriptions-page">
     <h1 class="title">Choose Your Plan</h1>
-    <p class="subtitle">
-      Upgrade your account to get more opportunities as a freelancer.
-    </p>
+    <p class="subtitle">Upgrade your account to get more opportunities as a freelancer.</p>
 
     <div class="plans">
       <!-- FREE PLAN -->
@@ -18,9 +16,7 @@
           <li>✖ No priority listing</li>
         </ul>
 
-        <button class="btn disabled" disabled>
-          Current Plan
-        </button>
+        <button class="btn disabled" disabled>Current Plan</button>
       </div>
 
       <!-- PRO PLAN -->
@@ -35,9 +31,7 @@
           <li>✔ Direct client messaging</li>
         </ul>
 
-        <button class="btn primary" @click="subscribe('pro')">
-          Upgrade to Pro
-        </button>
+        <button class="btn primary" @click="subscribe('pro')">Upgrade to Pro</button>
       </div>
 
       <!-- PREMIUM PLAN -->
@@ -52,22 +46,50 @@
           <li>✔ Higher visibility</li>
         </ul>
 
-        <button class="btn primary" @click="subscribe('premium')">
-          Upgrade to Premium
-        </button>
+        <button class="btn primary" @click="subscribe('premium')">Upgrade to Premium</button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-const subscribe = (plan) => {
-  // later: call backend API -> Stripe Checkout
-  console.log(`Selected plan: ${plan}`);
+import axios from 'axios'
 
-  // example:
-  // await axios.post('/api/subscriptions/checkout', { plan })
-};
+const subscribe = async (plan) => {
+  try {
+    const token = localStorage.getItem('access_token')
+
+    const base =
+      (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '') || window.location.origin
+    const url = `${base}/api/create-checkout-session`
+
+    const { data } = await axios.post(
+      url,
+      { plan },
+      {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        withCredentials: true,
+      },
+    )
+
+    if (data?.url) {
+      window.location.href = data.url
+      return
+    }
+    throw new Error('Checkout URL missing from server response.')
+  } catch (error) {
+    if (error?.response?.status === 401) {
+      alert('Please log in to continue.')
+      return
+    }
+    if (error?.response?.data?.error) {
+      alert(error.response.data.error)
+      return
+    }
+    console.error('Stripe checkout error:', error)
+    alert('Something went wrong with the payment. Please try again.')
+  }
+}
 </script>
 
 <style scoped>
@@ -99,7 +121,9 @@ const subscribe = (plan) => {
   border-radius: 12px;
   padding: 30px 20px;
   background: #fff;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
 }
 
 .plan-card:hover {

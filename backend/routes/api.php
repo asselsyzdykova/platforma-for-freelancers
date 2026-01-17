@@ -9,13 +9,11 @@ use App\Http\Controllers\Api\FreelancerListController;
 use App\Http\Controllers\Api\ClientProfileController;
 use App\Http\Controllers\Api\ClientProjectController;
 use App\Http\Controllers\Api\ProjectController;
-
 use App\Http\Controllers\Api\NotificationController;
-
 use App\Http\Controllers\Api\ProposalController;
-
 use App\Http\Controllers\Api\FreelancerNotificationController;
 use App\Http\Controllers\Api\ChatController;
+use App\Http\Controllers\Api\SubscriptionController;
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/projects/{id}/apply', [ProposalController::class, 'apply']);
@@ -46,6 +44,12 @@ Route::middleware('auth:sanctum')->group(function () {
      Route::get('/freelancer/profile', [FreelancerProfileController::class, 'show']);
     Route::post('/freelancer/profile', [FreelancerProfileController::class, 'update']);
 
+
+
+    //subscriptions
+    Route::middleware('auth:sanctum')->post('/create-checkout-session', [SubscriptionController::class, 'createCheckoutSession']);
+    Route::post('/subscriptions/checkout', [SubscriptionController::class, 'checkout']);
+
     // Chat
     Route::get('/conversations', [ChatController::class, 'conversations']);
     Route::get('/messages/{userId}', [ChatController::class, 'index']);
@@ -67,3 +71,6 @@ Route::post('/login', [AuthController::class, 'login']);
 
 
 Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
+
+// Public endpoint for Stripe webhooks
+Route::post('/stripe/webhook', [SubscriptionController::class, 'handleWebhook']);
