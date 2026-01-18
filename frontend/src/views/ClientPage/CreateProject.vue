@@ -71,6 +71,7 @@
 
 <script>
 import api from '@/services/axios'
+import { useNotificationStore } from '@/stores/notificationStore'
 
 export default {
   name: 'CreateProject',
@@ -85,6 +86,7 @@ export default {
         tags: [],
       },
       tagInput: '',
+      notifications: useNotificationStore(),
     }
   },
 
@@ -108,14 +110,14 @@ export default {
 
         await api.post('/client/projects', payload)
 
-        alert('Project created successfully!')
+        this.notifications.success('Project created successfully!')
 
         window.dispatchEvent(new Event('projectCreated'))
 
         this.$router.push({ name: 'ClientProfile' })
       } catch (error) {
         console.error(error.response?.data || error)
-        alert('Failed to create project. Check all fields.')
+        this.notifications.error('Failed to create project. Check all fields.')
       }
     },
 

@@ -30,15 +30,17 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '../../services/axios'
 import { useUserStore } from '@/stores/userStore'
+import { useNotificationStore } from '@/stores/notificationStore'
 
 const email = ref('')
 const password = ref('')
 const router = useRouter()
 const userStore = useUserStore()
+const notifications = useNotificationStore()
 
 const login = async () => {
   if (!email.value || !password.value) {
-    alert('Please fill in all fields')
+    notifications.warning('Please fill in all fields')
     return
   }
 
@@ -59,7 +61,7 @@ const login = async () => {
     }
   } catch (error) {
     console.error(error)
-    alert(error.response?.data?.message || 'Login failed')
+    notifications.error(error.response?.data?.message || 'Login failed')
   }
 }
 </script>

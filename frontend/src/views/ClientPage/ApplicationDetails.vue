@@ -24,10 +24,12 @@
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import api from '@/services/axios'
+import { useNotificationStore } from '@/stores/notificationStore'
 
 const route = useRoute()
 const router = useRouter()
 const application = ref(null)
+const notifications = useNotificationStore()
 
 const loadApplication = async () => {
   try {
@@ -53,33 +55,33 @@ const goToFreelancerProfile = async () => {
 const setUnderReview = async () => {
   try {
     await api.post(`/client/applications/${route.params.id}/review`)
-    alert('Application marked as under review')
+    notifications.success('Application marked as under review')
     application.value.status = 'Under Review'
   } catch (e) {
     console.error(e)
-    alert('Failed to mark as under review')
+    notifications.error('Failed to mark as under review')
   }
 }
 
 const acceptApplication = async () => {
   try {
     await api.post(`/client/applications/${route.params.id}/accept`)
-    alert('Application accepted')
+    notifications.success('Application accepted')
     application.value.status = 'Accepted'
   } catch (e) {
     console.error(e)
-    alert('Failed to accept application')
+    notifications.error('Failed to accept application')
   }
 }
 
 const rejectApplication = async () => {
   try {
     await api.post(`/client/applications/${route.params.id}/reject`)
-    alert('Application rejected')
+    notifications.success('Application rejected')
     application.value.status = 'Rejected'
   } catch (e) {
     console.error(e)
-    alert('Failed to reject application')
+    notifications.error('Failed to reject application')
   }
 }
 

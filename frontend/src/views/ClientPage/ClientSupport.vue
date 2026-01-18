@@ -29,13 +29,14 @@
 
 <script>
 import api from '@/services/axios'
+import { useNotificationStore } from '@/stores/notificationStore'
 import ClientSidebar from '@/components/ClientPageMenu/SidebarMenu.vue'
 
 export default {
   name: 'ClientSupport',
   components: { ClientSidebar },
   data() {
-    return { subject: '', message: '', sent: false }
+    return { subject: '', message: '', sent: false, notifications: useNotificationStore() }
   },
   methods: {
     async sendSupportMessage() {
@@ -46,7 +47,7 @@ export default {
         this.message = ''
       } catch (e) {
         console.error('Failed to send support message', e)
-        alert('Failed to send message')
+        this.notifications.error('Failed to send message')
       }
     },
   },
@@ -60,8 +61,8 @@ export default {
 }
 .support-page {
   width: 60%;
-    padding: 30px;
-    margin: 0 auto;
+  padding: 30px;
+  margin: 0 auto;
 }
 .subtitle {
   color: #666;

@@ -66,6 +66,7 @@
 
 <script>
 import api from '@/services/axios'
+import { useNotificationStore } from '@/stores/notificationStore'
 import ClientSidebar from '@/components/ClientPageMenu/SidebarMenu.vue'
 
 export default {
@@ -85,6 +86,7 @@ export default {
         completed: 0,
       },
       notifications: [],
+      notify: useNotificationStore(),
     }
   },
 
@@ -116,11 +118,11 @@ export default {
       this.$router.push({ name: 'ClientInbox' })
     },
 
-/**
- * Loads the client profile from the server.
- * Updates the 'client' data property with the server response.
- * Logs an error to the console if the request fails.
- */
+    /**
+     * Loads the client profile from the server.
+     * Updates the 'client' data property with the server response.
+     * Logs an error to the console if the request fails.
+     */
     async loadClientProfile() {
       try {
         const res = await api.get('/client/profile')
@@ -157,11 +159,11 @@ export default {
 
       try {
         await api.delete(`/client/projects/${projectId}`)
-        alert('Project deleted successfully!')
+        this.notify.success('Project deleted successfully!')
         await this.loadClientProjects()
       } catch (e) {
         console.error('Failed to delete project', e)
-        alert('Failed to delete project')
+        this.notify.error('Failed to delete project')
       }
     },
 
@@ -226,9 +228,9 @@ export default {
 }
 
 .client-content {
-    width: 60%;
-    padding: 30px;
-    margin: 0 auto;
+  width: 60%;
+  padding: 30px;
+  margin: 0 auto;
 }
 .client-page {
   max-width: 1100px;

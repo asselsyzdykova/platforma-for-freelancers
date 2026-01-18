@@ -6,14 +6,35 @@ use App\Http\Controllers\Controller;
 use App\Models\Project;
 use App\Models\Proposal;
 use App\Models\Notification;
+use App\Models\Subscription;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 class ProposalController extends Controller
 {
     public function apply(Request $request, $projectId)
     {
         $project = Project::findOrFail($projectId);
+
+        $user = $request->user();
+        if (!$user || $user->role !== 'freelancer') {
+            return response()->json(['message' => 'Only freelancers can apply'], 403);
+        }
+
+        $plan = $this->getActivePlan($user->id);
+        if ($plan === 'free') {
+            $startOfMonth = Carbon::now()->startOfMonth();
+            $count = Proposal::where('freelancer_id', $user->id)
+                ->where('created_at', '>=', $startOfMonth)
+                ->count();
+
+            if ($count >= 3) {
+                return response()->json([
+                    'message' => 'Free plan allows only 3 proposals per month. Upgrade to Pro or Premium.',
+                ], 403);
+            }
+        }
 
         $data = $request->validate([
             'message' => 'required|string',
@@ -37,6 +58,30 @@ class ProposalController extends Controller
         ]);
 
         return response()->json($proposal, 201);
+    }
+
+    private function getActivePlan(int $userId): string
+    {
+        $subscription = Subscription::where('user_id', $userId)
+            ->where('status', 'active')
+            ->latest('created_at')
+            ->first();
+
+        if (!$subscription) {
+            return 'free';
+        }
+
+        $plan = $subscription->plan;
+
+        if ($plan === env('STRIPE_PRICE_PRO') || $plan === 'pro') {
+            return 'pro';
+        }
+
+        if ($plan === env('STRIPE_PRICE_PREMIUM') || $plan === 'premium') {
+            return 'premium';
+        }
+
+        return 'free';
     }
 
     public function show($id)

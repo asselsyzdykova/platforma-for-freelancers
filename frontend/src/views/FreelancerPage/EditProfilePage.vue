@@ -55,6 +55,7 @@
 import { ref, onMounted, computed } from 'vue'
 import api from '../../services/axios'
 import { useRouter } from 'vue-router'
+import { useNotificationStore } from '@/stores/notificationStore'
 
 // World cities data
 const worldCities = [
@@ -247,10 +248,27 @@ const worldCities = [
   'Tromsø',
   'Sandefjord',
   'Lillehammer',
-  'Astana', 'Almaty', 'Shymkent', 'Karaganda', 'Taraz', 'Pavlodar', 'Ust-Kamenogorsk', 'Semey', 'Aktau', 'Atyrau', 'Kostanay', 'Kyzylorda', 'Zhezkazgan', 'Petropavl', 'Taldykorgan', 'Ekibastuz', 'Ridder',
+  'Astana',
+  'Almaty',
+  'Shymkent',
+  'Karaganda',
+  'Taraz',
+  'Pavlodar',
+  'Ust-Kamenogorsk',
+  'Semey',
+  'Aktau',
+  'Atyrau',
+  'Kostanay',
+  'Kyzylorda',
+  'Zhezkazgan',
+  'Petropavl',
+  'Taldykorgan',
+  'Ekibastuz',
+  'Ridder',
 ]
 
 const router = useRouter()
+const notifications = useNotificationStore()
 const citySearch = ref('')
 const showCitiesList = ref(false)
 const filteredCities = computed(() => {
@@ -295,7 +313,7 @@ onMounted(async () => {
     }
   } catch (error) {
     console.error(error)
-    alert('Failed to load profile')
+    notifications.error('Failed to load profile')
   }
 })
 
@@ -335,7 +353,7 @@ const saveProfile = async () => {
       form.value.avatarPreview = res.data.avatar_url
     }
 
-    alert('Profile saved successfully!')
+    notifications.success('Profile saved successfully!')
     router.push('/freelancer-profile')
   } catch (error) {
     console.error('Full error response:', error.response?.data)
@@ -344,7 +362,7 @@ const saveProfile = async () => {
       Object.entries(errors)
         .map(([key, msgs]) => `${key}: ${msgs.join(', ')}`)
         .join('\n') || 'Failed to save profile. Check all fields.'
-    alert(errorMessage)
+    notifications.error(errorMessage)
   }
 }
 </script>

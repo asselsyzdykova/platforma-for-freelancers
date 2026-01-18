@@ -35,6 +35,7 @@
 
 <script>
 import api from '@/services/axios'
+import { useNotificationStore } from '@/stores/notificationStore'
 import ClientSidebar from '@/components/ClientPageMenu/SidebarMenu.vue'
 
 export default {
@@ -46,6 +47,7 @@ export default {
     return {
       projects: [],
       loading: true,
+      notifications: useNotificationStore(),
     }
   },
 
@@ -75,10 +77,10 @@ export default {
       try {
         await api.delete(`/client/projects/${projectId}`)
         await this.loadProjects()
-        alert('Project deleted')
+        this.notifications.success('Project deleted')
       } catch (e) {
         console.error('Failed to delete project', e)
-        alert('Failed to delete project')
+        this.notifications.error('Failed to delete project')
       }
     },
   },
@@ -91,9 +93,9 @@ export default {
   min-height: 100vh;
 }
 .projects-page {
-   width: 60%;
-    padding: 30px;
-    margin: 0 auto;
+  width: 60%;
+  padding: 30px;
+  margin: 0 auto;
 }
 .subtitle {
   color: #666;

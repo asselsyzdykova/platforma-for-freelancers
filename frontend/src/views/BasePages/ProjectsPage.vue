@@ -1,25 +1,15 @@
 <template>
   <div class="projects">
     <h1>Projects</h1>
-    <p class="subtitle">
-      Browse available projects and find work that matches your skills
-    </p>
+    <p class="subtitle">Browse available projects and find work that matches your skills</p>
 
     <div class="project-grid">
-      <div
-        class="project-card"
-        v-for="project in projects"
-        :key="project.id"
-      >
+      <div class="project-card" v-for="project in projects" :key="project.id">
         <h3>{{ project.title }}</h3>
         <p class="description">{{ project.description }}</p>
 
         <div class="client" v-if="project.client">
-          <img
-            v-if="project.client.avatar_url"
-            :src="project.client.avatar_url"
-            class="avatar"
-          />
+          <img v-if="project.client.avatar_url" :src="project.client.avatar_url" class="avatar" />
           <span>{{ project.client.name }}</span>
         </div>
 
@@ -34,82 +24,147 @@
           </span>
         </div>
 
-        <button class="btn" @click="respondToJob(project)">
-          Response to a job
-        </button>
+        <button class="btn" @click="respondToJob(project)">Response to a job</button>
+      </div>
+    </div>
+
+    <div v-if="showProposalModal" class="modal-backdrop" @click.self="closeProposalModal">
+      <div class="modal">
+        <div class="modal-header">
+          <div>
+            <h2>Send Proposal</h2>
+            <p class="modal-subtitle">
+              {{ selectedProject?.title }} · Budget {{ selectedProject?.budget }} €
+            </p>
+          </div>
+          <button class="icon-btn" @click="closeProposalModal">✕</button>
+        </div>
+
+        <div class="modal-body">
+          <label class="field">
+            Message
+            <textarea
+              v-model="proposalForm.message"
+              rows="4"
+              placeholder="Write a short message to the client"
+            ></textarea>
+          </label>
+
+          <label class="field">
+            Proposed budget (€)
+            <input
+              v-model="proposalForm.budget"
+              type="number"
+              min="1"
+              step="1"
+              placeholder="e.g. 500"
+            />
+          </label>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn-secondary" @click="closeProposalModal">Cancel</button>
+          <button class="btn-primary" @click="submitProposal">Send proposal</button>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import api from "@/services/axios";
+import api from '@/services/axios'
+import { useNotificationStore } from '@/stores/notificationStore'
 
 export default {
-  name: "ProjectsPage",
+  name: 'ProjectsPage',
 
   data() {
     return {
       projects: [],
-    };
+      notifications: useNotificationStore(),
+      showProposalModal: false,
+      selectedProject: null,
+      proposalForm: {
+        message: '',
+        budget: '',
+      },
+    }
   },
 
   mounted() {
-    this.loadProjects();
+    this.loadProjects()
   },
 
   methods: {
     async loadProjects() {
       try {
-        const res = await api.get("/projects");
-        this.projects = res.data;
+        const res = await api.get('/projects')
+        this.projects = res.data
       } catch (e) {
-        console.error("Failed to load projects", e);
+        console.error('Failed to load projects', e)
       }
     },
 
     async respondToJob(project) {
+      this.selectedProject = project
+      this.proposalForm = {
+        message: '',
+        budget: project?.budget || '',
+      }
+      this.showProposalModal = true
+    },
+
+    closeProposalModal() {
+      this.showProposalModal = false
+      this.selectedProject = null
+    },
+
+    async submitProposal() {
       try {
-        const message = prompt("Write your response message for the client:");
-        if (!message || message.trim() === "") {
-          alert("Message cannot be empty.");
-          return;
+        const message = this.proposalForm.message
+        const budget = Number(this.proposalForm.budget)
+
+        if (!message || message.trim() === '') {
+          this.notifications.warning('Message cannot be empty.')
+          return
         }
-
-        const budgetInput = prompt(
-          `Enter your proposed budget in € (current project budget: ${project.budget} €):`
-        );
-        const budget = Number(budgetInput);
-
         if (isNaN(budget) || budget <= 0) {
-          alert("Please enter a valid number for budget.");
-          return;
+          this.notifications.warning('Please enter a valid number for budget.')
+          return
         }
 
-        await api.post(`/projects/${project.id}/apply`, {
+        if (!this.selectedProject) {
+          this.notifications.error('Project not selected.')
+          return
+        }
+
+        await api.post(`/projects/${this.selectedProject.id}/apply`, {
           message: message.trim(),
           budget: budget,
-        });
+        })
 
-        alert("Response sent! The client will receive a notification.");
+        this.notifications.success('Response sent! The client will receive a notification.')
+        this.closeProposalModal()
       } catch (e) {
-        console.error("Failed to send response", e);
+        console.error('Failed to send response', e)
 
-        if (e.response && e.response.status === 422) {
-          const errors = e.response.data.errors;
-          alert(
-            "Failed to send response:\n" +
+        if (e.response && e.response.status === 403) {
+          this.notifications.warning(e.response.data?.message || 'Upgrade required to apply.')
+        } else if (e.response && e.response.status === 422) {
+          const errors = e.response.data.errors
+          this.notifications.error(
+            'Failed to send response:\n' +
               Object.entries(errors)
-                .map(([field, messages]) => `${field}: ${messages.join(", ")}`)
-                .join("\n")
-          );
+                .map(([field, messages]) => `${field}: ${messages.join(', ')}`)
+                .join('\n'),
+          )
         } else {
-          alert("Failed to send response. See console for details.");
+          this.notifications.error('Failed to send response. See console for details.')
         }
       }
     },
   },
-};
+}
 </script>
 
 <style scoped>
@@ -193,5 +248,106 @@ export default {
 
 .btn:hover {
   opacity: 0.9;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 15, 25, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 2000;
+}
+
+.modal {
+  width: 100%;
+  max-width: 520px;
+  background: #fff;
+  border-radius: 18px;
+  padding: 22px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.modal-header h2 {
+  margin: 0 0 4px;
+}
+
+.modal-subtitle {
+  margin: 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.icon-btn {
+  border: none;
+  background: #f3f4f6;
+  border-radius: 10px;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+}
+
+.modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+  color: #111827;
+}
+
+.field input,
+.field textarea {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 14px;
+  outline: none;
+}
+
+.field input:focus,
+.field textarea:focus {
+  border-color: #5b3df5;
+  box-shadow: 0 0 0 3px rgba(91, 61, 245, 0.15);
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.btn-secondary {
+  background: #f3f4f6;
+  color: #111827;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: #5b3df5;
+  color: #fff;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 12px;
+  cursor: pointer;
 }
 </style>

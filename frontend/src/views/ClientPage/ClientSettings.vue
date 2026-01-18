@@ -58,6 +58,7 @@
 
 <script>
 import api from '@/services/axios'
+import { useNotificationStore } from '@/stores/notificationStore'
 import ClientSidebar from '@/components/ClientPageMenu/SidebarMenu.vue'
 
 export default {
@@ -74,6 +75,7 @@ export default {
         new: '',
         confirm: '',
       },
+      notifications: useNotificationStore(),
     }
   },
   async mounted() {
@@ -92,16 +94,16 @@ export default {
         formData.append('language', this.form.language)
 
         await api.post('/client/profile', formData)
-        alert('Profile updated')
+        this.notifications.success('Profile updated')
       } catch (e) {
         console.error('Failed to save profile', e)
-        alert('Failed to save profile')
+        this.notifications.error('Failed to save profile')
       }
     },
 
     async changePassword() {
       if (this.password.new !== this.password.confirm) {
-        alert("New passwords don't match")
+        this.notifications.warning("New passwords don't match")
         return
       }
 
@@ -111,11 +113,11 @@ export default {
           new_password: this.password.new,
         })
 
-        alert('Password changed')
+        this.notifications.success('Password changed')
         this.password = { current: '', new: '', confirm: '' }
       } catch (e) {
         console.error('Failed to change password', e)
-        alert('Failed to change password')
+        this.notifications.error('Failed to change password')
       }
     },
   },
@@ -129,8 +131,8 @@ export default {
 }
 .settings-page {
   width: 60%;
-    padding: 30px;
-    margin: 0 auto;
+  padding: 30px;
+  margin: 0 auto;
 }
 .subtitle {
   color: #666;

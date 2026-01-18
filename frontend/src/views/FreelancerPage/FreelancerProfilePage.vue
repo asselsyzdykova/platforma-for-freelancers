@@ -101,10 +101,12 @@ import { ref, onMounted } from 'vue'
 import api from '../../services/axios'
 import { useRouter } from 'vue-router'
 import SidebarMenu from '@/components/FreelancerPageMenu/SidebarMenu.vue'
+import { useNotificationStore } from '@/stores/notificationStore'
 
 const user = ref(null)
 const profile = ref({})
 const router = useRouter()
+const toast = useNotificationStore()
 const notifications = ref([])
 const hasUnread = ref(false)
 const goToInbox = () => router.push('/freelancer/inbox')
@@ -122,7 +124,7 @@ onMounted(async () => {
     profile.value = profileRes.data || {}
   } catch (error) {
     console.error(error)
-    alert('Failed to load profile')
+    toast.error('Failed to load profile')
     router.push('/login')
   }
 
