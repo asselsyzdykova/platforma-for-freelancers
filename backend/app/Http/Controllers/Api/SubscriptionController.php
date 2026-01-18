@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Subscription;
 use App\Models\User;
+use Illuminate\Support\Facades\Log;
 use Stripe\Stripe;
 use Stripe\Checkout\Session;
 
@@ -57,6 +58,7 @@ class SubscriptionController extends Controller
                 'payment_method_types' => ['card'],
                 'mode' => 'subscription',
                 'customer_email' => $user->email,
+                'client_reference_id' => (string) $user->id,
                 'line_items' => [[
                     'price' => $priceId,
                     'quantity' => 1,
@@ -96,36 +98,73 @@ class SubscriptionController extends Controller
         switch ($event->type) {
             case 'checkout.session.completed':
                 $session = $event->data->object;
-                $user = User::where('email', $session->customer_email)->first();
+                Log::info('Stripe webhook: checkout.session.completed', [
+                    'session_id' => $session->id ?? null,
+                    'subscription_id' => $session->subscription ?? null,
+                    'client_reference_id' => $session->client_reference_id ?? null,
+                    'customer_email' => $session->customer_email ?? null,
+                ]);
+                $user = null;
+                if (!empty($session->client_reference_id)) {
+                    $user = User::find($session->client_reference_id);
+                }
+                if (!$user && !empty($session->customer_email)) {
+                    $user = User::where('email', $session->customer_email)->first();
+                }
                 if ($user) {
                     $priceId = $session->metadata->price_id ?? null;
 
                     Subscription::updateOrCreate(
-                        ['user_id' => $user->id],
                         [
-                            'stripe_customer_id' => $session->customer,
-                            'stripe_subscription_id' => $session->subscription,
+                            'user_id' => $user->id,
+                            'provider' => 'stripe',
+                            'provider_id' => $session->subscription,
+                        ],
+                        [
                             'plan' => $priceId,
                             'status' => 'active',
+                            'start_date' => now(),
+                            'end_date' => null,
                         ]
                     );
+                    Log::info('Stripe webhook: subscription stored', [
+                        'user_id' => $user->id,
+                        'provider_id' => $session->subscription ?? null,
+                        'plan' => $priceId,
+                    ]);
+                } else {
+                    Log::warning('Stripe webhook: user not found for session', [
+                        'client_reference_id' => $session->client_reference_id ?? null,
+                        'customer_email' => $session->customer_email ?? null,
+                    ]);
                 }
                 break;
 
             case 'invoice.payment_failed':
                 $invoice = $event->data->object;
-                $subscription = Subscription::where('stripe_subscription_id', $invoice->subscription)->first();
+                Log::info('Stripe webhook: invoice.payment_failed', [
+                    'subscription_id' => $invoice->subscription ?? null,
+                ]);
+                $subscription = Subscription::where('provider', 'stripe')
+                    ->where('provider_id', $invoice->subscription)
+                    ->first();
                 if ($subscription) {
-                    $subscription->status = 'past_due';
+                    $subscription->status = 'expired';
                     $subscription->save();
                 }
                 break;
 
             case 'customer.subscription.deleted':
                 $subscription = $event->data->object;
-                $localSub = Subscription::where('stripe_subscription_id', $subscription->id)->first();
+                Log::info('Stripe webhook: customer.subscription.deleted', [
+                    'subscription_id' => $subscription->id ?? null,
+                ]);
+                $localSub = Subscription::where('provider', 'stripe')
+                    ->where('provider_id', $subscription->id)
+                    ->first();
                 if ($localSub) {
                     $localSub->status = 'canceled';
+                    $localSub->end_date = now();
                     $localSub->save();
                 }
                 break;

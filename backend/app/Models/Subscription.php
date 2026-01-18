@@ -11,10 +11,17 @@ class Subscription extends Model
 
     protected $fillable = [
         'user_id',
-        'stripe_customer_id',
-        'stripe_subscription_id',
         'plan',
+        'provider',
+        'provider_id',
         'status',
+        'start_date',
+        'end_date',
+    ];
+
+    protected $casts = [
+        'start_date' => 'datetime',
+        'end_date' => 'datetime',
     ];
 
     public function user()

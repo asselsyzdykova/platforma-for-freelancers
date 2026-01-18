@@ -16,6 +16,7 @@ import ClientPage from '@/views/ClientPage/ClientPage.vue'
 import EditProfileClient from '@/views/ClientPage/EditProfileClient.vue'
 import CreateProject from '@/views/ClientPage/CreateProject.vue'
 import SubscriptionsPage from '@/views/BasePages/SubscriptionsPage.vue'
+import SubscriptionSuccessPage from '@/views/BasePages/SubscriptionSuccessPage.vue'
 import ClientInbox from '@/views/ClientPage/ClientInbox.vue'
 import FreelancerInbox from '@/views/FreelancerPage/FreelancerInbox.vue'
 import ApplicationDetails from '@/views/ClientPage/ApplicationDetails.vue'
@@ -134,6 +135,11 @@ const router = createRouter({
       path: '/subscriptions',
       name: 'Subscriptions',
       component: SubscriptionsPage,
+    },
+    {
+      path: '/success',
+      name: 'SubscriptionSuccess',
+      component: SubscriptionSuccessPage,
     },
 
     {
