@@ -172,4 +172,64 @@ class SubscriptionController extends Controller
 
         return response('Webhook handled', 200);
     }
+
+    public function confirmCheckout(Request $request)
+    {
+        $user = $request->user();
+        if (!$user) {
+            return response()->json(['error' => 'Unauthenticated'], 401);
+        }
+
+        $validated = $request->validate([
+            'session_id' => ['required', 'string'],
+        ]);
+
+        $stripeSecret = env('STRIPE_SECRET');
+        if (!$stripeSecret) {
+            return response()->json(['error' => 'Stripe secret key is not configured'], 500);
+        }
+
+        Stripe::setApiKey($stripeSecret);
+
+        try {
+            $session = Session::retrieve($validated['session_id']);
+        } catch (\Stripe\Exception\ApiErrorException $e) {
+            return response()->json(['error' => $e->getMessage()], 422);
+        }
+
+        if (!empty($session->client_reference_id) && (string) $user->id !== (string) $session->client_reference_id) {
+            return response()->json(['error' => 'Session does not belong to the current user'], 403);
+        }
+
+        if (empty($session->subscription)) {
+            return response()->json(['error' => 'Subscription not found for this session'], 422);
+        }
+
+        $priceId = $session->metadata->price_id ?? null;
+
+        Subscription::updateOrCreate(
+            [
+                'user_id' => $user->id,
+                'provider' => 'stripe',
+                'provider_id' => $session->subscription,
+            ],
+            [
+                'plan' => $priceId,
+                'status' => 'active',
+                'start_date' => now(),
+                'end_date' => null,
+            ]
+        );
+
+        Log::info('Stripe confirm: subscription stored', [
+            'user_id' => $user->id,
+            'provider_id' => $session->subscription,
+            'plan' => $priceId,
+        ]);
+
+        return response()->json([
+            'status' => 'ok',
+            'plan' => $priceId,
+        ]);
+    }
 }

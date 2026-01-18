@@ -48,6 +48,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     //subscriptions
     Route::middleware('auth:sanctum')->post('/create-checkout-session', [SubscriptionController::class, 'createCheckoutSession']);
+    Route::middleware('auth:sanctum')->post('/subscriptions/confirm', [SubscriptionController::class, 'confirmCheckout']);
     Route::post('/subscriptions/checkout', [SubscriptionController::class, 'checkout']);
 
     // Chat

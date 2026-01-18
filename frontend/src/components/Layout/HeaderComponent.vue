@@ -1,7 +1,7 @@
 <script setup>
 import { useUserStore } from '@/stores/userStore'
 import { useRouter } from 'vue-router'
-import { onMounted } from 'vue'
+import { onMounted, computed } from 'vue'
 
 const userStore = useUserStore()
 const router = useRouter()
@@ -14,6 +14,14 @@ const logout = () => {
   userStore.logout()
   router.push({ name: 'login' })
 }
+
+const planSuffix = computed(() => {
+  const plan = userStore.user?.plan
+  if (!plan) return ''
+  const label = String(plan).toLowerCase()
+  const pretty = label.charAt(0).toUpperCase() + label.slice(1)
+  return ` (${pretty})`
+})
 </script>
 
 <template>
@@ -23,14 +31,18 @@ const logout = () => {
 
       <nav class="nav">
         <RouterLink :to="{ name: 'home' }" exact-active-class="active">Home</RouterLink>
-        <RouterLink v-if="userStore.isLoggedIn" :to="{ name: 'freelancers' }" exact-active-class="active"
+        <RouterLink
+          v-if="userStore.isLoggedIn"
+          :to="{ name: 'freelancers' }"
+          exact-active-class="active"
           >Freelancers</RouterLink
         >
-<RouterLink
-  v-if="userStore.isLoggedIn"
-  :to="{ name: 'projects' }"
-  exact-active-class="active"
->Projects</RouterLink>
+        <RouterLink
+          v-if="userStore.isLoggedIn"
+          :to="{ name: 'projects' }"
+          exact-active-class="active"
+          >Projects</RouterLink
+        >
         <RouterLink :to="{ name: 'Subscriptions' }" exact-active-class="active"
           >Subscriptions</RouterLink
         >
@@ -50,7 +62,7 @@ const logout = () => {
           :to="{ name: 'FreelancerProfile' }"
           exact-active-class="active"
         >
-          Profile ({{ userStore.user.name }})
+          Profile ({{ userStore.user.name }}{{ planSuffix }})
         </RouterLink>
 
         <RouterLink

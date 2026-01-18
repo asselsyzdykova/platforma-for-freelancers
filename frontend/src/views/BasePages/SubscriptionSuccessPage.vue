@@ -3,7 +3,13 @@
     <div class="card">
       <div class="icon">✅</div>
       <h1>Subscription Successful</h1>
-<p>Thank you! Your payment has been processed, and your subscription will be activated within a minute.</p>
+      <p v-if="status === 'processing'">Thank you! We are confirming your subscription…</p>
+      <p v-else-if="status === 'success'">
+        Thank you! Your payment has been processed, and your subscription is active.
+      </p>
+      <p v-else>
+        {{ errorMessage || 'We could not confirm the subscription. Please contact support.' }}
+      </p>
       <p v-if="sessionId" class="session">Session: {{ sessionId }}</p>
       <div class="actions">
         <RouterLink class="btn" to="/subscriptions">Back to plans</RouterLink>
@@ -14,11 +20,35 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
+import api from '@/services/axios'
+import { useUserStore } from '@/stores/userStore'
 
 const route = useRoute()
 const sessionId = computed(() => route.query.session_id || '')
+const userStore = useUserStore()
+const status = ref('processing')
+const errorMessage = ref('')
+
+onMounted(async () => {
+  if (!sessionId.value) {
+    status.value = 'error'
+    errorMessage.value = 'Missing session ID.'
+    return
+  }
+
+  try {
+    await api.post('/subscriptions/confirm', {
+      session_id: sessionId.value,
+    })
+    await userStore.loadUser()
+    status.value = 'success'
+  } catch (error) {
+    status.value = 'error'
+    errorMessage.value = error?.response?.data?.error || 'Confirmation failed.'
+  }
+})
 </script>
 
 <style scoped>
