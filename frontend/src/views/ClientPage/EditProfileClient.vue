@@ -25,7 +25,27 @@
 
         <div class="field">
           <label>Location</label>
-          <input v-model="form.location" type="text" />
+          <div class="city-selector">
+            <input
+              v-model="citySearch"
+              type="text"
+              placeholder="Search city..."
+              @focus="showCitiesList = true"
+              @input="filterCities"
+            />
+            <div v-if="showCitiesList" class="cities-dropdown">
+              <div
+                v-for="city in filteredCities"
+                :key="city"
+                class="city-option"
+                @click="selectCity(city)"
+              >
+                {{ city }}
+              </div>
+              <div v-if="filteredCities.length === 0" class="no-results">No cities found</div>
+            </div>
+          </div>
+          <div v-if="form.location" class="selected-city">Selected: {{ form.location }}</div>
         </div>
 
         <div class="field">
@@ -43,13 +63,22 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import api from '../../services/axios'
 import { useRouter } from 'vue-router'
 import { useNotificationStore } from '@/stores/notificationStore'
 
 const router = useRouter()
 const notifications = useNotificationStore()
+const cities = ref([])
+const citySearch = ref('')
+const showCitiesList = ref(false)
+const filteredCities = computed(() => {
+  if (!citySearch.value) return cities.value.slice(0, 10)
+  return cities.value
+    .filter((city) => city.toLowerCase().includes(citySearch.value.toLowerCase()))
+    .slice(0, 20)
+})
 
 const form = ref({
   name: '',
@@ -63,16 +92,37 @@ let avatarFile = null
 
 onMounted(async () => {
   try {
-    const res = await api.get('/client/profile')
-    form.value = {
-      ...form.value,
-      ...res.data,
+    const [profileResponse, citiesResponse] = await Promise.all([
+      api.get('/client/profile'),
+      api.get('/cities'),
+    ])
+
+    if (Array.isArray(citiesResponse.data)) {
+      cities.value = citiesResponse.data
     }
-    previewAvatar.value = res.data.avatar_url || null
+
+    if (profileResponse.data) {
+      form.value = {
+        ...form.value,
+        ...profileResponse.data,
+      }
+      previewAvatar.value = profileResponse.data.avatar_url || null
+      citySearch.value = profileResponse.data.location || ''
+    }
   } catch (e) {
     console.error('Failed to load client profile', e)
   }
 })
+
+const selectCity = (city) => {
+  form.value.location = city
+  citySearch.value = city
+  showCitiesList.value = false
+}
+
+const filterCities = () => {
+  showCitiesList.value = true
+}
 
 const onAvatarChange = (e) => {
   const file = e.target.files[0]
@@ -163,6 +213,56 @@ textarea {
   padding: 10px 12px;
   border-radius: 8px;
   border: 1px solid #ddd;
+}
+
+.city-selector {
+  position: relative;
+}
+
+.city-selector input {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  box-sizing: border-box;
+}
+
+.cities-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #ddd;
+  border-top: none;
+  border-radius: 0 0 10px 10px;
+  max-height: 250px;
+  overflow-y: auto;
+  z-index: 10;
+}
+
+.city-option {
+  padding: 10px;
+  cursor: pointer;
+  border-bottom: 1px solid #f0f0f0;
+  transition: background-color 0.2s;
+}
+
+.city-option:hover {
+  background-color: #f3efff;
+}
+
+.no-results {
+  padding: 10px;
+  text-align: center;
+  color: #999;
+}
+
+.selected-city {
+  margin-top: 8px;
+  font-size: 14px;
+  color: #5b4b8a;
+  font-weight: 500;
 }
 
 .actions {
