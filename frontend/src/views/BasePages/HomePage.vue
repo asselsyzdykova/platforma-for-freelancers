@@ -4,7 +4,7 @@
 
     <section class="categories">
       <h2>Popular Categories</h2>
-      <CategoryList />
+      <CategoryList :freelancers="freelancers" />
     </section>
 
     <section class="freelancers">
@@ -20,42 +20,22 @@
     </section>
   </div>
 </template>
-<script>
-import HeroSection from '@/components/HomePage/HeroSection.vue'
+<script setup>
+import { ref, onMounted } from 'vue'
+import api from '@/services/axios'
 import CategoryList from '@/components/HomePage/CategoryList.vue'
-import FreelancerCard from '@/components/HomePage/FreelancerCard.vue'
-export default {
-  name: 'HomePage',
-  components: {
-    HeroSection,
-    CategoryList,
-    FreelancerCard,
-  },
-  data() {
-    return {
-      freelancers: [
-        {
-          id: 1,
-          name: 'bebebebeeb',
-          role: 'Frontend Developer',
-          rating: 4.8,
-          reviews: 300,
-          location: 'Slovakia, Nitra',
-          skills: ['Vue.js'],
-        },
-        {
-          id: 2,
-          name: 'kfjvnkjfnvjkf',
-          role: 'UI/UX Designer',
-          rating: 4.9,
-          reviews: 210,
-          location: 'Bratislava',
-          skills: ['Figma'],
-        },
-      ],
-    }
-  },
-}
+import HeroSection from '@/components/HomePage/HeroSection.vue'
+
+const freelancers = ref([])
+
+onMounted(async () => {
+  try {
+    const res = await api.get('/freelancers')
+    freelancers.value = res.data
+  } catch (e) {
+    console.error(e)
+  }
+})
 </script>
 <style scoped>
 .home {

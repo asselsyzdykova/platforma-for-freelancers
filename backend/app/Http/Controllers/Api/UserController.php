@@ -4,19 +4,37 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Subscription;
 
 class UserController extends Controller
 {
     public function me(Request $request)
-{
-    $user = $request->user();
 
-    return response()->json([
-        'id' => $user->id,
-        'name' => $user->name,
-        'email' => $user->email,
-        'role' => $user->role ?? 'freelancer',
-    ]);
-}
+    {
+        $user = $request->user();
+
+        $plan = null;
+        $subscription = Subscription::where('user_id', $user->id)
+            ->where('status', 'active')
+            ->latest('created_at')
+            ->first();
+
+        if ($subscription) {
+            $plan = $subscription->plan;
+            if ($plan === env('STRIPE_PRICE_PRO')) {
+                $plan = 'pro';
+            } elseif ($plan === env('STRIPE_PRICE_PREMIUM')) {
+                $plan = 'premium';
+            }
+        }
+
+        return response()->json([
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'role' => $user->role ?? 'freelancer',
+            'plan' => $plan,
+        ]);
+    }
 
 }

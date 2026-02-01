@@ -1,32 +1,34 @@
 <template>
   <aside class="sidebar">
-
     <nav class="menu">
-      <RouterLink to="/freelancer-profile" class="menu-item" active-class="active">
+      <RouterLink :to="{ name: 'FreelancerProfile' }" class="menu-item" active-class="active">
         Profile
       </RouterLink>
 
-      <RouterLink to="/billing-and-payments" class="menu-item" active-class="active">
+      <RouterLink :to="{ name: 'BillingAndPayments' }" class="menu-item" active-class="active">
         Billing & Payments
       </RouterLink>
 
-      <RouterLink to="/my-projects" class="menu-item" active-class="active">
+      <RouterLink :to="{ name: 'MyProjects' }" class="menu-item" active-class="active">
         Projects
       </RouterLink>
 
-      <RouterLink to="/my-proposals" class="menu-item" active-class="active">
+      <RouterLink :to="{ name: 'FreelancerChats' }" class="menu-item" active-class="active">
+        Chats
+      </RouterLink>
+
+      <RouterLink :to="{ name: 'MyProposals' }" class="menu-item" active-class="active">
         My Proposals
       </RouterLink>
 
-      <RouterLink to="/settings" class="menu-item" active-class="active">
+      <RouterLink :to="{ name: 'Settings' }" class="menu-item" active-class="active">
         Settings
       </RouterLink>
 
-      <RouterLink to="/support" class="menu-item" active-class="active">
+      <RouterLink :to="{ name: 'Support' }" class="menu-item" active-class="active">
         Support
       </RouterLink>
     </nav>
-
   </aside>
 </template>
 
@@ -34,8 +36,8 @@
 defineProps({
   userName: {
     type: String,
-    default: 'Freelancer Name'
-  }
+    default: 'Freelancer Name',
+  },
 })
 </script>
 
@@ -77,5 +79,4 @@ defineProps({
   background: #5b4b8a;
   color: white;
 }
-
 </style>

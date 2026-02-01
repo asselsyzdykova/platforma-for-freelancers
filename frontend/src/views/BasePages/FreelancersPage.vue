@@ -1,22 +1,16 @@
 <template>
   <div class="freelancers-page">
     <h1>Find Freelancers</h1>
-    <p class="subtitle">
-      Browse professionals by skills, rating and location
-    </p>
+    <p class="subtitle">Browse professionals by skills, rating and location</p>
 
     <div class="filters">
-      <input
-        v-model="search"
-        type="text"
-        placeholder="Search by name or skill..."
-      />
+      <input v-model="search" type="text" placeholder="Search by name or skill..." />
 
       <select v-model="category">
         <option value="">All categories</option>
-        <option value="Frontend">Frontend</option>
-        <option value="Backend">Backend</option>
-        <option value="Design">Design</option>
+        <option v-for="cat in categories" :key="cat" :value="cat">
+          {{ cat }}
+        </option>
       </select>
     </div>
 
@@ -28,9 +22,7 @@
       />
     </div>
 
-    <p v-if="!filteredFreelancers.length" class="empty">
-      No freelancers found
-    </p>
+    <p v-if="!filteredFreelancers.length" class="empty">No freelancers found</p>
   </div>
 </template>
 
@@ -43,6 +35,11 @@ const search = ref('')
 const category = ref('')
 const freelancers = ref([])
 
+const categories = computed(() => {
+  const allSkills = freelancers.value.flatMap((f) => f.skills || [])
+  return [...new Set(allSkills)]
+})
+
 onMounted(async () => {
   try {
     const res = await api.get('/freelancers')
@@ -53,9 +50,8 @@ onMounted(async () => {
 })
 
 const filteredFreelancers = computed(() => {
-  return freelancers.value.filter(f => {
-    const matchCategory =
-      !category.value || f.role === category.value
+  return freelancers.value.filter((f) => {
+    const matchCategory = !category.value || (f.skills || []).includes(category.value)
 
     const matchSearch =
       f.name.toLowerCase().includes(search.value.toLowerCase()) ||

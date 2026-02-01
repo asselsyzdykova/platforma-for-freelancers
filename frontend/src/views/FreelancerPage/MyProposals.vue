@@ -15,35 +15,28 @@
 
           <div class="steps">
             <span
-              :class="{
-                active: ['pending', 'viewed', 'under review', 'accepted', 'rejected'].includes(
-                  proposal.display.status,
-                ),
-              }"
-              >Submitted</span
+              :class="{ active: ['pending', 'viewed', 'under review', 'accepted', 'rejected'].includes(proposal.display.status) }"
             >
+              Submitted
+            </span>
             <span
-              :class="{
-                active: ['viewed', 'under review', 'accepted', 'rejected'].includes(
-                  proposal.display.status,
-                ),
-              }"
-              >Viewed</span
+              :class="{ active: ['viewed', 'under review', 'accepted', 'rejected'].includes(proposal.display.status) }"
             >
+              Viewed
+            </span>
             <span
-              :class="{
-                active: ['under review', 'accepted', 'rejected'].includes(proposal.display.status),
-              }"
-              >Under review</span
+              :class="{ active: ['under review', 'accepted', 'rejected'].includes(proposal.display.status) }"
             >
-            <span
-              :class="{
-                accepted: proposal.display.statusType === 'accepted',
-                rejected: proposal.display.statusType === 'rejected',
-                active: ['accepted', 'rejected'].includes(proposal.display.status),
-              }"
-            >
-              Accepted / Rejected
+              Under review
+            </span>
+            <span class="final-status">
+              <span :class="{ accepted: proposal.display.statusType === 'accepted' }">
+                Accepted
+              </span>
+              /
+              <span :class="{ rejected: proposal.display.statusType === 'rejected' }">
+                Rejected
+              </span>
             </span>
           </div>
         </div>
@@ -156,21 +149,18 @@ h1 {
   font-weight: 500;
 }
 
-.accepted {
+.final-status span {
+  color: #999;
+  font-weight: 500;
+}
+
+.final-status span.accepted {
   color: #4a3aff;
   font-weight: 600;
 }
 
-.accepted.active {
-  color: #4a3aff;
-}
-
-.rejected {
+.final-status span.rejected {
   color: red;
   font-weight: 600;
-}
-
-.rejected.active {
-  color: red;
 }
 </style>

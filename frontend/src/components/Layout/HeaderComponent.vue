@@ -1,7 +1,7 @@
 <script setup>
 import { useUserStore } from '@/stores/userStore'
 import { useRouter } from 'vue-router'
-import { onMounted } from 'vue'
+import { onMounted, computed } from 'vue'
 
 const userStore = useUserStore()
 const router = useRouter()
@@ -12,8 +12,16 @@ onMounted(() => {
 
 const logout = () => {
   userStore.logout()
-  router.push('/login')
+  router.push({ name: 'login' })
 }
+
+const planSuffix = computed(() => {
+  const plan = userStore.user?.plan
+  if (!plan) return ''
+  const label = String(plan).toLowerCase()
+  const pretty = label.charAt(0).toUpperCase() + label.slice(1)
+  return ` (${pretty})`
+})
 </script>
 
 <template>
@@ -22,25 +30,44 @@ const logout = () => {
       <img src="@/assets/BEZRAB.png" class="logo" />
 
       <nav class="nav">
-        <RouterLink to="/" exact-active-class="active">Home</RouterLink>
-        <RouterLink to="/freelancers" exact-active-class="active">Freelancers</RouterLink>
-        <RouterLink to="/projects" exact-active-class="active">Projects</RouterLink>
-        <RouterLink to="/subscriptions" exact-active-class="active">Subscriptions</RouterLink>
+        <RouterLink :to="{ name: 'home' }" exact-active-class="active">Home</RouterLink>
+        <RouterLink
+          v-if="userStore.isLoggedIn"
+          :to="{ name: 'freelancers' }"
+          exact-active-class="active"
+          >Freelancers</RouterLink
+        >
+        <RouterLink
+          v-if="userStore.isLoggedIn"
+          :to="{ name: 'projects' }"
+          exact-active-class="active"
+          >Projects</RouterLink
+        >
+        <RouterLink :to="{ name: 'Subscriptions' }" exact-active-class="active"
+          >Subscriptions</RouterLink
+        >
 
-        <RouterLink v-if="!userStore.isLoggedIn" to="/login" exact-active-class="active">Login</RouterLink>
-        <RouterLink v-if="!userStore.isLoggedIn" to="/register" exact-active-class="active">Register</RouterLink>
+        <RouterLink v-if="!userStore.isLoggedIn" :to="{ name: 'login' }" exact-active-class="active"
+          >Login</RouterLink
+        >
+        <RouterLink
+          v-if="!userStore.isLoggedIn"
+          :to="{ name: 'register' }"
+          exact-active-class="active"
+          >Register</RouterLink
+        >
 
         <RouterLink
           v-if="userStore.isLoggedIn && userStore.user.role === 'freelancer'"
-          to="/freelancer-profile"
+          :to="{ name: 'FreelancerProfile' }"
           exact-active-class="active"
         >
-          Profile ({{ userStore.user.name }})
+          Profile ({{ userStore.user.name }}{{ planSuffix }})
         </RouterLink>
 
         <RouterLink
           v-if="userStore.isLoggedIn && userStore.user.role === 'user'"
-          to="/client-profile"
+          :to="{ name: 'ClientProfile' }"
           exact-active-class="active"
         >
           Profile ({{ userStore.user.name }})

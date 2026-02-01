@@ -28,6 +28,21 @@
           <option>UI/UX</option>
           <option>Mobile</option>
           <option>Fullstack</option>
+          <option>DevOps</option>
+          <option>Data Science</option>
+          <option>Design</option>
+          <option>Digital Marketing</option>
+          <option>Writing</option>
+          <option>Translation</option>
+          <option>Video Editing</option>
+          <option>Audio Editing</option>
+          <option>Graphics</option>
+          <option>Animation</option>
+          <option>Video Production</option>
+          <option>Photography</option>
+          <option>SEO</option>
+          <option>Content Creation</option>
+          <option>Other</option>
         </select>
       </div>
 
@@ -55,33 +70,35 @@
 </template>
 
 <script>
-import api from "@/services/axios";
+import api from '@/services/axios'
+import { useNotificationStore } from '@/stores/notificationStore'
 
 export default {
-  name: "CreateProject",
+  name: 'CreateProject',
 
   data() {
     return {
       project: {
-        title: "",
-        description: "",
-        budget: "",
-        category: "",
+        title: '',
+        description: '',
+        budget: '',
+        category: '',
         tags: [],
       },
-      tagInput: "",
-    };
+      tagInput: '',
+      notifications: useNotificationStore(),
+    }
   },
 
   methods: {
     addTag() {
-      if (!this.tagInput.trim()) return;
-      this.project.tags.push(this.tagInput.trim());
-      this.tagInput = "";
+      if (!this.tagInput.trim()) return
+      this.project.tags.push(this.tagInput.trim())
+      this.tagInput = ''
     },
 
     removeTag(index) {
-      this.project.tags.splice(index, 1);
+      this.project.tags.splice(index, 1)
     },
 
     async createProject() {
@@ -89,29 +106,27 @@ export default {
         const payload = {
           ...this.project,
           tags: this.project.tags,
-        };
+        }
 
-        await api.post("/client/projects", payload);
+        await api.post('/client/projects', payload)
 
-        alert("Project created successfully!");
+        this.notifications.success('Project created successfully!')
 
-        window.dispatchEvent(new Event("projectCreated"));
+        window.dispatchEvent(new Event('projectCreated'))
 
-        this.$router.push("/client-profile");
+        this.$router.push({ name: 'ClientProfile' })
       } catch (error) {
-        console.error(error.response?.data || error);
-        alert("Failed to create project. Check all fields.");
+        console.error(error.response?.data || error)
+        this.notifications.error('Failed to create project. Check all fields.')
       }
     },
 
     cancel() {
-      this.$router.push("/client-profile");
+      this.$router.push({ name: 'ClientProfile' })
     },
   },
-};
+}
 </script>
-
-
 
 <style scoped>
 .create-project {

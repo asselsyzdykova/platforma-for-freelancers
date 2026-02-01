@@ -6,24 +6,12 @@
       <form @submit.prevent="login">
         <div class="form-group">
           <label for="email">Email</label>
-          <input
-            id="email"
-            type="email"
-            v-model="email"
-            placeholder="example@email.com"
-            required
-          />
+          <input id="email" type="email" v-model="email" placeholder="example@email.com" required />
         </div>
 
         <div class="form-group">
           <label for="password">Password</label>
-          <input
-            id="password"
-            type="password"
-            v-model="password"
-            placeholder="••••••••"
-            required
-          />
+          <input id="password" type="password" v-model="password" placeholder="••••••••" required />
         </div>
 
         <button type="submit">Login</button>
@@ -31,7 +19,7 @@
 
       <p class="register-link">
         No account yet?
-        <RouterLink to="/register">Register</RouterLink>
+        <RouterLink :to="{ name: 'register' }">Register</RouterLink>
       </p>
     </div>
   </div>
@@ -42,15 +30,17 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '../../services/axios'
 import { useUserStore } from '@/stores/userStore'
+import { useNotificationStore } from '@/stores/notificationStore'
 
 const email = ref('')
 const password = ref('')
 const router = useRouter()
 const userStore = useUserStore()
+const notifications = useNotificationStore()
 
 const login = async () => {
   if (!email.value || !password.value) {
-    alert('Please fill in all fields')
+    notifications.warning('Please fill in all fields')
     return
   }
 
@@ -69,14 +59,12 @@ const login = async () => {
     } else {
       router.push('/client-profile')
     }
-
   } catch (error) {
     console.error(error)
-    alert(error.response?.data?.message || 'Login failed')
+    notifications.error(error.response?.data?.message || 'Login failed')
   }
 }
 </script>
-
 
 <style scoped>
 .login-page {

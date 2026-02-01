@@ -2,7 +2,12 @@
   <div class="public-profile-layout">
     <div class="public-card" v-if="freelancer">
       <div class="public-left">
-        <img v-if="freelancer.avatar_url" :src="freelancer.avatar_url" alt="Avatar" class="avatar-img" />
+        <img
+          v-if="freelancer.avatar_url"
+          :src="freelancer.avatar_url"
+          alt="Avatar"
+          class="avatar-img"
+        />
         <h2>{{ freelancer.name }}</h2>
         <p class="role">{{ freelancer.role }}</p>
         <p class="rating">⭐ {{ freelancer.rating }} ({{ freelancer.reviews ?? 0 }})</p>
@@ -58,7 +63,7 @@ onMounted(() => {
 })
 
 const messageFreelancer = () => {
-  alert('Messaging is not implemented yet.')
+  router.push(`/chat/${freelancer.value.id}`)
 }
 
 const viewAllFreelancers = () => router.push('/freelancers')
@@ -75,12 +80,40 @@ const viewAllFreelancers = () => router.push('/freelancers')
   background: #fff;
   padding: 28px;
   border-radius: 16px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
 }
-.public-left { width: 320px; text-align: center }
-.avatar-img { width: 160px; height: 160px; border-radius: 50%; object-fit: cover; margin-bottom: 12px }
-.skills span { display:inline-block; background:#f3efff; padding:6px 10px; border-radius:10px; margin:4px }
-.public-right { flex: 1 }
-.actions { margin-top: 20px; display:flex; gap:12px }
-.actions button { padding:10px 16px; border-radius:10px; border:none; cursor:pointer; background:#5b3df5; color:#fff }
+.public-left {
+  width: 320px;
+  text-align: center;
+}
+.avatar-img {
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 12px;
+}
+.skills span {
+  display: inline-block;
+  background: #f3efff;
+  padding: 6px 10px;
+  border-radius: 10px;
+  margin: 4px;
+}
+.public-right {
+  flex: 1;
+}
+.actions {
+  margin-top: 20px;
+  display: flex;
+  gap: 12px;
+}
+.actions button {
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  background: #5b3df5;
+  color: #fff;
+}
 </style>

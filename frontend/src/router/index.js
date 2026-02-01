@@ -16,10 +16,16 @@ import ClientPage from '@/views/ClientPage/ClientPage.vue'
 import EditProfileClient from '@/views/ClientPage/EditProfileClient.vue'
 import CreateProject from '@/views/ClientPage/CreateProject.vue'
 import SubscriptionsPage from '@/views/BasePages/SubscriptionsPage.vue'
+import SubscriptionSuccessPage from '@/views/BasePages/SubscriptionSuccessPage.vue'
 import ClientInbox from '@/views/ClientPage/ClientInbox.vue'
 import FreelancerInbox from '@/views/FreelancerPage/FreelancerInbox.vue'
 import ApplicationDetails from '@/views/ClientPage/ApplicationDetails.vue'
 import PublicProfile from '@/views/FreelancerPage/PublicProfile.vue'
+import ClientChats from '@/views/ClientPage/ClientChats.vue'
+import ClientProjects from '@/views/ClientPage/ClientProjects.vue'
+import ClientSupport from '@/views/ClientPage/ClientSupport.vue'
+import ClientSettings from '@/views/ClientPage/ClientSettings.vue'
+import FreelancerChats from '@/views/FreelancerPage/FreelancerChats.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -53,6 +59,11 @@ const router = createRouter({
       path: '/freelancers/:id',
       name: 'FreelancerPublic',
       component: FreelancerPublic,
+    },
+    {
+      path: '/chat/:id',
+      name: 'Chat',
+      component: () => import('@/views/Chat/ChatPage.vue'),
     },
     {
       path: '/projects',
@@ -125,6 +136,11 @@ const router = createRouter({
       name: 'Subscriptions',
       component: SubscriptionsPage,
     },
+    {
+      path: '/success',
+      name: 'SubscriptionSuccess',
+      component: SubscriptionSuccessPage,
+    },
 
     {
       path: '/client/inbox',
@@ -133,9 +149,39 @@ const router = createRouter({
     },
 
     {
+      path: '/client/chats',
+      name: 'ClientChats',
+      component: ClientChats,
+    },
+
+    {
+      path: '/client/projects',
+      name: 'ClientProjects',
+      component: ClientProjects,
+    },
+
+    {
+      path: '/client/support',
+      name: 'ClientSupport',
+      component: ClientSupport,
+    },
+
+    {
+      path: '/client/settings',
+      name: 'ClientSettings',
+      component: ClientSettings,
+    },
+
+    {
       path: '/freelancer/inbox',
       name: 'FreelancerInbox',
       component: FreelancerInbox,
+    },
+
+    {
+      path: '/freelancer/chats',
+      name: 'FreelancerChats',
+      component: FreelancerChats,
     },
 
     {
@@ -148,7 +194,7 @@ const router = createRouter({
       path: '/public-profile/:id',
       name: 'PublicProfile',
       component: PublicProfile,
-    }
+    },
   ],
 })
 

@@ -35,9 +35,7 @@
 
         <div class="actions">
           <button type="submit" class="primary">Save changes</button>
-          <button type="button" class="secondary" @click="cancel">
-            Cancel
-          </button>
+          <button type="button" class="secondary" @click="cancel">Cancel</button>
         </div>
       </form>
     </div>
@@ -45,70 +43,72 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
-import api from "../../services/axios";
-import { useRouter } from "vue-router";
+import { ref, onMounted } from 'vue'
+import api from '../../services/axios'
+import { useRouter } from 'vue-router'
+import { useNotificationStore } from '@/stores/notificationStore'
 
-const router = useRouter();
+const router = useRouter()
+const notifications = useNotificationStore()
 
 const form = ref({
-  name: "",
-  company: "",
-  location: "",
-  about: "",
+  name: '',
+  company: '',
+  location: '',
+  about: '',
   avatar_url: null,
-});
-const previewAvatar = ref(null);
-let avatarFile = null;
+})
+const previewAvatar = ref(null)
+let avatarFile = null
 
 onMounted(async () => {
   try {
-    const res = await api.get("/client/profile");
+    const res = await api.get('/client/profile')
     form.value = {
       ...form.value,
       ...res.data,
-    };
-    previewAvatar.value = res.data.avatar_url || null;
+    }
+    previewAvatar.value = res.data.avatar_url || null
   } catch (e) {
-    console.error("Failed to load client profile", e);
+    console.error('Failed to load client profile', e)
   }
-});
+})
 
 const onAvatarChange = (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
+  const file = e.target.files[0]
+  if (!file) return
 
-  avatarFile = file;
-  previewAvatar.value = URL.createObjectURL(file);
-};
+  avatarFile = file
+  previewAvatar.value = URL.createObjectURL(file)
+}
 
 const saveProfile = async () => {
   try {
-    const formData = new FormData();
-    formData.append("name", form.value.name);
-    formData.append("company", form.value.company || "");
-    formData.append("location", form.value.location || "");
-    formData.append("about", form.value.about || "");
+    const formData = new FormData()
+    formData.append('name', form.value.name)
+    formData.append('company', form.value.company || '')
+    formData.append('location', form.value.location || '')
+    formData.append('about', form.value.about || '')
 
-    if (avatarFile) formData.append("avatar", avatarFile);
+    if (avatarFile) formData.append('avatar', avatarFile)
 
-    const res = await api.post("/client/profile", formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
+    const res = await api.post('/client/profile', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
 
-    if (res.data.avatar_url) previewAvatar.value = res.data.avatar_url;
+    if (res.data.avatar_url) previewAvatar.value = res.data.avatar_url
 
-    alert("Profile saved successfully!");
-    router.push("/client-profile");
+    notifications.success('Profile saved successfully!')
+    router.push('/client-profile')
   } catch (e) {
-    console.error("Failed to save client profile", e.response?.data || e);
-    alert("Failed to save profile. Check all fields.");
+    console.error('Failed to save client profile', e.response?.data || e)
+    notifications.error('Failed to save profile. Check all fields.')
   }
-};
+}
 
 const cancel = () => {
-  router.push("/client-profile");
-};
+  router.push('/client-profile')
+}
 </script>
 
 <style scoped>

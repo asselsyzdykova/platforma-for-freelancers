@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Subscription;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -26,6 +27,22 @@ class AuthController extends Controller
         'password' => Hash::make($request->password),
         'role' => $request->role,
     ]);
+
+    if ($user->role === 'freelancer') {
+        Subscription::firstOrCreate(
+            [
+                'user_id' => $user->id,
+                'provider' => 'internal',
+                'provider_id' => 'free',
+            ],
+            [
+                'plan' => 'free',
+                'status' => 'active',
+                'start_date' => now(),
+                'end_date' => null,
+            ]
+        );
+    }
 
     $token = $user->createToken('auth_token')->plainTextToken;
 

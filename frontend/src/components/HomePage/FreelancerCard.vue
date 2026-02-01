@@ -14,7 +14,14 @@
       </span>
     </div>
 
-    <button @click="$router.push(`/public-profile/${freelancer.id}`)">View Profile</button>
+    <RouterLink
+      :to="{ name: 'PublicProfile', params: { id: freelancer.id } }"
+      class="view-btn"
+      target="_blank"
+      rel="noopener"
+    >
+      View Profile
+    </RouterLink>
   </div>
 </template>
 
@@ -107,7 +114,9 @@ h3 {
   box-shadow: 0 4px 12px rgba(91, 75, 138, 0.2);
 }
 
+.view-btn,
 button {
+  display: inline-block;
   margin-top: 10px;
   background: #5b4b8a;
   color: white;
@@ -116,11 +125,14 @@ button {
   border-radius: 15px;
   font-weight: 600;
   cursor: pointer;
+  text-decoration: none;
+  text-align: center;
   transition:
     background 0.3s,
     transform 0.2s;
 }
 
+.view-btn:hover,
 button:hover {
   background: #6c57b8;
   transform: translateY(-2px);

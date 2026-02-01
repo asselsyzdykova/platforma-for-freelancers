@@ -51,7 +51,7 @@
 
       <p class="login-link">
         Already have an account?
-        <RouterLink to="/login">Login</RouterLink>
+        <RouterLink :to="{ name: 'login' }">Login</RouterLink>
       </p>
     </div>
   </div>
@@ -62,9 +62,11 @@ import { reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '../../services/axios'
 import { useUserStore } from '@/stores/userStore'
+import { useNotificationStore } from '@/stores/notificationStore'
 
 const router = useRouter()
 const userStore = useUserStore()
+const notifications = useNotificationStore()
 
 const form = reactive({
   name: '',
@@ -76,7 +78,7 @@ const form = reactive({
 
 const register = async () => {
   if (form.password !== form.passwordConfirm) {
-    alert('Passwords do not match')
+    notifications.warning('Passwords do not match')
     return
   }
 
@@ -97,14 +99,13 @@ const register = async () => {
     } else {
       router.push('/client-profile')
     }
-
   } catch (error) {
     if (error.response?.data?.errors) {
-      alert(Object.values(error.response.data.errors).flat().join('\n'))
+      notifications.error(Object.values(error.response.data.errors).flat().join('\n'))
     } else if (error.response?.data?.message) {
-      alert(error.response.data.message)
+      notifications.error(error.response.data.message)
     } else {
-      alert('Registration failed')
+      notifications.error('Registration failed')
     }
   }
 }

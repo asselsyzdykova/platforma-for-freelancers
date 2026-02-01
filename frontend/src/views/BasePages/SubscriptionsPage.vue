@@ -1,9 +1,7 @@
 <template>
   <div class="subscriptions-page">
     <h1 class="title">Choose Your Plan</h1>
-    <p class="subtitle">
-      Upgrade your account to get more opportunities as a freelancer.
-    </p>
+    <p class="subtitle">Upgrade your account to get more opportunities as a freelancer.</p>
 
     <div class="plans">
       <!-- FREE PLAN -->
@@ -18,8 +16,8 @@
           <li>✖ No priority listing</li>
         </ul>
 
-        <button class="btn disabled" disabled>
-          Current Plan
+        <button class="btn" :class="freeButton.class" :disabled="freeButton.disabled">
+          {{ freeButton.label }}
         </button>
       </div>
 
@@ -35,8 +33,13 @@
           <li>✔ Direct client messaging</li>
         </ul>
 
-        <button class="btn primary" @click="subscribe('pro')">
-          Upgrade to Pro
+        <button
+          class="btn"
+          :class="proButton.class"
+          :disabled="proButton.disabled"
+          @click="proButton.onClick"
+        >
+          {{ proButton.label }}
         </button>
       </div>
 
@@ -52,8 +55,13 @@
           <li>✔ Higher visibility</li>
         </ul>
 
-        <button class="btn primary" @click="subscribe('premium')">
-          Upgrade to Premium
+        <button
+          class="btn"
+          :class="premiumButton.class"
+          :disabled="premiumButton.disabled"
+          @click="premiumButton.onClick"
+        >
+          {{ premiumButton.label }}
         </button>
       </div>
     </div>
@@ -61,13 +69,95 @@
 </template>
 
 <script setup>
-const subscribe = (plan) => {
-  // later: call backend API -> Stripe Checkout
-  console.log(`Selected plan: ${plan}`);
+import axios from 'axios'
+import { computed, onMounted } from 'vue'
+import { useUserStore } from '@/stores/userStore'
+import { useNotificationStore } from '@/stores/notificationStore'
 
-  // example:
-  // await axios.post('/api/subscriptions/checkout', { plan })
-};
+const userStore = useUserStore()
+const notifications = useNotificationStore()
+
+onMounted(() => {
+  userStore.loadUser()
+})
+
+const subscribe = async (plan) => {
+  try {
+    const token = localStorage.getItem('access_token')
+
+    const base =
+      (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '') || window.location.origin
+    const url = `${base}/api/create-checkout-session`
+
+    const { data } = await axios.post(
+      url,
+      { plan },
+      {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        withCredentials: true,
+      },
+    )
+
+    if (data?.url) {
+      window.location.href = data.url
+      return
+    }
+    throw new Error('Checkout URL missing from server response.')
+  } catch (error) {
+    if (error?.response?.status === 401) {
+      notifications.warning('Please log in to continue.')
+      return
+    }
+    if (error?.response?.data?.error) {
+      notifications.error(error.response.data.error)
+      return
+    }
+    console.error('Stripe checkout error:', error)
+    notifications.error('Something went wrong with the payment. Please try again.')
+  }
+}
+
+const currentPlan = computed(() => userStore.user?.plan || 'free')
+
+const planRank = (plan) => {
+  if (plan === 'premium') return 2
+  if (plan === 'pro') return 1
+  return 0
+}
+
+const freeButton = computed(() => {
+  if (currentPlan.value === 'free') {
+    return { label: 'Current Plan', disabled: true, class: 'disabled' }
+  }
+  return { label: 'Free Plan', disabled: true, class: 'disabled' }
+})
+
+const proButton = computed(() => {
+  if (currentPlan.value === 'pro') {
+    return { label: 'Current Plan', disabled: true, class: 'disabled', onClick: () => {} }
+  }
+  if (planRank(currentPlan.value) > planRank('pro')) {
+    return { label: 'Included in Premium', disabled: true, class: 'disabled', onClick: () => {} }
+  }
+  return {
+    label: 'Upgrade to Pro',
+    disabled: false,
+    class: 'primary',
+    onClick: () => subscribe('pro'),
+  }
+})
+
+const premiumButton = computed(() => {
+  if (currentPlan.value === 'premium') {
+    return { label: 'Current Plan', disabled: true, class: 'disabled', onClick: () => {} }
+  }
+  return {
+    label: 'Upgrade to Premium',
+    disabled: false,
+    class: 'primary',
+    onClick: () => subscribe('premium'),
+  }
+})
 </script>
 
 <style scoped>
@@ -99,7 +189,9 @@ const subscribe = (plan) => {
   border-radius: 12px;
   padding: 30px 20px;
   background: #fff;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
 }
 
 .plan-card:hover {
