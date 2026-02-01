@@ -118,11 +118,6 @@ export default {
       this.$router.push({ name: 'ClientInbox' })
     },
 
-    /**
-     * Loads the client profile from the server.
-     * Updates the 'client' data property with the server response.
-     * Logs an error to the console if the request fails.
-     */
     async loadClientProfile() {
       try {
         const res = await api.get('/client/profile')

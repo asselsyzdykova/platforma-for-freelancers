@@ -1,39 +1,16 @@
 <template>
   <div class="freelancers-page">
     <h1>Find Freelancers</h1>
-    <p class="subtitle">
-      Browse professionals by skills, rating and location
-    </p>
+    <p class="subtitle">Browse professionals by skills, rating and location</p>
 
     <div class="filters">
-      <input
-        v-model="search"
-        type="text"
-        placeholder="Search by name or skill..."
-      />
+      <input v-model="search" type="text" placeholder="Search by name or skill..." />
 
       <select v-model="category">
         <option value="">All categories</option>
-        <option value="Frontend">Frontend</option>
-        <option value="Backend">Backend</option>
-        <option value="Design">Design</option>
-        <option value="Mobile">Mobile</option>
-        <option value="Fullstack">Fullstack</option>
-        <option value="DevOps">DevOps</option>
-        <option value="Data Science">Data Science</option>
-        <option value="Digital Marketing">Digital Marketing</option>
-        <option value="Writing">Writing</option>
-        <option value="Translation">Translation</option>
-        <option value="Video Editing">Video Editing</option>
-        <option value="Audio Editing">Audio Editing</option>
-        <option value="Graphics">Graphics</option>
-        <option value="Animation">Animation</option>
-        <option value="Video Production">Video Production</option>
-        <option value="Photography">Photography</option>
-        <option value="SEO">SEO</option>
-        <option value="Content Creation">Content Creation</option>
-        <option value="Project Management">Project Management</option>
-        <option value="Other">Software Engineering</option>
+        <option v-for="cat in categories" :key="cat" :value="cat">
+          {{ cat }}
+        </option>
       </select>
     </div>
 
@@ -45,9 +22,7 @@
       />
     </div>
 
-    <p v-if="!filteredFreelancers.length" class="empty">
-      No freelancers found
-    </p>
+    <p v-if="!filteredFreelancers.length" class="empty">No freelancers found</p>
   </div>
 </template>
 
@@ -60,6 +35,11 @@ const search = ref('')
 const category = ref('')
 const freelancers = ref([])
 
+const categories = computed(() => {
+  const allSkills = freelancers.value.flatMap((f) => f.skills || [])
+  return [...new Set(allSkills)]
+})
+
 onMounted(async () => {
   try {
     const res = await api.get('/freelancers')
@@ -70,9 +50,8 @@ onMounted(async () => {
 })
 
 const filteredFreelancers = computed(() => {
-  return freelancers.value.filter(f => {
-    const matchCategory =
-      !category.value || (f.skills || []).includes(category.value)
+  return freelancers.value.filter((f) => {
+    const matchCategory = !category.value || (f.skills || []).includes(category.value)
 
     const matchSearch =
       f.name.toLowerCase().includes(search.value.toLowerCase()) ||

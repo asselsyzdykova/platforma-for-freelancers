@@ -42,8 +42,22 @@
       </div>
 
       <div class="form-group">
-        <label>Skills (comma separated)</label>
-        <input v-model="form.skills" type="text" />
+        <label>Skills</label>
+        <div class="skills-input">
+          <input
+            v-model="skillsInput"
+            type="text"
+            placeholder="Add a skill and press Enter"
+            @keydown.enter.prevent="addSkill"
+          />
+          <button type="button" class="add-skill-button" @click="addSkill">Add</button>
+        </div>
+        <div v-if="form.skills.length" class="skills-list">
+          <span v-for="skill in form.skills" :key="skill" class="skill-chip">
+            {{ skill }}
+            <button type="button" class="remove-skill" @click="removeSkill(skill)">×</button>
+          </span>
+        </div>
       </div>
 
       <button type="submit">Save</button>
@@ -57,223 +71,15 @@ import api from '../../services/axios'
 import { useRouter } from 'vue-router'
 import { useNotificationStore } from '@/stores/notificationStore'
 
-// World cities data
-const worldCities = [
-  'New York',
-  'Los Angeles',
-  'Chicago',
-  'Houston',
-  'Phoenix',
-  'Philadelphia',
-  'San Antonio',
-  'San Diego',
-  'Dallas',
-  'San Jose',
-  'London',
-  'Manchester',
-  'Birmingham',
-  'Leeds',
-  'Glasgow',
-  'Liverpool',
-  'Sheffield',
-  'Bristol',
-  'Edinburgh',
-  'Paris',
-  'Marseille',
-  'Lyon',
-  'Toulouse',
-  'Nice',
-  'Nantes',
-  'Strasbourg',
-  'Montpellier',
-  'Bordeaux',
-  'Lille',
-  'Berlin',
-  'Munich',
-  'Cologne',
-  'Frankfurt',
-  'Hamburg',
-  'Dusseldorf',
-  'Dortmund',
-  'Essen',
-  'Leipzig',
-  'Dresden',
-  'Madrid',
-  'Barcelona',
-  'Valencia',
-  'Seville',
-  'Bilbao',
-  'Malaga',
-  'Murcia',
-  'Palma',
-  'Las Palmas',
-  'Alicante',
-  'Rome',
-  'Milan',
-  'Naples',
-  'Turin',
-  'Palermo',
-  'Genoa',
-  'Bologna',
-  'Florence',
-  'Bari',
-  'Catania',
-  'Moscow',
-  'Saint Petersburg',
-  'Novosibirsk',
-  'Yekaterinburg',
-  'Nizhny Novgorod',
-  'Kazan',
-  'Chelyabinsk',
-  'Omsk',
-  'Samara',
-  'Rostov-on-Don',
-  'Tokyo',
-  'Delhi',
-  'Shanghai',
-  'Mumbai',
-  'Beijing',
-  'Osaka',
-  'Shenzhen',
-  'Bangkok',
-  'Hong Kong',
-  'Jakarta',
-  'Toronto',
-  'Vancouver',
-  'Mexico City',
-  'Sao Paulo',
-  'Rio de Janeiro',
-  'Buenos Aires',
-  'Salvador',
-  'Brasilia',
-  'Fortaleza',
-  'Belo Horizonte',
-  'Sydney',
-  'Melbourne',
-  'Brisbane',
-  'Perth',
-  'Adelaide',
-  'Gold Coast',
-  'Canberra',
-  'Hobart',
-  'Geelong',
-  'Dubai',
-  'Abu Dhabi',
-  'Cairo',
-  'Alexandria',
-  'Johannesburg',
-  'Cape Town',
-  'Lagos',
-  'Nitra',
-  'Nairobi',
-  'Istanbul',
-  'Ankara',
-  'Prague',
-  'Budapest',
-  'Warsaw',
-  'Athens',
-  'Bucharest',
-  'Sofia',
-  'Bratislava',
-  'Ljubljana',
-  'Zagreb',
-  'Belgrade',
-  'Amsterdam',
-  'Rotterdam',
-  'The Hague',
-  'Utrecht',
-  'Eindhoven',
-  'Groningen',
-  'Alkmaar',
-  'Breda',
-  'Arnhem',
-  'Leiden',
-  'Vienna',
-  'Zurich',
-  'Geneva',
-  'Basel',
-  'Bern',
-  'Lausanne',
-  'Lucerne',
-  'St. Gallen',
-  'Winterthur',
-  'Schaffhausen',
-  'Dublin',
-  'Cork',
-  'Limerick',
-  'Galway',
-  'Waterford',
-  'Droichead Atha',
-  'Swords',
-  'Navan',
-  'Dundalk',
-  'Athlone',
-  'Copenhagen',
-  'Aarhus',
-  'Odense',
-  'Aalborg',
-  'Esbjerg',
-  'Randers',
-  'Kolding',
-  'Horsens',
-  'Vejle',
-  'Silkeborg',
-  'Stockholm',
-  'Gothenburg',
-  'Malmo',
-  'Uppsala',
-  'Vasteras',
-  'Orebro',
-  'Linkoping',
-  'Helsingborg',
-  'Jonkoping',
-  'Norrkoping',
-  'Helsinki',
-  'Espoo',
-  'Tampere',
-  'Vantaa',
-  'Turku',
-  'Oulu',
-  'Jyvaskyla',
-  'Kuopio',
-  'Lahti',
-  'Pori',
-  'Oslo',
-  'Bergen',
-  'Trondheim',
-  'Stavanger',
-  'Kristiansand',
-  'Drammen',
-  'Fredrikstad',
-  'Tromsø',
-  'Sandefjord',
-  'Lillehammer',
-  'Astana',
-  'Almaty',
-  'Shymkent',
-  'Karaganda',
-  'Taraz',
-  'Pavlodar',
-  'Ust-Kamenogorsk',
-  'Semey',
-  'Aktau',
-  'Atyrau',
-  'Kostanay',
-  'Kyzylorda',
-  'Zhezkazgan',
-  'Petropavl',
-  'Taldykorgan',
-  'Ekibastuz',
-  'Ridder',
-]
-
 const router = useRouter()
 const notifications = useNotificationStore()
+const cities = ref([])
 const citySearch = ref('')
 const showCitiesList = ref(false)
+const skillsInput = ref('')
 const filteredCities = computed(() => {
-  if (!citySearch.value) return worldCities.slice(0, 10)
-  return worldCities
+  if (!citySearch.value) return cities.value.slice(0, 10)
+  return cities.value
     .filter((city) => city.toLowerCase().includes(citySearch.value.toLowerCase()))
     .slice(0, 20)
 })
@@ -281,7 +87,7 @@ const filteredCities = computed(() => {
 const form = ref({
   about: '',
   location: '',
-  skills: '',
+  skills: [],
   avatar: null,
   avatarPreview: null,
 })
@@ -296,24 +102,47 @@ const filterCities = () => {
   showCitiesList.value = true
 }
 
+const addSkill = () => {
+  const trimmed = skillsInput.value.trim()
+  if (!trimmed) return
+
+  if (!form.value.skills.includes(trimmed)) {
+    form.value.skills = [...form.value.skills, trimmed]
+  }
+
+  skillsInput.value = ''
+}
+
+const removeSkill = (skill) => {
+  form.value.skills = form.value.skills.filter((item) => item !== skill)
+}
+
 onMounted(async () => {
   try {
-    const response = await api.get('/freelancer/profile', {
-      headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` },
-    })
-    if (response.data) {
+    const [profileResponse, citiesResponse] = await Promise.all([
+      api.get('/freelancer/profile', {
+        headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` },
+      }),
+      api.get('/cities'),
+    ])
+
+    if (Array.isArray(citiesResponse.data)) {
+      cities.value = citiesResponse.data
+    }
+
+    if (profileResponse.data) {
       form.value = {
         ...form.value,
-        about: response.data.about || '',
-        location: response.data.location || '',
-        skills: response.data.skills?.join(', ') || '',
-        avatarPreview: response.data.avatar_url || null,
+        about: profileResponse.data.about || '',
+        location: profileResponse.data.location || '',
+        skills: profileResponse.data.skills || [],
+        avatarPreview: profileResponse.data.avatar_url || null,
       }
-      citySearch.value = response.data.location || ''
+      citySearch.value = profileResponse.data.location || ''
     }
   } catch (error) {
     console.error(error)
-    notifications.error('Failed to load profile')
+    notifications.error('Failed to load profile or cities')
   }
 })
 
@@ -331,12 +160,7 @@ const saveProfile = async () => {
     formData.append('about', form.value.about || '')
     formData.append('location', form.value.location || '')
 
-    const skills = form.value.skills
-      .split(',')
-      .map((s) => s.trim())
-      .filter((s) => s.length > 0)
-
-    formData.append('skills', JSON.stringify(skills))
+    formData.append('skills', JSON.stringify(form.value.skills))
 
     if (form.value.avatar) {
       formData.append('avatar', form.value.avatar)
@@ -455,5 +279,51 @@ button {
   font-size: 14px;
   color: #5b3df5;
   font-weight: 500;
+}
+
+.skills-input {
+  display: flex;
+  gap: 10px;
+}
+
+.skills-input input {
+  flex: 1;
+}
+
+.add-skill-button {
+  padding: 10px 16px;
+  background: #5b3df5;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.skills-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.skill-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: #efeaff;
+  color: #3d2db3;
+  border-radius: 999px;
+  font-size: 13px;
+}
+
+.remove-skill {
+  background: transparent;
+  border: none;
+  color: #3d2db3;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  padding: 0;
 }
 </style>

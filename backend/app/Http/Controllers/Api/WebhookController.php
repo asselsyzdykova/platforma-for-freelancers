@@ -24,7 +24,6 @@ class WebhookController extends Controller
                 $endpointSecret
             );
 
-            // Пример обработки события подписки
             switch ($event->type) {
                 case 'customer.subscription.created':
                     $subscription = $event->data->object;
