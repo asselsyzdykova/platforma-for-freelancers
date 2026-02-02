@@ -18,7 +18,10 @@
               />
             </div>
 
-            <h2>{{ user.name }}</h2>
+            <div class="name-row">
+              <h2>{{ user.name }}</h2>
+              <span class="plan-badge">{{ planLabel }} Plan</span>
+            </div>
 
             <p v-if="profile.about" class="about">
               {{ profile.about }}
@@ -97,7 +100,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import api from '../../services/axios'
 import { useRouter } from 'vue-router'
 import SidebarMenu from '@/components/FreelancerPageMenu/SidebarMenu.vue'
@@ -110,6 +113,13 @@ const toast = useNotificationStore()
 const notifications = ref([])
 const hasUnread = ref(false)
 const goToInbox = () => router.push('/freelancer/inbox')
+
+const planLabel = computed(() => {
+  const plan = user.value?.plan
+  if (!plan) return 'Free'
+  const label = String(plan).toLowerCase()
+  return label.charAt(0).toUpperCase() + label.slice(1)
+})
 
 onMounted(async () => {
   try {
@@ -288,9 +298,27 @@ h1 {
   margin-bottom: 16px;
 }
 
+.name-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
 h2 {
   font-size: 22px;
-  margin-bottom: 12px;
+  margin-bottom: 0;
+}
+
+.plan-badge {
+  background: #5b4b8a;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
 }
 
 .about {
