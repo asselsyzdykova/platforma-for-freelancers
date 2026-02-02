@@ -51,8 +51,10 @@ const login = async () => {
     })
 
     userStore.setToken(response.data.access_token)
-
-    userStore.setUser(response.data.user)
+    await userStore.loadUser()
+    if (!userStore.user) {
+      userStore.setUser(response.data.user)
+    }
 
     if (response.data.user.role === 'freelancer') {
       router.push('/freelancer-profile')

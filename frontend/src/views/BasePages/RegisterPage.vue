@@ -92,7 +92,10 @@ const register = async () => {
     })
 
     userStore.setToken(response.data.access_token)
-    userStore.setUser(response.data.user)
+    await userStore.loadUser()
+    if (!userStore.user) {
+      userStore.setUser(response.data.user)
+    }
 
     if (form.role === 'freelancer') {
       router.push('/freelancer-profile')
