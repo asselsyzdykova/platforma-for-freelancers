@@ -9,9 +9,13 @@ use Illuminate\Http\Request;
 
 class ChatController extends Controller
 {
-    public function index($userId)
+    public function index(Request $request, $userId)
     {
-        $authId = request()->user()->id;
+        $authUser = $request->user();
+        if (! $authUser) {
+            return response()->json(['message' => 'Unauthenticated'], 401);
+        }
+        $authId = $authUser->id;
 
         try {
             $messages = Message::where(function ($q) use ($authId, $userId) {
@@ -27,9 +31,13 @@ class ChatController extends Controller
         }
     }
 
-    public function conversations()
+    public function conversations(Request $request)
     {
-        $authId = request()->user()->id;
+        $authUser = $request->user();
+        if (! $authUser) {
+            return response()->json(['message' => 'Unauthenticated'], 401);
+        }
+        $authId = $authUser->id;
         try {
             $messages = Message::where('sender_id', $authId)->orWhere('receiver_id', $authId)
                 ->with(['sender', 'receiver'])
@@ -77,6 +85,11 @@ class ChatController extends Controller
 
     public function store(Request $request)
     {
+        $authUser = $request->user();
+        if (! $authUser) {
+            return response()->json(['message' => 'Unauthenticated'], 401);
+        }
+
         $data = $request->validate([
             'receiver_id' => 'required|integer|exists:users,id',
             'body' => 'required|string',
@@ -84,7 +97,7 @@ class ChatController extends Controller
 
         try {
             $message = Message::create([
-                'sender_id' => $request->user()->id,
+                'sender_id' => $authUser->id,
                 'receiver_id' => $data['receiver_id'],
                 'body' => $data['body'],
             ]);
@@ -98,6 +111,27 @@ class ChatController extends Controller
         } catch (\Exception $e) {
             logger()->error('Unexpected error saving message', ['error' => $e->getMessage()]);
             return response()->json(['message' => 'Server error while saving message. Check server logs.'], 500);
+        }
+    }
+
+    public function markAsRead(Request $request, $userId)
+    {
+        $authUser = $request->user();
+        if (! $authUser) {
+            return response()->json(['message' => 'Unauthenticated'], 401);
+        }
+        $authId = $authUser->id;
+
+        try {
+            $updated = Message::where('sender_id', $userId)
+                ->where('receiver_id', $authId)
+                ->whereNull('read_at')
+                ->update(['read_at' => now()]);
+
+            return response()->json(['updated' => $updated]);
+        } catch (\Illuminate\Database\QueryException $e) {
+            logger()->error('Failed to mark messages as read', ['error' => $e->getMessage()]);
+            return response()->json(['message' => 'Database error while updating messages. Have you run migrations?'], 500);
         }
     }
 }

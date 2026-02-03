@@ -14,7 +14,7 @@
             class="conversation"
             v-for="conv in conversations"
             :key="conv.partner.id"
-            @click="openChat(conv.partner.id)"
+            @click="openChat(conv)"
           >
             <div class="left">
               <div class="avatar-placeholder">{{ initials(conv.partner.name) }}</div>
@@ -71,8 +71,14 @@ export default {
       }
     },
 
-    openChat(partnerId) {
-      this.$router.push({ name: 'Chat', params: { id: partnerId } })
+    async openChat(conv) {
+      try {
+        await api.post(`/messages/${conv.partner.id}/read`)
+        conv.unread_count = 0
+      } catch (e) {
+        console.error('Failed to mark messages as read', e)
+      }
+      this.$router.push({ name: 'Chat', params: { id: conv.partner.id } })
     },
 
     initials(name) {
@@ -99,8 +105,8 @@ export default {
 }
 .chats-page {
   width: 60%;
-    padding: 30px;
-    margin: 0 auto;
+  padding: 30px;
+  margin: 0 auto;
 }
 .subtitle {
   color: #666;
