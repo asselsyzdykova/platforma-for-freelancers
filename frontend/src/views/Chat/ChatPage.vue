@@ -32,6 +32,14 @@ const user = ref({})
 const partner = ref(null)
 let channel = null
 
+const markConversationRead = async (partnerId) => {
+  try {
+    await api.post(`/messages/${partnerId}/read`)
+  } catch (e) {
+    console.error('Failed to mark messages as read', e)
+  }
+}
+
 onMounted(async () => {
   try {
     const meRes = await api.get('/me')
@@ -42,24 +50,24 @@ onMounted(async () => {
     const res = await api.get(`/messages/${partnerId}`)
     messages.value = res.data || []
 
+    await markConversationRead(partnerId)
+
     if (messages.value.length > 0) {
       const firstMsg = messages.value[0]
-      partner.value =
-        firstMsg.sender_id === user.value.id
-          ? firstMsg.receiver
-          : firstMsg.sender
+      partner.value = firstMsg.sender_id === user.value.id ? firstMsg.receiver : firstMsg.sender
     }
 
     try {
       const echoModule = await import('@/services/echo')
-      const echo = echoModule.initEcho
-        ? echoModule.initEcho()
-        : echoModule.default?.initEcho
+      const echo = echoModule.initEcho ? echoModule.initEcho() : echoModule.default?.initEcho
 
       if (echo) {
         channel = echo.private(`user.${user.value.id}`)
-        channel.listen('MessageSent', (payload) => {
+        channel.listen('MessageSent', async (payload) => {
           messages.value.push(payload)
+          if (payload.sender_id === Number(partnerId)) {
+            await markConversationRead(partnerId)
+          }
         })
       }
     } catch (err) {
