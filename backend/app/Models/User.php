@@ -23,6 +23,8 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'university',
+        'study_year',
         'password',
         'role',
     ];
@@ -37,7 +39,7 @@ class User extends Authenticatable
         'remember_token',
     ];
 
-    protected $appends = ['avatar_url'];
+    protected $appends = ['avatar_url', 'university', 'study_year'];
 
     /**
      * Get the attributes that should be cast.
@@ -55,6 +57,16 @@ class User extends Authenticatable
     public function getAvatarUrlAttribute()
     {
         return $this->clientProfile?->avatar_url ?? null;
+    }
+
+    public function getUniversityAttribute()
+    {
+        return $this->attributes['university'] ?? null;
+    }
+
+    public function getStudyYearAttribute()
+    {
+        return $this->attributes['study_year'] ?? null;
     }
 
     /**
