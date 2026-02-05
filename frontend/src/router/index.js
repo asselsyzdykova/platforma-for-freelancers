@@ -26,6 +26,7 @@ import ClientProjects from '@/views/ClientPage/ClientProjects.vue'
 import ClientSupport from '@/views/ClientPage/ClientSupport.vue'
 import ClientSettings from '@/views/ClientPage/ClientSettings.vue'
 import FreelancerChats from '@/views/FreelancerPage/FreelancerChats.vue'
+import AdminProfile from '@/views/AdminPages/AdminProfile.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -194,6 +195,12 @@ const router = createRouter({
       path: '/public-profile/:id',
       name: 'PublicProfile',
       component: PublicProfile,
+    },
+
+    {
+      path: '/admin/profile',
+      name: 'AdminProfile',
+      component: AdminProfile,
     },
   ],
 })
