@@ -15,6 +15,72 @@
           <input v-model="form.email" type="email" required />
         </div>
 
+        <div v-if="form.role === 'freelancer'">
+          <div class="form-group select-group">
+            <select v-model="form.university" required>
+               <option value="" disabled selected hidden>Select your university</option>
+              <optgroup label="Bratislava">
+                <option disabled class="optgroup-separator">────────</option>
+                <option>Univerzita Komenského v Bratislave</option>
+                <option>Slovenská technická univerzita v Bratislave</option>
+                <option>Ekonomická univerzita v Bratislave</option>
+                <option>Slovenská zdravotnícka univerzita v Bratislave</option>
+              </optgroup>
+
+              <optgroup label="Kosice">
+                <option disabled class="optgroup-separator">────────</option>
+                <option>Technická univerzita v Košiciach</option>
+                <option>Univerzita Pavla Jozefa Šafárika v Košiciach</option>
+                <option>Univerzita veterinárskeho lekárstva a farmácie v Košiciach</option>
+              </optgroup>
+
+              <optgroup label="Nitra">
+                <option disabled class="optgroup-separator">────────</option>
+                <option>Univerzita Konštantína Filozofa v Nitre</option>
+                <option>Slovenská poľnohospodárska univerzita v Nitre</option>
+              </optgroup>
+
+              <optgroup label="Trnava">
+                <option disabled class="optgroup-separator">────────</option>
+                <option>Trnavská univerzita v Trnave</option>
+                <option>Univerzita sv. Cyrila a Metoda v Trnave</option>
+              </optgroup>
+
+              <optgroup label="Banska-Bystrica">
+                <option disabled class="optgroup-separator">────────</option>
+                <option>Univerzita Mateja Bela v Banskej Bystrici</option>
+              </optgroup>
+
+              <optgroup label="Zilina">
+                <option disabled class="optgroup-separator">────────</option>
+                <option>Žilinská univerzita v Žiline</option>
+              </optgroup>
+
+              <optgroup label="Presov">
+                <option disabled class="optgroup-separator">────────</option>
+                <option>Prešovská univerzita v Prešove</option>
+              </optgroup>
+
+              <optgroup label="Zloven">
+                <option disabled class="optgroup-separator">────────</option>
+                <option>Technická univerzita vo Zvolene</option>
+              </optgroup>
+            </select>
+
+            <select v-model="form.studyYear" required>
+              <option value="" disabled selected hidden>Select your study year</option>
+              <optgroup label="Rok studia">
+                <option disabled class="optgroup-separator">────────</option>
+                <option>1. ročník</option>
+                <option>2. ročník</option>
+                <option>3. ročník</option>
+                <option>4. ročník</option>
+                <option>5. ročník</option>
+              </optgroup>
+            </select>
+          </div>
+        </div>
+
         <div class="form-group">
           <label>Password</label>
           <input v-model="form.password" type="password" required />
@@ -41,7 +107,7 @@
               :class="{ active: form.role === 'freelancer' }"
               @click="form.role = 'freelancer'"
             >
-              💼 Freelancer
+              💼 Freelancer(Student)
             </button>
           </div>
         </div>
@@ -74,6 +140,8 @@ const form = reactive({
   password: '',
   passwordConfirm: '',
   role: 'user',
+  university: '',
+  study_year: '',
 })
 
 const register = async () => {
@@ -89,6 +157,8 @@ const register = async () => {
       password: form.password,
       password_confirmation: form.passwordConfirm,
       role: form.role,
+      university: form.university,
+      study_year: form.studyYear,
     })
 
     userStore.setToken(response.data.access_token)
@@ -165,6 +235,44 @@ input {
 input:focus {
   outline: none;
   border-color: #5b3df5;
+}
+
+select {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+  background: white;
+}
+
+select:focus {
+  outline: none;
+  border-color: #5b3df5;
+}
+
+optgroup {
+  font-weight: 600;
+  color: #5b4b8a;
+  background: #f7f5ff;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 6px;
+  margin-bottom: 6px;
+}
+
+option {
+  color: #2f2f2f;
+}
+
+option.optgroup-separator {
+  color: #cbd5f5;
+}
+
+.select-group {
+  gap: 12px;
+}
+
+.select-group select + select {
+  margin-top: 12px;
 }
 
 button {
