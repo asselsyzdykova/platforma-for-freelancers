@@ -57,7 +57,7 @@
         </div>
 
         <!-- CERTIFICATES -->
-        <section class="certificates">
+        <section class="certificates" v-if="certificateUrls.length">
           <h2>CERTIFICATES</h2>
 
           <div class="cert-wrapper">
@@ -65,8 +65,17 @@
 
             <div class="cert-window">
               <div class="cert-track" :style="{ transform: `translateX(-${currentCert * 240}px)` }">
-                <div class="cert-card" v-for="(cert, index) in certificates" :key="index">
-                  {{ cert }}
+                <div class="cert-card" v-for="(cert, index) in certificateUrls" :key="cert">
+                  <button
+                    v-if="isImage(cert)"
+                    class="cert-image-button"
+                    @click="openCertificate(cert)"
+                  >
+                    <img :src="cert" :alt="certificateLabel(cert, index)" />
+                  </button>
+                  <a v-else :href="cert" target="_blank" rel="noopener">{{
+                    certificateLabel(cert, index)
+                  }}</a>
                 </div>
               </div>
             </div>
@@ -74,6 +83,11 @@
             <button class="arrow" @click="nextCert">▶</button>
           </div>
         </section>
+
+        <div v-if="selectedCertificate" class="cert-modal" @click.self="closeCertificate">
+          <button class="cert-modal-close" @click="closeCertificate">×</button>
+          <img :src="selectedCertificate" alt="Certificate preview" />
+        </div>
 
         <!-- REVIEWS -->
         <section class="reviews">
@@ -181,19 +195,31 @@ onBeforeUnmount(() => {
   document.removeEventListener('visibilitychange', handleVisibilityChange)
 })
 
-const certificates = [
-  'Frontend Development Certificate',
-  'Vue.js Advanced Course',
-  'UI/UX Design Basics',
-  'Backend Development Certificate',
-  'Fullstack Web Development',
-  'Mobile App Development',
-]
+const certificateUrls = computed(() => profile.value?.certificate_urls || [])
+
+const certificateLabel = (url, index) => {
+  const name = String(url).split('/').pop()
+  return name ? name : `Certificate ${index + 1}`
+}
+
+const isImage = (url) => {
+  return /\.(png|jpe?g|gif|webp)$/i.test(String(url))
+}
+
+const selectedCertificate = ref(null)
+
+const openCertificate = (url) => {
+  selectedCertificate.value = url
+}
+
+const closeCertificate = () => {
+  selectedCertificate.value = null
+}
 
 const currentCert = ref(0)
 const visibleCerts = 3
 const nextCert = () => {
-  if (currentCert.value < certificates.length - visibleCerts) currentCert.value++
+  if (currentCert.value < certificateUrls.value.length - visibleCerts) currentCert.value++
 }
 const prevCert = () => {
   if (currentCert.value > 0) currentCert.value--
@@ -412,6 +438,53 @@ h2 {
   justify-content: center;
   text-align: center;
   font-size: 14px;
+}
+
+.cert-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 16px;
+}
+
+.cert-image-button {
+  background: none;
+  border: none;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+.cert-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.cert-modal img {
+  max-width: 90vw;
+  max-height: 90vh;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+}
+
+.cert-modal-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.9);
+  color: #2b2b2b;
+  font-size: 24px;
+  cursor: pointer;
 }
 
 .arrow {

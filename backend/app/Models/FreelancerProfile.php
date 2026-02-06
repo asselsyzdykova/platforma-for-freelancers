@@ -9,11 +9,12 @@ class FreelancerProfile extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id', 'about', 'location', 'skills', 'completed_projects', 'proposals', 'rating', 'reviews', 'avatar'
+        'user_id', 'about', 'location', 'skills', 'completed_projects', 'proposals', 'rating', 'reviews', 'avatar', 'certificates'
     ];
 
     protected $casts = [
         'skills' => 'array',
+        'certificates' => 'array',
     ];
 
     public function user()
