@@ -67,7 +67,7 @@ class SubscriptionController extends Controller
                     'price_id' => $priceId,
                 ],
                 'success_url' => rtrim($frontendUrl, '/') . '/success?session_id={CHECKOUT_SESSION_ID}',
-                'cancel_url' => rtrim($frontendUrl, '/') . '/cancel',
+                'cancel_url' => rtrim($frontendUrl, '/') . '/subscriptions',
             ]);
         } catch (\Stripe\Exception\ApiErrorException $e) {
             return response()->json([

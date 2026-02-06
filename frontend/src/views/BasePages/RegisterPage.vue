@@ -67,7 +67,7 @@
               </optgroup>
             </select>
 
-            <select v-model="form.studyYear" required>
+            <select v-model="form.study_year" required>
               <option value="" disabled selected hidden>Select your study year</option>
               <optgroup label="Rok studia">
                 <option disabled class="optgroup-separator">────────</option>

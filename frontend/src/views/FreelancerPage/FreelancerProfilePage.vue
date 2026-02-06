@@ -45,6 +45,8 @@
             <p><strong>Specialization:</strong> {{ user.role }}</p>
             <p><strong>Rating:</strong> ⭐ {{ profile.rating }} ({{ profile.reviews }})</p>
             <p><strong>Location:</strong> 📍 {{ profile.location }}</p>
+            <p v-if="user.university"><strong>University:</strong> 🎓 {{ user.university }}</p>
+            <p v-if="user.study_year"><strong>Study year:</strong> {{ user.study_year }}</p>
             <p><strong>Completed projects:</strong> {{ profile.completed_projects }}</p>
             <p><strong>Proposals:</strong> {{ profile.proposals }}</p>
             <p>
@@ -100,7 +102,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, onActivated, onBeforeUnmount } from 'vue'
 import api from '../../services/axios'
 import { useRouter } from 'vue-router'
 import SidebarMenu from '@/components/FreelancerPageMenu/SidebarMenu.vue'
@@ -121,7 +123,7 @@ const planLabel = computed(() => {
   return label.charAt(0).toUpperCase() + label.slice(1)
 })
 
-onMounted(async () => {
+const loadProfile = async () => {
   try {
     const userRes = await api.get('/me', {
       headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` },
@@ -136,14 +138,47 @@ onMounted(async () => {
     console.error(error)
     toast.error('Failed to load profile')
     router.push('/login')
+    return
   }
 
-  const notifRes = await api.get('/freelancer/notifications', {
-    headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` },
-  })
+  try {
+    const notifRes = await api.get('/freelancer/notifications', {
+      headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` },
+    })
+    notifications.value = notifRes.data
+    hasUnread.value = notifications.value.some((n) => !n.is_read)
+  } catch (error) {
+    console.error(error)
+  }
+}
 
-  notifications.value = notifRes.data
-  hasUnread.value = notifications.value.some((n) => !n.is_read)
+const handlePageShow = (event) => {
+  if (event?.persisted) {
+    window.location.reload()
+    return
+  }
+  loadProfile()
+}
+
+const handleVisibilityChange = () => {
+  if (document.visibilityState === 'visible') {
+    loadProfile()
+  }
+}
+
+onMounted(() => {
+  loadProfile()
+  window.addEventListener('pageshow', handlePageShow)
+  document.addEventListener('visibilitychange', handleVisibilityChange)
+})
+
+onActivated(() => {
+  loadProfile()
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('pageshow', handlePageShow)
+  document.removeEventListener('visibilitychange', handleVisibilityChange)
 })
 
 const certificates = [
