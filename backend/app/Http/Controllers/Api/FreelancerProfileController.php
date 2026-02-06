@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Proposal;
 use Illuminate\Http\Request;
 
 class FreelancerProfileController extends Controller
@@ -18,6 +19,8 @@ class FreelancerProfileController extends Controller
         $profile->avatar_url = $profile->avatar
             ? asset('storage/avatars/' . $profile->avatar)
             : null;
+
+        $profile->proposals = Proposal::where('freelancer_id', $request->user()->id)->count();
 
         return response()->json($profile);
     }
@@ -56,6 +59,8 @@ class FreelancerProfileController extends Controller
         $profile->avatar_url = $profile->avatar
             ? asset('storage/avatars/' . $profile->avatar)
             : null;
+
+        $profile->proposals = Proposal::where('freelancer_id', $request->user()->id)->count();
 
         return response()->json($profile);
     }

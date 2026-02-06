@@ -48,6 +48,12 @@ class ProposalController extends Controller
             'status' => 'Pending',
         ]);
 
+        $profile = $user->freelancerProfile;
+        if ($profile) {
+            $profile->proposals = Proposal::where('freelancer_id', $user->id)->count();
+            $profile->save();
+        }
+
         Notification::create([
             'user_id' => $project->client_id,
             'type' => 'project_application',
