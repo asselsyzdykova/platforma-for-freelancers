@@ -34,7 +34,7 @@
           </div>
         </div>
         <div class="actions">
-          <button @click="messageFreelancer">Message</button>
+          <button @click="openMessageModal">Message</button>
           <button @click="viewAllFreelancers">Back to list</button>
         </div>
       </div>
@@ -43,6 +43,20 @@
     <div v-if="selectedCertificate" class="cert-modal" @click.self="closeCertificate">
       <button class="cert-modal-close" @click="closeCertificate">×</button>
       <img :src="selectedCertificate" alt="Certificate preview" />
+    </div>
+
+    <div v-if="showMessageModal" class="message-modal" @click.self="closeMessageModal">
+      <div class="message-modal-card">
+        <button class="message-modal-close" @click="closeMessageModal">×</button>
+        <h3>Message {{ freelancer?.name || '' }}</h3>
+        <textarea v-model="messageText" placeholder="Write your message..."></textarea>
+        <div class="message-modal-actions">
+          <button class="secondary" @click="closeMessageModal">Cancel</button>
+          <button @click="sendMessage" :disabled="isSending || !messageText.trim()">
+            {{ isSending ? 'Sending...' : 'Send' }}
+          </button>
+        </div>
+      </div>
     </div>
 
     <div v-else-if="isLoading" class="loading">Loading freelancer...</div>
@@ -59,6 +73,9 @@ const router = useRouter()
 const freelancer = ref(null)
 const isLoading = ref(true)
 const selectedCertificate = ref(null)
+const showMessageModal = ref(false)
+const messageText = ref('')
+const isSending = ref(false)
 
 const fetchFreelancer = async (id) => {
   try {
@@ -82,8 +99,29 @@ onMounted(() => {
   if (id) fetchFreelancer(id)
 })
 
-const messageFreelancer = () => {
-  router.push(`/chat/${freelancer.value.id}`)
+const openMessageModal = () => {
+  showMessageModal.value = true
+}
+
+const closeMessageModal = () => {
+  showMessageModal.value = false
+  messageText.value = ''
+}
+
+const sendMessage = async () => {
+  if (!freelancer.value?.id || !messageText.value.trim()) return
+  isSending.value = true
+  try {
+    await api.post('/messages', {
+      receiver_id: freelancer.value.id,
+      body: messageText.value.trim(),
+    })
+    closeMessageModal()
+  } catch (e) {
+    console.error(e)
+  } finally {
+    isSending.value = false
+  }
 }
 
 const viewAllFreelancers = () => router.push('/freelancers')
@@ -214,5 +252,102 @@ const closeCertificate = () => {
   cursor: pointer;
   background: #5b3df5;
   color: #fff;
+}
+
+.message-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+
+.message-modal-card {
+  width: min(520px, 92vw);
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 22px;
+  box-shadow: 0 24px 70px rgba(17, 24, 39, 0.35);
+  position: relative;
+  border: 1px solid rgba(91, 61, 245, 0.12);
+}
+
+.message-modal-card h3 {
+  margin: 0 0 12px 0;
+  font-size: 20px;
+  color: #1f2937;
+}
+
+.message-modal-card textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  background: #fafbff;
+  resize: vertical;
+  font-size: 14px;
+  outline: none;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+
+.message-modal-card textarea:focus {
+  border-color: #5b3df5;
+  box-shadow: 0 0 0 3px rgba(91, 61, 245, 0.15);
+}
+
+.message-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.message-modal-actions button {
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.message-modal-actions button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.message-modal-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: #f3f4f6;
+  cursor: pointer;
+  font-size: 20px;
+}
+
+.message-modal-actions .secondary {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.message-modal-actions button:not(.secondary) {
+  background: linear-gradient(135deg, #5b3df5, #6f5cf7);
+  color: #fff;
+  box-shadow: 0 10px 18px rgba(91, 61, 245, 0.25);
+}
+
+.message-modal-actions button:not(.secondary):hover:not(:disabled) {
+  transform: translateY(-1px);
 }
 </style>

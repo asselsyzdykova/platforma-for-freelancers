@@ -92,14 +92,34 @@ class ChatController extends Controller
 
         $data = $request->validate([
             'receiver_id' => 'required|integer|exists:users,id',
-            'body' => 'required|string',
+            'body' => 'nullable|string|required_without:attachment',
+            'attachment' => 'nullable|file|max:10240|mimes:png,jpg,jpeg,gif,webp,pdf,doc,docx,txt',
         ]);
 
         try {
+            $attachmentPath = null;
+            $attachmentName = null;
+            $attachmentMime = null;
+            $attachmentSize = null;
+
+            if ($request->hasFile('attachment')) {
+                $file = $request->file('attachment');
+                $filename = time() . '_' . uniqid() . '_' . $file->getClientOriginalName();
+                $file->storeAs('chat-attachments', $filename, 'public');
+                $attachmentPath = $filename;
+                $attachmentName = $file->getClientOriginalName();
+                $attachmentMime = $file->getClientMimeType();
+                $attachmentSize = $file->getSize();
+            }
+
             $message = Message::create([
                 'sender_id' => $authUser->id,
                 'receiver_id' => $data['receiver_id'],
-                'body' => $data['body'],
+                'body' => $data['body'] ?? '',
+                'attachment_path' => $attachmentPath,
+                'attachment_name' => $attachmentName,
+                'attachment_mime' => $attachmentMime,
+                'attachment_size' => $attachmentSize,
             ]);
 
             broadcast(new MessageSent($message))->toOthers();
