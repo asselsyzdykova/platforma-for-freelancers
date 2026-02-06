@@ -61,7 +61,7 @@
           <h2>CERTIFICATES</h2>
 
           <div class="cert-wrapper">
-            <button class="arrow" @click="prevCert">◀</button>
+            <button v-if="showCertArrows" class="arrow" @click="prevCert">◀</button>
 
             <div class="cert-window">
               <div class="cert-track" :style="{ transform: `translateX(-${currentCert * 240}px)` }">
@@ -80,7 +80,7 @@
               </div>
             </div>
 
-            <button class="arrow" @click="nextCert">▶</button>
+            <button v-if="showCertArrows" class="arrow" @click="nextCert">▶</button>
           </div>
         </section>
 
@@ -218,6 +218,7 @@ const closeCertificate = () => {
 
 const currentCert = ref(0)
 const visibleCerts = 3
+const showCertArrows = computed(() => certificateUrls.value.length > visibleCerts)
 const nextCert = () => {
   if (currentCert.value < certificateUrls.value.length - visibleCerts) currentCert.value++
 }
@@ -413,31 +414,36 @@ h2 {
 .cert-wrapper {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 18px;
+  padding: 12px 0;
 }
 
 .cert-window {
-  width: 720px;
+  width: min(760px, 72vw);
   overflow: hidden;
 }
 
 .cert-track {
   display: flex;
-  gap: 20px;
-  transition: transform 0.3s ease;
+  gap: 18px;
+  transition: transform 0.35s ease;
 }
 
 .cert-card {
   min-width: 220px;
-  height: 120px;
-  background: white;
-  border-radius: 20px;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+  height: 140px;
+  background: linear-gradient(135deg, #ffffff, #f6f3ff);
+  border-radius: 22px;
+  box-shadow: 0 10px 24px rgba(91, 61, 245, 0.12);
+  border: 1px solid rgba(91, 61, 245, 0.08);
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
   font-size: 14px;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .cert-card img {
@@ -445,6 +451,11 @@ h2 {
   height: 100%;
   object-fit: cover;
   border-radius: 16px;
+}
+
+.cert-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 28px rgba(91, 61, 245, 0.18);
 }
 
 .cert-image-button {
@@ -488,10 +499,22 @@ h2 {
 }
 
 .arrow {
-  background: none;
-  border: none;
-  font-size: 24px;
+  background: #ffffff;
+  border: 1px solid rgba(91, 61, 245, 0.2);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 18px;
   cursor: pointer;
+  box-shadow: 0 8px 16px rgba(91, 61, 245, 0.15);
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.arrow:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 20px rgba(91, 61, 245, 0.2);
 }
 
 .reviews {
