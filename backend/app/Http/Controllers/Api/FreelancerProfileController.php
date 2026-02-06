@@ -20,6 +20,11 @@ class FreelancerProfileController extends Controller
             ? asset('storage/avatars/' . $profile->avatar)
             : null;
 
+        $certificates = is_array($profile->certificates) ? $profile->certificates : [];
+        $profile->certificate_urls = array_values(array_map(function ($certificate) {
+            return asset('storage/certificates/' . $certificate);
+        }, $certificates));
+
         $profile->proposals = Proposal::where('freelancer_id', $request->user()->id)->count();
 
         return response()->json($profile);
@@ -34,13 +39,16 @@ class FreelancerProfileController extends Controller
             'completed_projects' => 'nullable|integer|min:0',
             'proposals' => 'nullable|integer|min:0',
             'avatar' => 'nullable|image|max:2048',
+            'certificates' => 'nullable|array|max:20',
+            'certificates.*' => 'file|mimes:png,jpg,jpeg|max:4096',
+            'certificates_existing' => 'nullable',
         ]);
 
         if (!empty($validated['skills']) && is_string($validated['skills'])) {
             $validated['skills'] = json_decode($validated['skills'], true);
         }
 
-        $data = collect($validated)->except('avatar')->toArray();
+        $data = collect($validated)->except(['avatar', 'certificates', 'certificates_existing'])->toArray();
 
         $profile = $request->user()->freelancerProfile()->updateOrCreate(
             ['user_id' => $request->user()->id],
@@ -56,9 +64,35 @@ class FreelancerProfileController extends Controller
             $profile->save();
         }
 
+        $existing = $request->input('certificates_existing', []);
+        if (is_string($existing)) {
+            $decoded = json_decode($existing, true);
+            $existing = is_array($decoded) ? $decoded : [];
+        }
+
+        if (!is_array($existing)) {
+            $existing = [];
+        }
+
+        if ($request->hasFile('certificates')) {
+            $files = $request->file('certificates');
+            foreach ($files as $file) {
+                $filename = time() . '_' . uniqid() . '_' . $file->getClientOriginalName();
+                $file->storeAs('certificates', $filename, 'public');
+                $existing[] = $filename;
+            }
+        }
+
+        $profile->certificates = $existing;
+        $profile->save();
+
         $profile->avatar_url = $profile->avatar
             ? asset('storage/avatars/' . $profile->avatar)
             : null;
+
+        $profile->certificate_urls = array_values(array_map(function ($certificate) {
+            return asset('storage/certificates/' . $certificate);
+        }, $existing));
 
         $profile->proposals = Proposal::where('freelancer_id', $request->user()->id)->count();
 

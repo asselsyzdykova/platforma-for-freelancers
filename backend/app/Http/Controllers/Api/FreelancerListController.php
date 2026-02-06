@@ -13,6 +13,11 @@ class FreelancerListController extends Controller
             ->with('freelancerProfile')
             ->get()
             ->map(function ($user) {
+                $certificates = $user->freelancerProfile->certificates ?? [];
+                if (!is_array($certificates)) {
+                    $certificates = [];
+                }
+
                 return [
                     'id' => $user->id,
                     'name' => $user->name,
@@ -25,6 +30,9 @@ class FreelancerListController extends Controller
                     'avatar_url' => $user->freelancerProfile && $user->freelancerProfile->avatar
                         ? asset('storage/avatars/' . $user->freelancerProfile->avatar)
                         : null,
+                    'certificate_urls' => array_values(array_map(function ($certificate) {
+                        return asset('storage/certificates/' . $certificate);
+                    }, $certificates)),
                 ];
             });
 

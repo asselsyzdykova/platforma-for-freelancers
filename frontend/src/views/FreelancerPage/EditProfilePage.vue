@@ -60,6 +60,29 @@
         </div>
       </div>
 
+      <div class="form-group certificates-group">
+        <label>Certificates</label>
+        <input type="file" multiple @change="onCertificatesChange" accept="image/*" />
+        <div class="certificates-list">
+          <div v-for="(cert, index) in form.certificates" :key="index" class="certificate-item">
+            <span>{{ cert }}</span>
+            <button type="button" class="remove-skill" @click="removeExistingCertificate(index)">
+              ×
+            </button>
+          </div>
+          <div
+            v-for="(cert, index) in form.newCertificates"
+            :key="`new-${index}`"
+            class="certificate-item"
+          >
+            <span>{{ cert.name }}</span>
+            <button type="button" class="remove-skill" @click="removeNewCertificate(index)">
+              ×
+            </button>
+          </div>
+        </div>
+      </div>
+
       <button type="submit">Save</button>
     </form>
   </div>
@@ -90,6 +113,8 @@ const form = ref({
   skills: [],
   avatar: null,
   avatarPreview: null,
+  certificates: [],
+  newCertificates: [],
 })
 
 const selectCity = (city) => {
@@ -137,6 +162,8 @@ onMounted(async () => {
         location: profileResponse.data.location || '',
         skills: profileResponse.data.skills || [],
         avatarPreview: profileResponse.data.avatar_url || null,
+        certificates: profileResponse.data.certificates || [],
+        newCertificates: [],
       }
       citySearch.value = profileResponse.data.location || ''
     }
@@ -154,6 +181,21 @@ const onAvatarChange = (event) => {
   }
 }
 
+const onCertificatesChange = (event) => {
+  const files = Array.from(event.target.files || [])
+  if (files.length) {
+    form.value.newCertificates = [...form.value.newCertificates, ...files]
+  }
+}
+
+const removeExistingCertificate = (index) => {
+  form.value.certificates.splice(index, 1)
+}
+
+const removeNewCertificate = (index) => {
+  form.value.newCertificates.splice(index, 1)
+}
+
 const saveProfile = async () => {
   try {
     const formData = new FormData()
@@ -164,6 +206,14 @@ const saveProfile = async () => {
 
     if (form.value.avatar) {
       formData.append('avatar', form.value.avatar)
+    }
+
+    formData.append('certificates_existing', JSON.stringify(form.value.certificates))
+
+    if (form.value.newCertificates.length) {
+      form.value.newCertificates.forEach((file) => {
+        formData.append('certificates[]', file)
+      })
     }
 
     const res = await api.post('/freelancer/profile', formData, {
