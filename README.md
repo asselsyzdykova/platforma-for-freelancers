@@ -56,8 +56,8 @@ The Docker setup uses the database credentials from [docker-compose.yml](docker-
 - DB_HOST=127.0.0.1
 - DB_PORT=3306
 - DB_DATABASE=bezrab
-- DB_USERNAME=bezrab
-- DB_PASSWORD=bezrab
+- DB_USERNAME=root
+- DB_PASSWORD=
 
 ## Test accounts
 
