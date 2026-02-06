@@ -45,6 +45,8 @@
             <p><strong>Specialization:</strong> {{ user.role }}</p>
             <p><strong>Rating:</strong> ⭐ {{ profile.rating }} ({{ profile.reviews }})</p>
             <p><strong>Location:</strong> 📍 {{ profile.location }}</p>
+            <p v-if="user.university"><strong>University:</strong> 🎓 {{ user.university }}</p>
+            <p v-if="user.study_year"><strong>Study year:</strong> {{ user.study_year }}</p>
             <p><strong>Completed projects:</strong> {{ profile.completed_projects }}</p>
             <p><strong>Proposals:</strong> {{ profile.proposals }}</p>
             <p>

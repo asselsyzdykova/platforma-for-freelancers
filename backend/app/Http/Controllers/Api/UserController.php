@@ -32,6 +32,8 @@ class UserController extends Controller
             'id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
+            'university' => $user->university,
+            'study_year' => $user->study_year,
             'role' => $user->role ?? 'freelancer',
             'plan' => $plan,
         ]);
