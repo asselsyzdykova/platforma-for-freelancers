@@ -16,49 +16,75 @@
 
     <div class="freelancer-grid">
       <FreelancerCard
-        v-for="freelancer in filteredFreelancers"
+        v-for="freelancer in freelancers"
         :key="freelancer.id"
         :freelancer="freelancer"
       />
     </div>
 
-    <p v-if="!filteredFreelancers.length" class="empty">No freelancers found</p>
+    <div class="pagination" v-if="totalPages > 1">
+      <button :disabled="currentPage === 1" @click="currentPage--">Prev</button>
+      <button
+        v-for="page in totalPages"
+        :key="page"
+        :class="{ active: page === currentPage }"
+        @click="currentPage = page"
+      >
+        {{ page }}
+      </button>
+      <button :disabled="currentPage === totalPages" @click="currentPage++">Next</button>
+    </div>
+
+    <p v-if="!freelancers.length" class="empty">No freelancers found</p>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import api from '@/services/axios'
 import FreelancerCard from '@/components/HomePage/FreelancerCard.vue'
 
 const search = ref('')
 const category = ref('')
 const freelancers = ref([])
+const currentPage = ref(1)
+const pageSize = 8
+const totalPages = ref(1)
 
 const categories = computed(() => {
   const allSkills = freelancers.value.flatMap((f) => f.skills || [])
   return [...new Set(allSkills)]
 })
 
-onMounted(async () => {
+const loadFreelancers = async () => {
   try {
-    const res = await api.get('/freelancers')
-    freelancers.value = res.data
+    const res = await api.get('/freelancers', {
+      params: {
+        page: currentPage.value,
+        per_page: pageSize,
+        search: search.value || undefined,
+        category: category.value || undefined,
+      },
+    })
+
+    freelancers.value = res.data?.data || []
+    totalPages.value = res.data?.meta?.last_page || 1
   } catch (e) {
     console.error('Failed to load freelancers', e)
+    freelancers.value = []
+    totalPages.value = 1
   }
+}
+
+onMounted(loadFreelancers)
+
+watch([search, category], () => {
+  currentPage.value = 1
+  loadFreelancers()
 })
 
-const filteredFreelancers = computed(() => {
-  return freelancers.value.filter((f) => {
-    const matchCategory = !category.value || (f.skills || []).includes(category.value)
-
-    const matchSearch =
-      f.name.toLowerCase().includes(search.value.toLowerCase()) ||
-      (f.skills || []).join(' ').toLowerCase().includes(search.value.toLowerCase())
-
-    return matchCategory && matchSearch
-  })
+watch(currentPage, () => {
+  loadFreelancers()
 })
 </script>
 
@@ -94,5 +120,32 @@ const filteredFreelancers = computed(() => {
 .empty {
   margin-top: 40px;
   color: #888;
+}
+
+.pagination {
+  margin-top: 32px;
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+}
+
+.pagination button {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  background: #fff;
+  cursor: pointer;
+}
+
+.pagination button.active {
+  background: #5b3df5;
+  color: #fff;
+  border-color: #5b3df5;
+}
+
+.pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 </style>

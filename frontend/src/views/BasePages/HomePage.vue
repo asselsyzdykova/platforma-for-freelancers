@@ -170,8 +170,8 @@ const filteredFreelancers = computed(() => {
 
 onMounted(async () => {
   try {
-    const res = await api.get('/freelancers')
-    freelancers.value = res.data
+    const res = await api.get('/freelancers', { params: { per_page: 100 } })
+    freelancers.value = res.data?.data || []
   } catch (e) {
     console.error(e)
   }

@@ -79,8 +79,9 @@ const isSending = ref(false)
 
 const fetchFreelancer = async (id) => {
   try {
-    const res = await api.get('/freelancers')
-    const found = (res.data || []).find((f) => String(f.id) === String(id))
+    const res = await api.get('/freelancers', { params: { per_page: 100 } })
+    const list = res.data?.data || []
+    const found = list.find((f) => String(f.id) === String(id))
     if (found) {
       freelancer.value = found
     } else {

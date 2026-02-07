@@ -28,6 +28,19 @@
       </div>
     </div>
 
+    <div class="pagination" v-if="totalPages > 1">
+      <button :disabled="currentPage === 1" @click="currentPage--">Prev</button>
+      <button
+        v-for="page in totalPages"
+        :key="page"
+        :class="{ active: page === currentPage }"
+        @click="currentPage = page"
+      >
+        {{ page }}
+      </button>
+      <button :disabled="currentPage === totalPages" @click="currentPage++">Next</button>
+    </div>
+
     <div v-if="showProposalModal" class="modal-backdrop" @click.self="closeProposalModal">
       <div class="modal">
         <div class="modal-header">
@@ -84,6 +97,9 @@ export default {
       notifications: useNotificationStore(),
       showProposalModal: false,
       selectedProject: null,
+      currentPage: 1,
+      totalPages: 1,
+      pageSize: 8,
       proposalForm: {
         message: '',
         budget: '',
@@ -98,10 +114,15 @@ export default {
   methods: {
     async loadProjects() {
       try {
-        const res = await api.get('/projects')
-        this.projects = res.data
+        const res = await api.get('/projects', {
+          params: { page: this.currentPage, per_page: this.pageSize },
+        })
+        this.projects = res.data?.data || []
+        this.totalPages = res.data?.meta?.last_page || 1
       } catch (e) {
         console.error('Failed to load projects', e)
+        this.projects = []
+        this.totalPages = 1
       }
     },
 
@@ -162,6 +183,12 @@ export default {
           this.notifications.error('Failed to send response. See console for details.')
         }
       }
+    },
+  },
+
+  watch: {
+    currentPage() {
+      this.loadProjects()
     },
   },
 }
@@ -248,6 +275,33 @@ export default {
 
 .btn:hover {
   opacity: 0.9;
+}
+
+.pagination {
+  margin-top: 32px;
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+}
+
+.pagination button {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  background: #fff;
+  cursor: pointer;
+}
+
+.pagination button.active {
+  background: #5b3df5;
+  color: #fff;
+  border-color: #5b3df5;
+}
+
+.pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .modal-backdrop {
