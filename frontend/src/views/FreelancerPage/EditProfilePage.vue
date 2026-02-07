@@ -117,6 +117,8 @@ const form = ref({
   newCertificates: [],
 })
 
+const maxCertificateSizeBytes = 4 * 1024 * 1024
+
 const selectCity = (city) => {
   form.value.location = city
   citySearch.value = city
@@ -183,8 +185,19 @@ const onAvatarChange = (event) => {
 
 const onCertificatesChange = (event) => {
   const files = Array.from(event.target.files || [])
-  if (files.length) {
-    form.value.newCertificates = [...form.value.newCertificates, ...files]
+  if (!files.length) return
+
+  const accepted = []
+  files.forEach((file) => {
+    if (file.size > maxCertificateSizeBytes) {
+      notifications.error('Certificate is too large. Maximum size is 4096 KB.')
+      return
+    }
+    accepted.push(file)
+  })
+
+  if (accepted.length) {
+    form.value.newCertificates = [...form.value.newCertificates, ...accepted]
   }
 }
 

@@ -1,11 +1,15 @@
 <template>
   <div class="page-layout">
-
     <SidebarMenu />
     <div class="billing-page">
       <h1>Billing and payments</h1>
 
       <div class="billing-card">
+        <div class="billing-actions" v-if="showDeactivate">
+          <button class="danger" @click="cancelSubscription" :disabled="isCanceling">
+            {{ isCanceling ? 'Canceling...' : 'Deactivate subscription' }}
+          </button>
+        </div>
         <div class="filters">
           <div class="filter">
             <label>Date range</label>
@@ -64,70 +68,80 @@
                 <td>{{ item.description }}</td>
                 <td>{{ item.party }}</td>
                 <td>
-                  {{ item.amount }}
+                  {{ item.amount || '-' }}
                   <span v-if="item.status" class="status">
                     {{ item.status }}
                   </span>
                 </td>
-                <td>{{ item.id }}</td>
+                <td>
+                  <span class="tx-id" :title="item.id">{{ formatTxId(item, index) }}</span>
+                </td>
               </tr>
             </tbody>
           </table>
         </div>
+
+        <p v-if="!transactions.length" class="empty">No transactions yet</p>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
+import { ref, onMounted, computed } from 'vue'
+import api from '@/services/axios'
 import SidebarMenu from '../../components/FreelancerPageMenu/SidebarMenu.vue'
-const transactions = [
-  {
-    date: 'Jun 25, 2026',
-    type: 'Subscription payment',
-    description: 'Fixed price',
-    party: 'freelancer',
-    amount: '$25.00',
-    id: '152190432',
-  },
-  {
-    date: 'Jun 25, 2026',
-    type: 'Top-up',
-    description: 'balance',
-    party: 'freelancer',
-    amount: '$25.00',
-    id: '152190432',
-  },
-  {
-    date: 'Jun 25, 2026',
-    type: 'Payment',
-    description: 'client',
-    party: 'David',
-    amount: '$100.00',
-    status: 'Pending',
-    id: '152190432',
-  },
-  {
-    date: 'Jun 25, 2026',
-    type: 'Refund',
-    description: 'to client',
-    party: 'freelancer',
-    amount: '$25.00',
-    id: '152190432',
-  },
-  {
-    date: 'Jun 25, 2026',
-    type: 'Payout',
-    description: 'cash',
-    party: 'freelancer',
-    amount: '$25.00',
-    id: '152190432',
-  },
-]
+import { useNotificationStore } from '@/stores/notificationStore'
+
+const notifications = useNotificationStore()
+const transactions = ref([])
+const isCanceling = ref(false)
+const user = ref(null)
+
+const showDeactivate = computed(() => {
+  const plan = user.value?.plan
+  if (!plan) return false
+  return String(plan).toLowerCase() !== 'free'
+})
+
+onMounted(async () => {
+  try {
+    const meRes = await api.get('/me')
+    user.value = meRes.data
+    const res = await api.get('/billing/transactions')
+    transactions.value = res.data || []
+  } catch (e) {
+    console.error('Failed to load transactions', e)
+    notifications.error('Failed to load billing transactions')
+  }
+})
+
+const cancelSubscription = async () => {
+  isCanceling.value = true
+  try {
+    await api.post('/subscriptions/cancel')
+    notifications.success('Subscription deactivated')
+    const res = await api.get('/billing/transactions')
+    transactions.value = res.data || []
+  } catch (e) {
+    console.error('Failed to cancel subscription', e)
+    notifications.error('Failed to deactivate subscription')
+  } finally {
+    isCanceling.value = false
+  }
+}
+
+const formatTxId = (item, index) => {
+  if (!item?.id) {
+    return `TX-${String(index + 1).padStart(4, '0')}`
+  }
+  const raw = String(item.id)
+  return `TX-${raw.slice(-6)}`
+}
 </script>
 
 <style scoped>
-  .page-layout {
+.page-layout {
   display: flex;
   min-height: 100vh;
 }
@@ -147,6 +161,26 @@ h1 {
   background: #e9e3ff;
   border-radius: 30px;
   padding: 40px;
+}
+
+.billing-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 16px;
+}
+
+.billing-actions .danger {
+  background: #ef4444;
+  color: #fff;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.billing-actions .danger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .filters {
@@ -189,6 +223,11 @@ h1 {
   overflow-x: auto;
 }
 
+.empty {
+  margin-top: 16px;
+  color: #888;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
@@ -209,5 +248,11 @@ th {
 .status {
   color: orange;
   margin-left: 6px;
+}
+
+.tx-id {
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: #4f46e5;
 }
 </style>

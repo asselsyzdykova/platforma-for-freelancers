@@ -7,11 +7,71 @@ use Illuminate\Http\Request;
 use App\Models\Subscription;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Stripe\Stripe;
 use Stripe\Checkout\Session;
 
 class SubscriptionController extends Controller
 {
+    public function cancel(Request $request)
+    {
+        $user = $request->user();
+        if (!$user) {
+            return response()->json(['error' => 'Unauthenticated'], 401);
+        }
+
+        $subscription = Subscription::where('user_id', $user->id)
+            ->where('status', 'active')
+            ->latest('created_at')
+            ->first();
+
+        if (!$subscription) {
+            return response()->json(['error' => 'Active subscription not found'], 404);
+        }
+
+        $subscription->status = 'canceled';
+        $subscription->end_date = now();
+        $subscription->save();
+
+        return response()->json([
+            'status' => 'ok',
+            'subscription' => $subscription,
+        ]);
+    }
+    public function transactions(Request $request)
+    {
+        $user = $request->user();
+        if (!$user) {
+            return response()->json(['error' => 'Unauthenticated'], 401);
+        }
+
+        $subscriptions = Subscription::where('user_id', $user->id)
+            ->latest('created_at')
+            ->get();
+
+        $transactions = $subscriptions->map(function ($subscription) use ($user) {
+            $plan = $subscription->plan;
+            if ($plan === env('STRIPE_PRICE_PRO')) {
+                $plan = 'pro';
+            } elseif ($plan === env('STRIPE_PRICE_PREMIUM')) {
+                $plan = 'premium';
+            }
+
+            $label = $plan ? Str::ucfirst((string) $plan) : 'Subscription';
+
+            return [
+                'date' => optional($subscription->created_at)->toDateString(),
+                'type' => 'Subscription',
+                'description' => $label,
+                'party' => $user->role ?? 'freelancer',
+                'amount' => null,
+                'status' => $subscription->status,
+                'id' => $subscription->provider_id ?? $subscription->id,
+            ];
+        });
+
+        return response()->json($transactions);
+    }
     public function createCheckoutSession(Request $request)
     {
         $user = $request->user();

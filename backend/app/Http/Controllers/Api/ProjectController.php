@@ -10,7 +10,20 @@ class ProjectController extends Controller
 {
     public function index()
     {
-        return Project::with('client.clientProfile')->latest()->get();
+        $perPage = (int) request()->get('per_page', 8);
+        $perPage = $perPage > 0 ? min($perPage, 50) : 8;
+
+        $paginated = Project::with('client.clientProfile')->latest()->paginate($perPage);
+
+        return response()->json([
+            'data' => $paginated->items(),
+            'meta' => [
+                'current_page' => $paginated->currentPage(),
+                'last_page' => $paginated->lastPage(),
+                'per_page' => $paginated->perPage(),
+                'total' => $paginated->total(),
+            ],
+        ]);
     }
 
     public function destroy($id)
