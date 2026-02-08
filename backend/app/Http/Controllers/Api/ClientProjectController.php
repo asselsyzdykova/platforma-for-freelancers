@@ -9,10 +9,37 @@ use Illuminate\Support\Facades\Auth;
 
 class ClientProjectController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $projects = Project::where('client_id', Auth::id())->get();
-        return response()->json($projects);
+        $perPage = (int) $request->get('per_page', 3);
+        $perPage = $perPage > 0 ? min($perPage, 50) : 3;
+
+        $query = Project::where('client_id', Auth::id());
+
+        $paginated = $query->latest('created_at')->paginate($perPage);
+
+        $totalCount = (int) $query->count();
+        $activeCount = (int) Project::where('client_id', Auth::id())
+            ->where('status', 'In progress')
+            ->count();
+        $completedCount = (int) Project::where('client_id', Auth::id())
+            ->where('status', 'Completed')
+            ->count();
+
+        return response()->json([
+            'data' => $paginated->items(),
+            'meta' => [
+                'current_page' => $paginated->currentPage(),
+                'last_page' => $paginated->lastPage(),
+                'per_page' => $paginated->perPage(),
+                'total' => $paginated->total(),
+                'stats' => [
+                    'posted' => $totalCount,
+                    'active' => $activeCount,
+                    'completed' => $completedCount,
+                ],
+            ],
+        ]);
     }
 
     public function store(Request $request)

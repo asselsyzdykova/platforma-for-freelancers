@@ -9,11 +9,24 @@ use Illuminate\Support\Facades\Auth;
 
 class FreelancerNotificationController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return Notification::where('user_id', Auth::id())
+        $perPage = (int) $request->get('per_page', 10);
+        $perPage = $perPage > 0 ? min($perPage, 50) : 10;
+
+        $paginated = Notification::where('user_id', Auth::id())
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->paginate($perPage);
+
+        return response()->json([
+            'data' => $paginated->items(),
+            'meta' => [
+                'current_page' => $paginated->currentPage(),
+                'last_page' => $paginated->lastPage(),
+                'per_page' => $paginated->perPage(),
+                'total' => $paginated->total(),
+            ],
+        ]);
     }
 
     public function markAsRead($id)

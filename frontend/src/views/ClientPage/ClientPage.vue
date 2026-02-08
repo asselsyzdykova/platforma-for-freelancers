@@ -10,6 +10,27 @@
         </div>
       </div>
 
+      <div v-if="showDeleteModal" class="modal-backdrop" @click.self="closeDeleteModal">
+        <div class="modal-card">
+          <h3>Delete project?</h3>
+          <p>This action can’t be undone.</p>
+          <div class="modal-actions">
+            <button class="secondary" @click="closeDeleteModal">Cancel</button>
+            <button class="danger" @click="confirmDelete">Delete</button>
+          </div>
+        </div>
+      </div>
+
+      <div v-if="showResultModal" class="modal-backdrop" @click.self="closeResultModal">
+        <div class="modal-card" :class="resultType">
+          <h3>{{ resultTitle }}</h3>
+          <p>{{ resultMessage }}</p>
+          <div class="modal-actions">
+            <button class="primary-btn" @click="closeResultModal">OK</button>
+          </div>
+        </div>
+      </div>
+
       <h1>CLIENT PROFILE</h1>
 
       <div class="client-card" v-if="client">
@@ -40,23 +61,38 @@
       <section class="projects">
         <h2>ACTIVE PROJECTS</h2>
 
-        <div v-if="projects.length" class="projects-list">
-          <div class="project-card" v-for="project in projects" :key="project.id">
-            <h3>{{ project.title }}</h3>
-            <p class="desc">{{ project.description }}</p>
+        <template v-if="projects.length">
+          <div class="projects-list">
+            <div class="project-card" v-for="project in projects" :key="project.id">
+              <h3>{{ project.title }}</h3>
+              <p class="desc">{{ project.description }}</p>
 
-            <div class="meta">
-              <span>💰 {{ project.budget }} €</span>
-              <span>📅 {{ project.deadline }}</span>
-              <span>📌 {{ project.status }}</span>
-            </div>
+              <div class="meta">
+                <span>💰 {{ project.budget }} €</span>
+                <span>📅 {{ project.deadline }}</span>
+                <span>📌 {{ project.status }}</span>
+              </div>
 
-            <div class="actions">
-              <button class="secondary">View proposals</button>
-              <button class="danger" @click="deleteProject(project.id)">Delete project</button>
+              <div class="actions">
+                <button class="secondary">View proposals</button>
+                <button class="danger" @click="deleteProject(project.id)">Delete project</button>
+              </div>
             </div>
           </div>
-        </div>
+
+          <div class="pagination" v-if="totalPages > 1">
+            <button :disabled="currentPage === 1" @click="currentPage--">Prev</button>
+            <button
+              v-for="page in totalPages"
+              :key="page"
+              :class="{ active: page === currentPage }"
+              @click="currentPage = page"
+            >
+              {{ page }}
+            </button>
+            <button :disabled="currentPage === totalPages" @click="currentPage++">Next</button>
+          </div>
+        </template>
 
         <p v-else class="empty">No active projects yet</p>
       </section>
@@ -87,25 +123,46 @@ export default {
       },
       notifications: [],
       notify: useNotificationStore(),
+      showDeleteModal: false,
+      pendingDeleteId: null,
+      showResultModal: false,
+      resultTitle: '',
+      resultMessage: '',
+      resultType: 'success',
+      currentPage: 1,
+      totalPages: 1,
+      pageSize: 3,
+      notificationTimer: null,
+      userCreatedAt: null,
     }
   },
 
   mounted() {
     this.loadClientProfile()
+    this.loadUserMeta()
     this.loadClientProjects()
     this.loadNotifications()
+
+    this.notificationTimer = setInterval(() => {
+      this.loadNotifications()
+    }, 15000)
 
     window.addEventListener('projectCreated', this.loadClientProjects)
   },
 
   beforeUnmount() {
     window.removeEventListener('projectCreated', this.loadClientProjects)
+    if (this.notificationTimer) {
+      clearInterval(this.notificationTimer)
+      this.notificationTimer = null
+    }
   },
 
   computed: {
     memberSince() {
-      if (!this.client?.created_at) return '—'
-      return new Date(this.client.created_at).getFullYear()
+      const createdAt = this.userCreatedAt || this.client?.user?.created_at || this.client?.created_at
+      if (!createdAt) return '—'
+      return new Date(createdAt).getFullYear()
     },
 
     hasUnread() {
@@ -122,19 +179,35 @@ export default {
       try {
         const res = await api.get('/client/profile')
         this.client = res.data
+        if (res.data?.user?.created_at) {
+          this.userCreatedAt = res.data.user.created_at
+        }
       } catch (e) {
         console.error('Failed to load client profile', e)
       }
     },
 
+    async loadUserMeta() {
+      try {
+        const res = await api.get('/me')
+        this.userCreatedAt = res.data?.created_at || res.data?.user?.created_at || this.userCreatedAt
+      } catch (e) {
+        console.error('Failed to load user meta', e)
+      }
+    },
+
     async loadClientProjects() {
       try {
-        const res = await api.get('/client/projects')
-        this.projects = res.data
+        const res = await api.get('/client/projects', {
+          params: { page: this.currentPage, per_page: this.pageSize },
+        })
+        this.projects = res.data?.data || []
+        this.totalPages = res.data?.meta?.last_page || 1
 
-        this.stats.posted = res.data.length
-        this.stats.active = res.data.filter((p) => p.status === 'In progress').length
-        this.stats.completed = res.data.filter((p) => p.status === 'Completed').length
+        const stats = res.data?.meta?.stats
+        this.stats.posted = stats?.posted ?? 0
+        this.stats.active = stats?.active ?? 0
+        this.stats.completed = stats?.completed ?? 0
       } catch (e) {
         console.warn('Projects not loaded yet (backend later)')
         console.error(e)
@@ -150,24 +223,51 @@ export default {
     },
 
     async deleteProject(projectId) {
-      if (!confirm('Are you sure you want to delete this project?')) return
+      this.pendingDeleteId = projectId
+      this.showDeleteModal = true
+    },
+
+    closeDeleteModal() {
+      this.showDeleteModal = false
+      this.pendingDeleteId = null
+    },
+
+    async confirmDelete() {
+      if (!this.pendingDeleteId) return
 
       try {
-        await api.delete(`/client/projects/${projectId}`)
-        this.notify.success('Project deleted successfully!')
+        await api.delete(`/client/projects/${this.pendingDeleteId}`)
+        this.openResultModal('Success', 'Project deleted successfully!', 'success')
         await this.loadClientProjects()
       } catch (e) {
         console.error('Failed to delete project', e)
-        this.notify.error('Failed to delete project')
+        this.openResultModal('Failed', 'Failed to delete project.', 'error')
+      } finally {
+        this.closeDeleteModal()
       }
+    },
+
+    openResultModal(title, message, type) {
+      this.resultTitle = title
+      this.resultMessage = message
+      this.resultType = type
+      this.showResultModal = true
+    },
+
+    closeResultModal() {
+      this.showResultModal = false
+      this.resultTitle = ''
+      this.resultMessage = ''
+      this.resultType = 'success'
     },
 
     async loadNotifications() {
       try {
         const res = await api.get('/client/notifications')
-        this.notifications = res.data.sort(
-          (a, b) => new Date(b.created_at) - new Date(a.created_at),
-        )
+        const list = res.data?.data || res.data || []
+        this.notifications = Array.isArray(list)
+          ? list.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+          : []
       } catch (e) {
         console.warn('Notifications not loaded yet', e)
       }
@@ -184,6 +284,12 @@ export default {
       if (note.link) {
         this.$router.push(note.link)
       }
+    },
+  },
+
+  watch: {
+    currentPage() {
+      this.loadClientProjects()
     },
   },
 }
@@ -399,5 +505,74 @@ export default {
   font-size: 12px;
   color: #999;
   float: right;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-card {
+  background: #fff;
+  padding: 24px;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.modal-card.success h3 {
+  color: #16a34a;
+}
+
+.modal-card.error h3 {
+  color: #ef4444;
+}
+
+.modal-card h3 {
+  margin-bottom: 8px;
+}
+
+.modal-card p {
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.pagination {
+  margin-top: 24px;
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+}
+
+.pagination button {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  background: #fff;
+  cursor: pointer;
+}
+
+.pagination button.active {
+  background: #5b3df5;
+  color: #fff;
+  border-color: #5b3df5;
+}
+
+.pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 </style>

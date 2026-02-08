@@ -25,6 +25,8 @@ class UserController extends Controller
                 $plan = 'pro';
             } elseif ($plan === env('STRIPE_PRICE_PREMIUM')) {
                 $plan = 'premium';
+            } else {
+                $plan = 'pro';
             }
         }
 
@@ -36,6 +38,7 @@ class UserController extends Controller
             'study_year' => $user->study_year,
             'role' => $user->role ?? 'freelancer',
             'plan' => $plan,
+            'created_at' => $user->created_at,
         ]);
     }
 

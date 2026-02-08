@@ -83,13 +83,26 @@
         </div>
 
         <p v-if="!transactions.length" class="empty">No transactions yet</p>
+
+        <div class="pagination" v-if="totalPages > 1">
+          <button :disabled="currentPage === 1" @click="currentPage--">Prev</button>
+          <button
+            v-for="page in totalPages"
+            :key="page"
+            :class="{ active: page === currentPage }"
+            @click="currentPage = page"
+          >
+            {{ page }}
+          </button>
+          <button :disabled="currentPage === totalPages" @click="currentPage++">Next</button>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import api from '@/services/axios'
 import SidebarMenu from '../../components/FreelancerPageMenu/SidebarMenu.vue'
 import { useNotificationStore } from '@/stores/notificationStore'
@@ -98,6 +111,9 @@ const notifications = useNotificationStore()
 const transactions = ref([])
 const isCanceling = ref(false)
 const user = ref(null)
+const currentPage = ref(1)
+const totalPages = ref(1)
+const pageSize = 8
 
 const showDeactivate = computed(() => {
   const plan = user.value?.plan
@@ -109,8 +125,11 @@ onMounted(async () => {
   try {
     const meRes = await api.get('/me')
     user.value = meRes.data
-    const res = await api.get('/billing/transactions')
-    transactions.value = res.data || []
+    const res = await api.get('/billing/transactions', {
+      params: { page: currentPage.value, per_page: pageSize },
+    })
+    transactions.value = res.data?.data || []
+    totalPages.value = res.data?.meta?.last_page || 1
   } catch (e) {
     console.error('Failed to load transactions', e)
     notifications.error('Failed to load billing transactions')
@@ -122,8 +141,11 @@ const cancelSubscription = async () => {
   try {
     await api.post('/subscriptions/cancel')
     notifications.success('Subscription deactivated')
-    const res = await api.get('/billing/transactions')
-    transactions.value = res.data || []
+    const res = await api.get('/billing/transactions', {
+      params: { page: currentPage.value, per_page: pageSize },
+    })
+    transactions.value = res.data?.data || []
+    totalPages.value = res.data?.meta?.last_page || 1
   } catch (e) {
     console.error('Failed to cancel subscription', e)
     notifications.error('Failed to deactivate subscription')
@@ -131,6 +153,24 @@ const cancelSubscription = async () => {
     isCanceling.value = false
   }
 }
+
+const loadTransactions = async () => {
+  try {
+    const res = await api.get('/billing/transactions', {
+      params: { page: currentPage.value, per_page: pageSize },
+    })
+    transactions.value = res.data?.data || []
+    totalPages.value = res.data?.meta?.last_page || 1
+  } catch (e) {
+    console.error('Failed to load transactions', e)
+    transactions.value = []
+    totalPages.value = 1
+  }
+}
+
+watch(currentPage, () => {
+  loadTransactions()
+})
 
 const formatTxId = (item, index) => {
   if (!item?.id) {
@@ -227,6 +267,33 @@ h1 {
 .empty {
   margin-top: 16px;
   color: #888;
+}
+
+.pagination {
+  margin-top: 24px;
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+}
+
+.pagination button {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  background: #fff;
+  cursor: pointer;
+}
+
+.pagination button.active {
+  background: #5b3df5;
+  color: #fff;
+  border-color: #5b3df5;
+}
+
+.pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 table {

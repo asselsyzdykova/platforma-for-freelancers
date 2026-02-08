@@ -9,26 +9,41 @@
       <div v-if="loading" class="empty">Loading...</div>
 
       <div v-else>
-        <div v-if="conversations.length" class="list">
-          <div
-            class="conversation"
-            v-for="conv in conversations"
-            :key="conv.partner.id"
-            @click="openChat(conv)"
-          >
-            <div class="left">
-              <div class="avatar-placeholder">{{ initials(conv.partner.name) }}</div>
-            </div>
-            <div class="content">
-              <p class="title">{{ conv.partner.name || conv.partner.email }}</p>
-              <p class="body">{{ conv.last_message.body }}</p>
-            </div>
-            <div class="meta">
-              <span v-if="conv.unread_count" class="unread-count">{{ conv.unread_count }}</span>
-              <span class="time">{{ formatDate(conv.last_message.created_at) }}</span>
+        <template v-if="conversations.length">
+          <div class="list">
+            <div
+              class="conversation"
+              v-for="conv in conversations"
+              :key="conv.partner.id"
+              @click="openChat(conv)"
+            >
+              <div class="left">
+                <div class="avatar-placeholder">{{ initials(conv.partner.name) }}</div>
+              </div>
+              <div class="content">
+                <p class="title">{{ conv.partner.name || conv.partner.email }}</p>
+                <p class="body">{{ conv.last_message.body }}</p>
+              </div>
+              <div class="meta">
+                <span v-if="conv.unread_count" class="unread-count">{{ conv.unread_count }}</span>
+                <span class="time">{{ formatDate(conv.last_message.created_at) }}</span>
+              </div>
             </div>
           </div>
-        </div>
+
+          <div class="pagination" v-if="totalPages > 1">
+            <button :disabled="currentPage === 1" @click="currentPage--">Prev</button>
+            <button
+              v-for="page in totalPages"
+              :key="page"
+              :class="{ active: page === currentPage }"
+              @click="currentPage = page"
+            >
+              {{ page }}
+            </button>
+            <button :disabled="currentPage === totalPages" @click="currentPage++">Next</button>
+          </div>
+        </template>
 
         <p v-else class="empty">No conversations yet</p>
       </div>
@@ -52,6 +67,9 @@ export default {
       conversations: [],
       loading: true,
       user: null,
+      currentPage: 1,
+      totalPages: 1,
+      pageSize: 8,
     }
   },
 
@@ -75,10 +93,15 @@ export default {
     async loadConversations() {
       this.loading = true
       try {
-        const res = await api.get('/conversations')
-        this.conversations = res.data
+        const res = await api.get('/conversations', {
+          params: { page: this.currentPage, per_page: this.pageSize },
+        })
+        this.conversations = res.data?.data || []
+        this.totalPages = res.data?.meta?.last_page || 1
       } catch (e) {
         console.error('Failed to load conversations', e)
+        this.conversations = []
+        this.totalPages = 1
       } finally {
         this.loading = false
       }
@@ -106,6 +129,12 @@ export default {
 
     formatDate(date) {
       return new Date(date).toLocaleString()
+    },
+  },
+
+  watch: {
+    currentPage() {
+      this.loadConversations()
     },
   },
 }
@@ -186,5 +215,32 @@ export default {
   color: #777;
   text-align: center;
   margin-top: 60px;
+}
+
+.pagination {
+  margin-top: 24px;
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+}
+
+.pagination button {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  background: #fff;
+  cursor: pointer;
+}
+
+.pagination button.active {
+  background: #5b3df5;
+  color: #fff;
+  border-color: #5b3df5;
+}
+
+.pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 </style>

@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
             MessageSeeder::class,
             NotificationSeeder::class,
             SubscriptionSeeder::class,
+            AdminManagerSeeder::class,
         ]);
     }
 }

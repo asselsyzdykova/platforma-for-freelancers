@@ -41,16 +41,32 @@
           </div>
         </div>
       </div>
+
+      <div class="pagination" v-if="totalPages > 1">
+        <button :disabled="currentPage === 1" @click="currentPage--">Prev</button>
+        <button
+          v-for="page in totalPages"
+          :key="page"
+          :class="{ active: page === currentPage }"
+          @click="currentPage = page"
+        >
+          {{ page }}
+        </button>
+        <button :disabled="currentPage === totalPages" @click="currentPage++">Next</button>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import SidebarMenu from '@/components/FreelancerPageMenu/SidebarMenu.vue'
 import api from '@/services/axios'
 
 const proposals = ref([])
+const currentPage = ref(1)
+const totalPages = ref(1)
+const pageSize = 8
 
 const statusMap = {
   Pending: { progress: 0, step: 0 },
@@ -72,17 +88,27 @@ const getProposalDisplay = (proposal) => {
 
 const loadProposals = async () => {
   try {
-    const res = await api.get('/freelancer/proposals')
-    proposals.value = res.data.map((p) => ({
+    const res = await api.get('/freelancer/proposals', {
+      params: { page: currentPage.value, per_page: pageSize },
+    })
+    const data = res.data?.data || []
+    proposals.value = data.map((p) => ({
       ...p,
       display: getProposalDisplay(p),
     }))
+    totalPages.value = res.data?.meta?.last_page || 1
   } catch (e) {
     console.error('Failed to load proposals', e)
+    proposals.value = []
+    totalPages.value = 1
   }
 }
 
 onMounted(loadProposals)
+
+watch(currentPage, () => {
+  loadProposals()
+})
 </script>
 
 <style scoped>
@@ -162,5 +188,32 @@ h1 {
 .final-status span.rejected {
   color: red;
   font-weight: 600;
+}
+
+.pagination {
+  margin-top: 24px;
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+}
+
+.pagination button {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  background: #fff;
+  cursor: pointer;
+}
+
+.pagination button.active {
+  background: #5b3df5;
+  color: #fff;
+  border-color: #5b3df5;
+}
+
+.pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 </style>

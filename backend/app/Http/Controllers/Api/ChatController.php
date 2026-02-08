@@ -17,14 +17,27 @@ class ChatController extends Controller
         }
         $authId = $authUser->id;
 
+        $perPage = (int) $request->get('per_page', 20);
+        $perPage = $perPage > 0 ? min($perPage, 50) : 20;
+
         try {
-            $messages = Message::where(function ($q) use ($authId, $userId) {
+            $paginated = Message::where(function ($q) use ($authId, $userId) {
                 $q->where('sender_id', $authId)->where('receiver_id', $userId);
             })->orWhere(function ($q) use ($authId, $userId) {
                 $q->where('sender_id', $userId)->where('receiver_id', $authId);
-            })->with('sender')->orderBy('created_at', 'asc')->get();
+            })->with('sender')->orderBy('created_at', 'desc')->paginate($perPage);
 
-            return response()->json($messages);
+            $messages = collect($paginated->items())->reverse()->values();
+
+            return response()->json([
+                'data' => $messages,
+                'meta' => [
+                    'current_page' => $paginated->currentPage(),
+                    'last_page' => $paginated->lastPage(),
+                    'per_page' => $paginated->perPage(),
+                    'total' => $paginated->total(),
+                ],
+            ]);
         } catch (\Illuminate\Database\QueryException $e) {
             logger()->error('Failed to load messages', ['error' => $e->getMessage()]);
             return response()->json(['message' => 'Database error while loading messages. Have you run migrations?'], 500);
@@ -38,6 +51,12 @@ class ChatController extends Controller
             return response()->json(['message' => 'Unauthenticated'], 401);
         }
         $authId = $authUser->id;
+
+        $perPage = (int) $request->get('per_page', 8);
+        $perPage = $perPage > 0 ? min($perPage, 50) : 8;
+        $page = (int) $request->get('page', 1);
+        $page = $page > 0 ? $page : 1;
+
         try {
             $messages = Message::where('sender_id', $authId)->orWhere('receiver_id', $authId)
                 ->with(['sender', 'receiver'])
@@ -76,7 +95,20 @@ class ChatController extends Controller
 
             $conversations = array_values($map);
 
-            return response()->json($conversations);
+            $total = count($conversations);
+            $lastPage = (int) ceil($total / $perPage);
+            $offset = ($page - 1) * $perPage;
+            $paged = array_slice($conversations, $offset, $perPage);
+
+            return response()->json([
+                'data' => $paged,
+                'meta' => [
+                    'current_page' => $page,
+                    'last_page' => $lastPage,
+                    'per_page' => $perPage,
+                    'total' => $total,
+                ],
+            ]);
         } catch (\Illuminate\Database\QueryException $e) {
             logger()->error('Failed to load conversations', ['error' => $e->getMessage()]);
             return response()->json(['message' => 'Database error while loading conversations. Have you run migrations?'], 500);
