@@ -87,7 +87,7 @@ class ProposalController extends Controller
             return 'premium';
         }
 
-        return 'free';
+        return 'pro';
     }
 
     public function show($id)
@@ -208,20 +208,33 @@ class ProposalController extends Controller
 
     public function freelancerProposals()
     {
-        $proposals = Proposal::where('freelancer_id', Auth::id())
-            ->with(['project', 'project.client'])
-            ->get()
-            ->map(function ($proposal) {
-                return [
-                    'id' => $proposal->id,
-                    'project_id' => $proposal->project_id,
-                    'project_name' => $proposal->project->title,
-                    'status' => $proposal->status ?? 'Pending',
-                    'created_at' => $proposal->created_at,
-                ];
-            });
+        $perPage = (int) request()->get('per_page', 8);
+        $perPage = $perPage > 0 ? min($perPage, 50) : 8;
 
-        return response()->json($proposals);
+        $paginated = Proposal::where('freelancer_id', Auth::id())
+            ->with(['project', 'project.client'])
+            ->latest()
+            ->paginate($perPage);
+
+        $proposals = collect($paginated->items())->map(function ($proposal) {
+            return [
+                'id' => $proposal->id,
+                'project_id' => $proposal->project_id,
+                'project_name' => $proposal->project->title,
+                'status' => $proposal->status ?? 'Pending',
+                'created_at' => $proposal->created_at,
+            ];
+        });
+
+        return response()->json([
+            'data' => $proposals,
+            'meta' => [
+                'current_page' => $paginated->currentPage(),
+                'last_page' => $paginated->lastPage(),
+                'per_page' => $paginated->perPage(),
+                'total' => $paginated->total(),
+            ],
+        ]);
     }
 
     public function reject($id)

@@ -45,11 +45,14 @@ class SubscriptionController extends Controller
             return response()->json(['error' => 'Unauthenticated'], 401);
         }
 
-        $subscriptions = Subscription::where('user_id', $user->id)
-            ->latest('created_at')
-            ->get();
+        $perPage = (int) $request->get('per_page', 8);
+        $perPage = $perPage > 0 ? min($perPage, 50) : 8;
 
-        $transactions = $subscriptions->map(function ($subscription) use ($user) {
+        $paginated = Subscription::where('user_id', $user->id)
+            ->latest('created_at')
+            ->paginate($perPage);
+
+        $transactions = collect($paginated->items())->map(function ($subscription) use ($user) {
             $plan = $subscription->plan;
             if ($plan === env('STRIPE_PRICE_PRO')) {
                 $plan = 'pro';
@@ -70,7 +73,15 @@ class SubscriptionController extends Controller
             ];
         });
 
-        return response()->json($transactions);
+        return response()->json([
+            'data' => $transactions,
+            'meta' => [
+                'current_page' => $paginated->currentPage(),
+                'last_page' => $paginated->lastPage(),
+                'per_page' => $paginated->perPage(),
+                'total' => $paginated->total(),
+            ],
+        ]);
     }
     public function createCheckoutSession(Request $request)
     {

@@ -1,8 +1,15 @@
 <template>
-  <div class="chat-page">
-    <h1>Chat with {{ partner?.name || '...' }}</h1>
+  <div class="page-layout">
+    <SidebarMenu v-if="user.role === 'freelancer'" :userName="user.name" />
+    <ClientSidebar v-if="user.role === 'user'" />
 
-    <div class="messages">
+    <div class="chat-page">
+      <h1>Chat with {{ partner?.name || '...' }}</h1>
+
+      <div class="messages">
+      <button v-if="hasMore" class="load-more" @click="loadMore" :disabled="isLoadingMore">
+        {{ isLoadingMore ? 'Loading...' : 'Load older messages' }}
+      </button>
       <div
         v-for="m in messages"
         :key="m.id"
@@ -33,21 +40,22 @@
       </div>
     </div>
 
-    <div v-if="selectedAttachment" class="attachment-modal" @click.self="closeAttachment">
-      <button class="attachment-modal-close" @click="closeAttachment">×</button>
-      <img :src="selectedAttachment" alt="Attachment preview" />
-      <a class="attachment-modal-download" :href="selectedAttachment" download>Download</a>
-    </div>
+      <div v-if="selectedAttachment" class="attachment-modal" @click.self="closeAttachment">
+        <button class="attachment-modal-close" @click="closeAttachment">×</button>
+        <img :src="selectedAttachment" alt="Attachment preview" />
+        <a class="attachment-modal-download" :href="selectedAttachment" download>Download</a>
+      </div>
 
-    <form @submit.prevent="sendMessage" class="composer">
-      <input v-model="body" placeholder="Write a message..." />
-      <label class="file-button">
-        <input type="file" @change="onFileChange" />
-        📎
-      </label>
-      <span v-if="attachmentName" class="file-name">{{ attachmentName }}</span>
-      <button type="submit">Send</button>
-    </form>
+      <form @submit.prevent="sendMessage" class="composer">
+        <input v-model="body" placeholder="Write a message..." />
+        <label class="file-button">
+          <input type="file" @change="onFileChange" />
+          📎
+        </label>
+        <span v-if="attachmentName" class="file-name">{{ attachmentName }}</span>
+        <button type="submit">Send</button>
+      </form>
+    </div>
   </div>
 </template>
 
@@ -55,6 +63,8 @@
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute } from 'vue-router'
 import api from '@/services/axios'
+import SidebarMenu from '@/components/FreelancerPageMenu/SidebarMenu.vue'
+import ClientSidebar from '@/components/ClientPageMenu/SidebarMenu.vue'
 
 const route = useRoute()
 const messages = ref([])
@@ -62,6 +72,9 @@ const body = ref('')
 const attachmentFile = ref(null)
 const attachmentName = ref('')
 const selectedAttachment = ref(null)
+const currentPage = ref(1)
+const hasMore = ref(false)
+const isLoadingMore = ref(false)
 const user = ref({})
 const partner = ref(null)
 let channel = null
@@ -74,6 +87,23 @@ const markConversationRead = async (partnerId) => {
   }
 }
 
+const fetchMessages = async (page = 1, append = true) => {
+  const partnerId = route.params.id
+  const res = await api.get(`/messages/${partnerId}`, {
+    params: { page, per_page: 20 },
+  })
+
+  const data = res.data?.data || []
+  if (append) {
+    messages.value = [...data, ...messages.value]
+  } else {
+    messages.value = data
+  }
+
+  const meta = res.data?.meta
+  hasMore.value = meta ? meta.current_page < meta.last_page : false
+}
+
 onMounted(async () => {
   try {
     const meRes = await api.get('/me')
@@ -81,8 +111,8 @@ onMounted(async () => {
 
     const partnerId = route.params.id
 
-    const res = await api.get(`/messages/${partnerId}`)
-    messages.value = res.data || []
+    currentPage.value = 1
+    await fetchMessages(currentPage.value, false)
 
     await markConversationRead(partnerId)
 
@@ -142,6 +172,19 @@ const sendMessage = async () => {
   }
 }
 
+const loadMore = async () => {
+  if (!hasMore.value || isLoadingMore.value) return
+  isLoadingMore.value = true
+  try {
+    currentPage.value += 1
+    await fetchMessages(currentPage.value, true)
+  } catch (e) {
+    console.error(e)
+  } finally {
+    isLoadingMore.value = false
+  }
+}
+
 const onFileChange = (event) => {
   const file = event.target.files?.[0]
   if (!file) return
@@ -172,49 +215,78 @@ const downloadAttachment = (message) => {
 
 <style scoped>
 .chat-page {
-  max-width: 800px;
-  margin: 40px auto;
+  max-width: 1200px;
+  margin: 32px auto;
+  padding: 0 28px 40px;
+}
+.page-layout {
+  display: flex;
+  min-height: 100vh;
+  background: #f7f6ff;
+}
+.chat-page h1 {
+  font-size: 28px;
+  margin-bottom: 16px;
+  color: #2b2b2b;
 }
 .messages {
-  max-height: 60vh;
+  max-height: 62vh;
   overflow-y: auto;
-  padding: 16px;
+  padding: 18px;
   background: #f7f6ff;
-  border-radius: 12px;
-  margin-bottom: 12px;
+  border-radius: 16px;
+  margin-bottom: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: inset 0 0 0 1px rgba(91, 61, 245, 0.08);
 }
 .message {
-  margin-bottom: 12px;
-  padding: 10px;
-  border-radius: 10px;
+  padding: 12px 14px;
+  border-radius: 14px;
   max-width: 70%;
+  display: inline-block;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
 }
 .message.in {
-  background: white;
+  background: #ffffff;
   align-self: flex-start;
+  border: 1px solid rgba(0, 0, 0, 0.04);
 }
 .message.out {
-  background: #dfe7ff;
+  background: #ece6ff;
   margin-left: auto;
+  border: 1px solid rgba(91, 61, 245, 0.12);
 }
 .meta {
   font-size: 12px;
-  color: #666;
+  color: #6b7280;
   margin-bottom: 8px;
 }
 .body {
   font-size: 15px;
+  color: #2f2f2f;
 }
 .composer {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   align-items: center;
+  background: #ffffff;
+  padding: 10px;
+  border-radius: 14px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
 }
 .composer input {
   flex: 1;
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  background: #fafafa;
+}
+.composer input:focus {
+  outline: none;
+  border-color: #5b3df5;
+  box-shadow: 0 0 0 3px rgba(91, 61, 245, 0.12);
 }
 .file-button {
   display: inline-flex;
@@ -239,11 +311,22 @@ const downloadAttachment = (message) => {
   white-space: nowrap;
 }
 .composer button {
-  padding: 10px 14px;
-  border-radius: 8px;
+  padding: 10px 16px;
+  border-radius: 10px;
   background: #5b3df5;
   color: white;
   border: none;
+  box-shadow: 0 8px 16px rgba(91, 61, 245, 0.2);
+}
+
+.load-more {
+  align-self: center;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  background: #fff;
+  cursor: pointer;
+  font-size: 13px;
 }
 
 .attachment {
@@ -256,7 +339,7 @@ const downloadAttachment = (message) => {
 .attachment img {
   max-width: 220px;
   max-height: 160px;
-  border-radius: 8px;
+  border-radius: 10px;
   display: block;
 }
 .attachment-image-button {

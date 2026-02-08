@@ -10,7 +10,8 @@
       </RouterLink>
 
       <RouterLink :to="{ name: 'ClientChats' }" class="menu-item" active-class="active">
-        Chats
+        <span>Chats</span>
+        <span v-if="hasUnread" class="chat-badge"></span>
       </RouterLink>
 
       <RouterLink :to="{ name: 'ClientSettings' }" class="menu-item" active-class="active">
@@ -25,12 +26,30 @@
 </template>
 
 <script setup>
+import { ref, onMounted } from 'vue'
+import api from '@/services/axios'
+
 defineProps({
   userName: {
     type: String,
     default: 'Client Name',
   },
 })
+
+const hasUnread = ref(false)
+
+const loadUnread = async () => {
+  try {
+    const res = await api.get('/conversations')
+    const list = res.data?.data || res.data || []
+    const unread = list.reduce((sum, conv) => sum + (conv.unread_count || 0), 0)
+    hasUnread.value = unread > 0
+  } catch (e) {
+    console.error('Failed to load chat unread count', e)
+  }
+}
+
+onMounted(loadUnread)
 </script>
 
 <style scoped>
@@ -56,6 +75,9 @@ defineProps({
   text-decoration: none;
   font-size: 15px;
   transition: 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .menu-item:hover {
@@ -65,5 +87,13 @@ defineProps({
 .menu-item.active {
   background: #5b4b8a;
   color: white;
+}
+
+.chat-badge {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: #ef4444;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.7);
 }
 </style>

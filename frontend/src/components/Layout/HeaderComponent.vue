@@ -73,6 +73,22 @@ const planSuffix = computed(() => {
           Profile ({{ userStore.user.name }})
         </RouterLink>
 
+        <RouterLink
+          v-if="userStore.isLoggedIn && userStore.user.role === 'admin'"
+          :to="{ name: 'AdminProfile' }"
+          exact-active-class="active"
+        >
+          Profile ({{ userStore.user.name }})
+        </RouterLink>
+
+        <RouterLink
+          v-if="userStore.isLoggedIn && userStore.user.role === 'manager'"
+          :to="{ name: 'ManagerProfile' }"
+          exact-active-class="active"
+        >
+          Profile ({{ userStore.user.name }})
+        </RouterLink>
+
         <button v-if="userStore.isLoggedIn" @click="logout">Logout</button>
       </nav>
     </div>

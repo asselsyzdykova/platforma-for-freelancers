@@ -56,7 +56,12 @@ const login = async () => {
       userStore.setUser(response.data.user)
     }
 
-    if (response.data.user.role === 'freelancer') {
+    const role = response.data.user?.role
+    if (role === 'admin') {
+      router.push('/admin/profile')
+    } else if (role === 'manager') {
+      router.push('/manager/profile')
+    } else if (role === 'freelancer') {
       router.push('/freelancer-profile')
     } else {
       router.push('/client-profile')
