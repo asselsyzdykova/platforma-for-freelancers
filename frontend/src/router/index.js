@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { useUserStore } from '@/stores/userStore'
 import HomeView from '../views/BasePages/HomePage.vue'
 import RegisterView from '../views/BasePages/RegisterPage.vue'
 import FreelancersPage from '../views/BasePages/FreelancersPage.vue'
@@ -56,6 +57,7 @@ const router = createRouter({
       path: '/freelancers',
       name: 'freelancers',
       component: FreelancersPage,
+      meta: { requiresAuth: true },
     },
     {
       path: '/freelancers/:id',
@@ -71,6 +73,7 @@ const router = createRouter({
       path: '/projects',
       name: 'projects',
       component: ProjectsPage,
+      meta: { requiresAuth: true },
     },
 
     {
@@ -131,6 +134,7 @@ const router = createRouter({
       path: '/create-project',
       name: 'CreateProject',
       component: CreateProject,
+      meta: { requiresAuth: true },
     },
 
     {
@@ -210,6 +214,18 @@ const router = createRouter({
       component: ManagerProfile,
     },
   ],
+})
+
+router.beforeEach(async (to) => {
+  if (!to.meta?.requiresAuth) return true
+  const store = useUserStore()
+  if (!store.user && store.token) {
+    await store.loadUser()
+  }
+  if (!store.user) {
+    return { name: 'login' }
+  }
+  return true
 })
 
 export default router

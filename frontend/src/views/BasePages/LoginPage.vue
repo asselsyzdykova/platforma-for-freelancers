@@ -118,7 +118,7 @@ button {
   width: 100%;
   margin-top: 1rem;
   padding: 0.7rem;
-  background: #4f46e5;
+  background: linear-gradient(135deg, #5D3A9B, #7c3aed);
   color: white;
   border: none;
   border-radius: 6px;
@@ -127,13 +127,13 @@ button {
 }
 
 button:hover {
-  background: #4338ca;
+  background:linear-gradient(135deg, #5D3A9B, #7c3aed);
 }
 
 .register-link {
   margin-top: 1rem;
   text-align: center;
   font-size: 0.9rem;
-  color: #5b4b8a;
+  color: linear-gradient(135deg, #5D3A9B, #7c3aed);
 }
 </style>

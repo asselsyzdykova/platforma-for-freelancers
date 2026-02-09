@@ -9,6 +9,6 @@
 
 a {
   text-decoration: none;
-  color: #5b3df5;
+  color: linear-gradient(135deg, #5D3A9B, #7c3aed);
   transition: 0.4s;
 }

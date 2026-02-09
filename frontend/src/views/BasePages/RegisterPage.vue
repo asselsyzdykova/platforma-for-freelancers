@@ -234,7 +234,7 @@ input {
 
 input:focus {
   outline: none;
-  border-color: #5b3df5;
+  border-color: linear-gradient(135deg, #5D3A9B, #7c3aed);
 }
 
 select {
@@ -247,7 +247,7 @@ select {
 
 select:focus {
   outline: none;
-  border-color: #5b3df5;
+  border-color: linear-gradient(135deg, #5D3A9B, #7c3aed);
 }
 
 optgroup {
@@ -279,7 +279,7 @@ button {
   width: 100%;
   padding: 12px;
   margin-top: 8px;
-  background: #5b3df5;
+  background: linear-gradient(135deg, #5D3A9B, #7c3aed);
   color: white;
   border: none;
   border-radius: 12px;
@@ -292,7 +292,7 @@ button:hover {
 }
 
 .login-link {
-  color: #5b4b8a;
+  color: linear-gradient(135deg, #5D3A9B, #7c3aed);
   margin-top: 20px;
   text-align: center;
   font-size: 14px;
@@ -315,12 +315,12 @@ button:hover {
 }
 
 .role-selector button.active {
-  background: #5b3df5;
+  background: linear-gradient(135deg, #5D3A9B, #7c3aed);
   color: white;
-  border-color: #5b3df5;
+  border-color: linear-gradient(135deg, #5D3A9B, #7c3aed);
 }
 
 .role-selector button:hover {
-  border-color: #5b3df5;
+  border-color: linear-gradient(135deg, #5D3A9B, #7c3aed);
 }
 </style>
