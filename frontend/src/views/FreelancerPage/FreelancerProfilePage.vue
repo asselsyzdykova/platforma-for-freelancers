@@ -159,7 +159,8 @@ const loadProfile = async () => {
     const notifRes = await api.get('/freelancer/notifications', {
       headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` },
     })
-    notifications.value = notifRes.data
+    const list = notifRes.data?.data || notifRes.data || []
+    notifications.value = Array.isArray(list) ? list : []
     hasUnread.value = notifications.value.some((n) => !n.is_read)
   } catch (error) {
     console.error(error)

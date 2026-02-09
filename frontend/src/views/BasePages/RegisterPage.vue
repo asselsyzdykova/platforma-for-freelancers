@@ -145,6 +145,12 @@ const form = reactive({
 })
 
 const register = async () => {
+  const namePattern = /^[A-ZА-ЯЁ][a-zа-яё]+\s+[A-ZА-ЯЁ][a-zа-яё]+$/u
+  if (!namePattern.test(form.name.trim())) {
+    notifications.warning('Enter first and last name, each starting with a capital letter')
+    return
+  }
+
   if (form.password !== form.passwordConfirm) {
     notifications.warning('Passwords do not match')
     return
