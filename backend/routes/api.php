@@ -44,6 +44,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
      Route::get('/freelancer/profile', [FreelancerProfileController::class, 'show']);
     Route::post('/freelancer/profile', [FreelancerProfileController::class, 'update']);
+    Route::delete('/freelancer/profile', [FreelancerProfileController::class, 'destroy']);
 
 
 

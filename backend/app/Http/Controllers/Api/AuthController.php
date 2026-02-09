@@ -48,7 +48,16 @@ class AuthController extends Controller
         ];
 
         $request->validate([
-        'name' => 'required|string|max:255',
+        'name' => [
+            'required',
+            'string',
+            'max:255',
+            function ($attribute, $value, $fail) {
+                if (!preg_match('/^[A-ZА-ЯЁ][a-zа-яё]+\s+[A-ZА-ЯЁ][a-zа-яё]+$/u', $value)) {
+                    $fail('Name must include first and last name, each starting with a capital letter.');
+                }
+            },
+        ],
             'email' => [
                 'required',
                 'string',

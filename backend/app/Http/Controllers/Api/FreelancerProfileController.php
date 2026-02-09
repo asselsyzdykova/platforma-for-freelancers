@@ -98,4 +98,13 @@ class FreelancerProfileController extends Controller
 
         return response()->json($profile);
     }
+
+
+    public function destroy(Request $request)
+    {
+        $user = $request->user();
+        $user->delete();
+
+        return response()->json(['message' => 'Account deleted']);
+    }
 }
