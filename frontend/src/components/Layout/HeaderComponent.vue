@@ -120,12 +120,12 @@ const planSuffix = computed(() => {
 
 .nav .active {
   font-weight: bold;
-  color: #5b3df5;
+  color: linear-gradient(135deg, #5D3A9B, #7c3aed);
 }
 
 button {
   padding: 6px 12px;
-  background: #5b3df5;
+  background: linear-gradient(135deg, #5D3A9B, #7c3aed);
   color: white;
   border: none;
   border-radius: 8px;

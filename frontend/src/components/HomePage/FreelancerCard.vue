@@ -8,7 +8,7 @@
     <p class="rating">⭐ {{ freelancer.rating }} ({{ freelancer.reviews }})</p>
     <p class="location">📍 {{ freelancer.location }}</p>
 
-    <div class="skills">
+    <div class="skills" aria-label="Skills">
       <span v-for="skill in freelancer.skills" :key="skill">
         {{ skill }}
       </span>
@@ -92,14 +92,21 @@ h3 {
 
 .skills {
   margin: 15px 0;
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  scroll-snap-type: x proximity;
+  min-height: 44px;
 }
 
 .skills span {
   background: #fff;
   padding: 6px 14px;
   border-radius: 15px;
-  margin: 4px;
-  display: inline-block;
+  flex: 0 0 auto;
+  white-space: nowrap;
+  scroll-snap-align: start;
   font-size: 14px;
   font-weight: 500;
   color: #5b4b8a;
@@ -107,6 +114,15 @@ h3 {
   transition:
     transform 0.2s,
     box-shadow 0.2s;
+}
+
+.skills::-webkit-scrollbar {
+  height: 6px;
+}
+
+.skills::-webkit-scrollbar-thumb {
+  background: rgba(91, 75, 138, 0.3);
+  border-radius: 999px;
 }
 
 .skills span:hover {
