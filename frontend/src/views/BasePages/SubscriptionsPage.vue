@@ -231,12 +231,12 @@ const premiumButton = computed(() => {
 }
 
 .btn.primary {
-  background-color: #4f46e5;
+  background-color: #5D3A9B;
   color: white;
 }
 
 .btn.primary:hover {
-  background-color: #4338ca;
+  background-color: #5D3A9B
 }
 
 .btn.disabled {
@@ -245,6 +245,6 @@ const premiumButton = computed(() => {
 }
 
 .highlighted {
-  border: 2px solid #4f46e5;
+  border: 2px solid #5D3A9B;
 }
 </style>
