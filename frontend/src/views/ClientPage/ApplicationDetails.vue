@@ -37,14 +37,6 @@
 
       <div class="pagination" v-if="totalPages > 1">
         <button :disabled="currentPage === 1" @click="goToPage(currentPage - 1)">Prev</button>
-        <button
-          v-for="page in totalPages"
-          :key="page"
-          :class="{ active: page === currentPage }"
-          @click="goToPage(page)"
-        >
-          {{ page }}
-        </button>
         <button :disabled="currentPage === totalPages" @click="goToPage(currentPage + 1)">
           Next
         </button>

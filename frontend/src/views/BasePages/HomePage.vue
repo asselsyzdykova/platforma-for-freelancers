@@ -307,7 +307,7 @@ section {
   padding: 6px 12px;
   border-radius: 999px;
   background: rgba(91, 61, 245, 0.1);
-  color: #5b3df5;
+  color: linear-gradient(135deg, #5D3A9B, #7c3aed);
   font-weight: 600;
   font-size: 12px;
   letter-spacing: 0.02em;
@@ -434,13 +434,13 @@ section {
 
 .btn.primary {
   background: white;
-  color: #5b3df5;
+  color: linear-gradient(135deg, #5D3A9B, #7c3aed);
   border: 1px solid #d7d3ff;
 }
 
 .btn.ghost {
   border: 1px solid #d7d3ff;
-  color: #5b3df5;
+  color: linear-gradient(135deg, #5D3A9B, #7c3aed);
   background: white;
 }
 
@@ -459,7 +459,7 @@ section {
 .count {
   background: rgba(124, 93, 250, 0.14);
   border: 1px solid rgba(124, 93, 250, 0.2);
-  color: #4f46e5;
+  color: linear-gradient(135deg, #5D3A9B, #7c3aed);
   padding: 8px 14px;
   border-radius: 999px;
   font-weight: 600;
@@ -507,9 +507,9 @@ section {
 }
 
 .chip.active {
-  background: #5b3df5;
+  background: linear-gradient(135deg, #5D3A9B, #7c3aed);
   color: white;
-  border-color: #5b3df5;
+  border-color: linear-gradient(135deg, #5D3A9B, #7c3aed);
   box-shadow: 0 10px 20px rgba(91, 61, 245, 0.2);
 }
 

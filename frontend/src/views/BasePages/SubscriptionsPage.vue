@@ -180,8 +180,20 @@ const premiumButton = computed(() => {
 
 .plans {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(3, minmax(260px, 1fr));
   gap: 30px;
+}
+
+@media (max-width: 980px) {
+  .plans {
+    grid-template-columns: repeat(2, minmax(240px, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .plans {
+    grid-template-columns: 1fr;
+  }
 }
 
 .plan-card {

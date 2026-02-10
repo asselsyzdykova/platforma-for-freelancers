@@ -268,7 +268,8 @@ class ProposalController extends Controller
 
         $paginated = Proposal::where('project_id', $projectId)
             ->with('freelancer')
-            ->latest('created_at')
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
             ->paginate($perPage);
 
         $proposals = collect($paginated->items())->map(function ($proposal) {
