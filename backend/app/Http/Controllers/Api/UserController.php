@@ -25,6 +25,10 @@ class UserController extends Controller
                 $plan = 'pro';
             } elseif ($plan === env('STRIPE_PRICE_PREMIUM')) {
                 $plan = 'premium';
+            } elseif ($plan === 'premium') {
+                $plan = 'premium';
+            } elseif ($plan === 'pro') {
+                $plan = 'pro';
             } elseif ($plan === 'free') {
                 $plan = 'free';
             } else {

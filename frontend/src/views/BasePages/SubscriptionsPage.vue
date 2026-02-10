@@ -16,9 +16,11 @@
           <li>✖ No priority listing</li>
         </ul>
 
-        <button class="btn" :class="freeButton.class" :disabled="freeButton.disabled">
-          {{ freeButton.label }}
-        </button>
+        <div class="plan-actions">
+          <button class="btn" :class="freeButton.class" :disabled="freeButton.disabled">
+            {{ freeButton.label }}
+          </button>
+        </div>
       </div>
 
       <!-- PRO PLAN -->
@@ -33,14 +35,23 @@
           <li>✔ Direct client messaging</li>
         </ul>
 
-        <button
-          class="btn"
-          :class="proButton.class"
-          :disabled="proButton.disabled"
-          @click="proButton.onClick"
-        >
-          {{ proButton.label }}
-        </button>
+        <div class="plan-actions">
+          <button
+            class="btn"
+            :class="proButton.class"
+            :disabled="proButton.disabled"
+            @click="proButton.onClick"
+          >
+            {{ proButton.label }}
+          </button>
+          <button
+            class="btn paypal"
+            :disabled="proButton.disabled"
+            @click="subscribePayPal('pro')"
+          >
+            Pay with PayPal
+          </button>
+        </div>
       </div>
 
       <!-- PREMIUM PLAN -->
@@ -55,14 +66,23 @@
           <li>✔ Higher visibility</li>
         </ul>
 
-        <button
-          class="btn"
-          :class="premiumButton.class"
-          :disabled="premiumButton.disabled"
-          @click="premiumButton.onClick"
-        >
-          {{ premiumButton.label }}
-        </button>
+        <div class="plan-actions">
+          <button
+            class="btn"
+            :class="premiumButton.class"
+            :disabled="premiumButton.disabled"
+            @click="premiumButton.onClick"
+          >
+            {{ premiumButton.label }}
+          </button>
+          <button
+            class="btn paypal"
+            :disabled="premiumButton.disabled"
+            @click="subscribePayPal('premium')"
+          >
+            Pay with PayPal
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -114,6 +134,42 @@ const subscribe = async (plan) => {
     }
     console.error('Stripe checkout error:', error)
     notifications.error('Something went wrong with the payment. Please try again.')
+  }
+}
+
+const subscribePayPal = async (plan) => {
+  try {
+    const token = localStorage.getItem('access_token')
+
+    const base =
+      (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '') || window.location.origin
+    const url = `${base}/api/paypal/create-subscription`
+
+    const { data } = await axios.post(
+      url,
+      { plan },
+      {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        withCredentials: true,
+      },
+    )
+
+    if (data?.url) {
+      window.location.href = data.url
+      return
+    }
+    throw new Error('PayPal approval URL missing from server response.')
+  } catch (error) {
+    if (error?.response?.status === 401) {
+      notifications.warning('Please log in to continue.')
+      return
+    }
+    if (error?.response?.data?.error) {
+      notifications.error(error.response.data.error)
+      return
+    }
+    console.error('PayPal checkout error:', error)
+    notifications.error('Something went wrong with PayPal. Please try again.')
   }
 }
 
@@ -229,6 +285,12 @@ const premiumButton = computed(() => {
   text-align: left;
 }
 
+.plan-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
 .plan-card li {
   margin-bottom: 10px;
 }
@@ -251,8 +313,23 @@ const premiumButton = computed(() => {
   background-color: #5D3A9B
 }
 
+.btn.paypal {
+  background: #003087;
+  color: #fff;
+}
+
+.btn.paypal:hover {
+  background: #00256f;
+}
+
 .btn.disabled {
   background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.btn:disabled {
+  background-color: #ccc;
+  color: #777;
   cursor: not-allowed;
 }
 
