@@ -51,7 +51,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     //subscriptions
     Route::middleware('auth:sanctum')->post('/create-checkout-session', [SubscriptionController::class, 'createCheckoutSession']);
+    Route::middleware('auth:sanctum')->post('/paypal/create-subscription', [SubscriptionController::class, 'createPaypalSubscription']);
     Route::middleware('auth:sanctum')->post('/subscriptions/confirm', [SubscriptionController::class, 'confirmCheckout']);
+    Route::middleware('auth:sanctum')->post('/subscriptions/confirm-paypal', [SubscriptionController::class, 'confirmPaypalSubscription']);
     Route::post('/subscriptions/checkout', [SubscriptionController::class, 'checkout']);
     Route::get('/billing/transactions', [SubscriptionController::class, 'transactions']);
     Route::post('/subscriptions/cancel', [SubscriptionController::class, 'cancel']);
@@ -83,3 +85,4 @@ Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logo
 
 // Public endpoint for Stripe webhooks
 Route::post('/stripe/webhook', [SubscriptionController::class, 'handleWebhook']);
+Route::post('/paypal/webhook', [SubscriptionController::class, 'handlePaypalWebhook']);
