@@ -330,12 +330,15 @@ export default {
 .profile-layout {
   display: flex;
   min-height: 100vh;
+  align-items: stretch;
+  background: #f7f6ff;
 }
 
 .client-content {
   width: 60%;
   padding: 30px;
   margin: 0 auto;
+  min-height: 100vh;
 }
 .client-page {
   max-width: 1100px;

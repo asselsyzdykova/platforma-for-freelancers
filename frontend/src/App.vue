@@ -1,7 +1,9 @@
 <template>
   <HeaderComponent />
   <ToastContainer />
-  <RouterView />
+  <main class="app-main">
+    <RouterView />
+  </main>
   <FooterComponent />
 </template>
 
