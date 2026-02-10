@@ -29,6 +29,7 @@ import ClientSettings from '@/views/ClientPage/ClientSettings.vue'
 import FreelancerChats from '@/views/FreelancerPage/FreelancerChats.vue'
 import AdminProfile from '@/views/AdminPages/AdminProfile.vue'
 import ManagerProfile from '@/views/AdminPages/ManagerProfile.vue'
+import ProjectProposals from '@/views/ClientPage/ProjectProposals.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -164,6 +165,11 @@ const router = createRouter({
       path: '/client/projects',
       name: 'ClientProjects',
       component: ClientProjects,
+    },
+    {
+      path: '/client/projects/:id/proposals',
+      name: 'ClientProjectProposals',
+      component: ProjectProposals,
     },
 
     {

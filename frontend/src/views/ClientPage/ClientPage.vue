@@ -74,7 +74,7 @@
               </div>
 
               <div class="actions">
-                <button class="secondary">View proposals</button>
+                <button class="secondary" @click="viewProposals(project.id)">View proposals</button>
                 <button class="danger" @click="deleteProject(project.id)">Delete project</button>
               </div>
             </div>
@@ -220,6 +220,10 @@ export default {
 
     createProject() {
       this.$router.push({ name: 'CreateProject' })
+    },
+
+    viewProposals(projectId) {
+      this.$router.push({ name: 'ClientProjectProposals', params: { id: projectId } })
     },
 
     async deleteProject(projectId) {

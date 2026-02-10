@@ -12,6 +12,7 @@
             v-for="note in notifications"
             :key="note.id"
             :class="{ unread: !note.is_read }"
+            @click="openNotification(note)"
           >
             <div class="left">
               <span v-if="!note.is_read" class="dot"></span>
@@ -25,14 +26,6 @@
             <div class="time">
               {{ formatDate(note.created_at) }}
             </div>
-
-            <button
-              class="mark-read"
-              v-if="!note.is_read"
-              @click.stop="markAsRead(note)"
-            >
-              Mark as read
-            </button>
           </div>
         </div>
 
@@ -88,12 +81,42 @@ export default {
       }
     },
 
-    async markAsRead(note) {
+    async openNotification(note) {
       try {
-        await api.post(`/client/notifications/${note.id}/read`)
-        note.is_read = true
+        if (!note.is_read) {
+          await api.post(`/client/notifications/${note.id}/read`)
+          note.is_read = true
+        }
+
+        if (note.link) {
+          // Direct handling for application-details to avoid router.resolve emitting warnings
+          if (note.link.startsWith('/application-details/') && note.related_id) {
+            this.$router.push({ name: 'ApplicationDetails', params: { id: note.related_id } })
+            return
+          }
+
+          const resolved = this.$router.resolve(note.link)
+          if (resolved && resolved.matched && resolved.matched.length) {
+            this.$router.push(note.link)
+            return
+          }
+
+          if (note.link.startsWith('/projects/')) {
+            this.$router.push({ name: 'projects' })
+            return
+          }
+        }
+
+        if (note.type === 'project_application') {
+          if (note.related_id) {
+            this.$router.push({ name: 'ApplicationDetails', params: { id: note.related_id } })
+            return
+          }
+        }
+
+        console.warn('No route for this notification')
       } catch (e) {
-        console.error('Failed to mark notification as read', e)
+        console.error('Failed to open notification', e)
       }
     },
 
@@ -130,12 +153,13 @@ export default {
 
 .notification {
   display: grid;
-  grid-template-columns: 20px 1fr auto auto;
+  grid-template-columns: 20px 1fr auto;
   align-items: center;
   gap: 14px;
   padding: 16px 20px;
   border-radius: 14px;
   background: #f9f9f9;
+  cursor: pointer;
   transition: background 0.2s;
 }
 
@@ -206,20 +230,5 @@ export default {
 .pagination button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-}
-
-.mark-read {
-  padding: 6px 10px;
-  border: none;
-  border-radius: 8px;
-  background: #5b3df5;
-  color: #fff;
-  cursor: pointer;
-  font-size: 12px;
-  white-space: nowrap;
-}
-
-.mark-read:hover {
-  opacity: 0.9;
 }
 </style>
