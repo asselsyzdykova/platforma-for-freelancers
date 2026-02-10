@@ -104,8 +104,8 @@ h1 {
 }
 
 .btn.primary {
-  background: #4f46e5;
+  background: linear-gradient(135deg, #5D3A9B, #7c3aed);
   color: #fff;
-  border-color: #4f46e5;
+  border-color: linear-gradient(135deg, #5D3A9B, #7c3aed);
 }
 </style>

@@ -87,6 +87,10 @@ class ProposalController extends Controller
             return 'premium';
         }
 
+        if ($plan === 'free') {
+            return 'free';
+        }
+
         return 'pro';
     }
 
@@ -97,6 +101,18 @@ class ProposalController extends Controller
         if (Auth::id() !== $proposal->project->client_id) {
             return response()->json(['message' => 'Forbidden'], 403);
         }
+
+        $projectId = $proposal->project_id;
+        $totalProposals = Proposal::where('project_id', $projectId)->count();
+        $position = Proposal::where('project_id', $projectId)
+            ->where(function ($query) use ($proposal) {
+                $query->where('created_at', '>', $proposal->created_at)
+                    ->orWhere(function ($q) use ($proposal) {
+                        $q->where('created_at', $proposal->created_at)
+                          ->where('id', '>', $proposal->id);
+                    });
+            })
+            ->count() + 1;
 
         return response()->json([
             'id' => $proposal->id,
@@ -113,6 +129,8 @@ class ProposalController extends Controller
             'budget' => $proposal->budget,
             'status' => $proposal->status ?? 'Pending',
             'created_at' => $proposal->created_at,
+            'project_proposals_total' => $totalProposals,
+            'project_proposal_position' => $position,
         ]);
     }
 
@@ -221,6 +239,48 @@ class ProposalController extends Controller
                 'id' => $proposal->id,
                 'project_id' => $proposal->project_id,
                 'project_name' => $proposal->project->title,
+                'status' => $proposal->status ?? 'Pending',
+                'created_at' => $proposal->created_at,
+            ];
+        });
+
+        return response()->json([
+            'data' => $proposals,
+            'meta' => [
+                'current_page' => $paginated->currentPage(),
+                'last_page' => $paginated->lastPage(),
+                'per_page' => $paginated->perPage(),
+                'total' => $paginated->total(),
+            ],
+        ]);
+    }
+
+    public function projectProposals(Request $request, $projectId)
+    {
+        $project = Project::findOrFail($projectId);
+
+        if (Auth::id() !== $project->client_id) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+
+        $perPage = (int) $request->get('per_page', 6);
+        $perPage = $perPage > 0 ? min($perPage, 50) : 6;
+
+        $paginated = Proposal::where('project_id', $projectId)
+            ->with('freelancer')
+            ->latest('created_at')
+            ->paginate($perPage);
+
+        $proposals = collect($paginated->items())->map(function ($proposal) {
+            return [
+                'id' => $proposal->id,
+                'freelancer' => [
+                    'id' => $proposal->freelancer->id,
+                    'name' => $proposal->freelancer->name,
+                    'avatar_url' => $proposal->freelancer->avatar_url ?? null,
+                ],
+                'message' => $proposal->message,
+                'budget' => $proposal->budget,
                 'status' => $proposal->status ?? 'Pending',
                 'created_at' => $proposal->created_at,
             ];
