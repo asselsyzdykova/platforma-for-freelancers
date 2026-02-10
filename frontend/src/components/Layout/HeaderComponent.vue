@@ -118,6 +118,28 @@ const planSuffix = computed(() => {
   align-items: center;
 }
 
+@media (max-width: 640px) {
+  .site-header {
+    padding: 12px 16px;
+  }
+
+  .header-inner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .nav {
+    flex-wrap: wrap;
+    gap: 10px 12px;
+  }
+
+  .nav a,
+  .nav button {
+    font-size: 14px;
+  }
+}
+
 .nav .active {
   font-weight: bold;
   color: linear-gradient(135deg, #5D3A9B, #7c3aed);
