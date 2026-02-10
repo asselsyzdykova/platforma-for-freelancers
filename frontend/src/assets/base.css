@@ -23,7 +23,7 @@
 
 /* semantic color variables for this project */
 :root {
-  --color-background: var(--vt-c-white);
+  --color-background: #f7f6ff;
   --color-background-soft: var(--vt-c-white-soft);
   --color-background-mute: var(--vt-c-white-mute);
 
@@ -56,6 +56,31 @@
   box-sizing: border-box;
   margin: 0;
   font-weight: normal;
+}
+
+html,
+body,
+#app {
+  min-height: 100%;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.app-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-layout,
+.page-layout {
+  flex: 1;
+  min-height: 100%;
+  align-items: stretch;
 }
 
 body {

@@ -55,7 +55,8 @@ onMounted(loadUnread)
 <style scoped>
 .sidebar {
   width: 260px;
-  min-height: 100vh;
+  min-height: 100%;
+  align-self: stretch;
   background: #e6e0ff;
   padding: 30px 20px;
   display: flex;

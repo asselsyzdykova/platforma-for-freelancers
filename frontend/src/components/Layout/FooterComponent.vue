@@ -19,9 +19,8 @@ export default {
 
 <style scoped>
 .footer {
-  background: #f3efff;
+  background: #e6e0ff;
   padding: 24px 0;
-  margin-top: 300px;
 }
 
 .container {
