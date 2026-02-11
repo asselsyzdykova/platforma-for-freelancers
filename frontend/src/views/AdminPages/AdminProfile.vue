@@ -40,8 +40,8 @@
       </div>
     </section>
 
-    <section class="admin-panels">
-      <div class="panel">
+    <section class="admin-panels custom-admin-panels">
+      <div class="panel recent-signups-panel">
         <div class="panel-head">
           <h3>Recent signups</h3>
           <select v-model="filterRole" class="filter">
@@ -50,29 +50,45 @@
             <option value="client">Clients</option>
           </select>
         </div>
-        <div class="table">
+        <div class="table" aria-label="Recent signups table">
           <div class="table-row header">
             <span>User</span>
             <span>Role</span>
             <span>University</span>
             <span>Joined</span>
           </div>
-          <div v-for="user in filteredUsers" :key="user.id" class="table-row">
-            <span class="user">
-              <span class="avatar">{{ initials(user.name) }}</span>
-              <span>
-                <strong>{{ user.name }}</strong>
-                <small>{{ user.email }}</small>
+          <template v-if="filteredUsers.length">
+            <div v-for="user in filteredUsers" :key="user.id" class="table-row">
+              <span class="user">
+                <span class="avatar" :aria-label="user.name || user.email">
+                  {{ user.name ? initials(user.name) : '?' }}
+                </span>
+                <span>
+                  <strong>{{ user.name || '—' }}</strong>
+                  <small>{{ user.email }}</small>
+                </span>
               </span>
-            </span>
-            <span class="pill" :class="user.role">{{ user.role }}</span>
-            <span>{{ user.university || '—' }}</span>
-            <span>{{ user.joined }}</span>
+              <span class="role-cell">
+                <span
+                  class="pill"
+                  :class="rolePillClass(user.role)"
+                  :aria-label="user.role"
+                >
+                  {{ user.role ? capitalize(user.role) : 'User' }}
+                </span>
+              </span>
+              <span class="university-cell">
+                {{ user.university && user.university.trim() ? user.university : '—' }}
+              </span>
+              <span>{{ formatJoined(user.joined) }}</span>
+            </div>
+          </template>
+          <div v-else class="table-row empty-row">
+            <span class="empty-message" colspan="4">No recent signups found.</span>
           </div>
         </div>
       </div>
-
-      <div class="panel">
+      <div class="panel system-overview-panel">
         <div class="panel-head">
           <h3>System overview</h3>
           <button class="btn link">View logs</button>
@@ -91,7 +107,6 @@
             <h4 class="status ok">Operational</h4>
           </div>
         </div>
-
         <div class="announcements">
           <h4>Announcements</h4>
           <ul>
@@ -102,12 +117,16 @@
           </ul>
         </div>
       </div>
+    </section>
 
+    <section class="admin-panels managers-section">
       <div class="panel">
         <div class="panel-head">
           <h3>Managers</h3>
-          <button class="btn link">Add manager</button>
-        </div>
+          <RouterLink :to="{ name: 'CreateManager' }" class="btn link">
+        Add Manager
+      </RouterLink>
+      </div>
         <div class="manager-list">
           <div v-for="manager in managers" :key="manager.id" class="manager-card">
             <div class="manager-content">
@@ -125,7 +144,9 @@
             </div>
             <div class="manager-actions">
               <button class="btn ghost">Message</button>
-              <button class="btn rem">Remove</button>
+              <button class="btn rem" @click="askDeleteManager(manager)" :disabled="deletingManagerId === manager.id">
+                {{ deletingManagerId === manager.id ? 'Removing...' : 'Remove' }}
+              </button>
             </div>
           </div>
         </div>
@@ -149,6 +170,21 @@
         </button>
       </div>
     </section>
+
+    <div v-if="toast.show" :class="['custom-toast', toast.type]">
+      {{ toast.message }}
+    </div>
+
+    <div v-if="showDeleteModal" class="modal-overlay">
+      <div class="modal-dialog">
+        <h4>Delete manager?</h4>
+        <p>Are you sure you want to delete <b>{{ managerToDelete?.name }}</b>?</p>
+        <div class="modal-actions">
+          <button class="btn rem" @click="confirmDeleteManager">Delete</button>
+          <button class="btn ghost" @click="cancelDeleteManager">Cancel</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -178,6 +214,11 @@ const loadAdminStats = async () => {
       stats.totalUsers = data.total_users
       stats.freelancers = data.total_freelancers
       stats.activeProjects = data.active_projects
+      recentUsers.value = (data.recent_signups || []).map((user) => ({
+        ...user,
+        joined: user.created_at ? new Date(user.created_at).toLocaleDateString() : '—',
+      }))
+
     }
     if (typeof data?.user_growth === 'number') {
       stats.userGrowth = data.user_growth
@@ -189,44 +230,21 @@ const loadAdminStats = async () => {
   }
 }
 
+const loadManagers = async () => {
+  try {
+    const { data } = await api.get('/admin/managers')
+    managers.value = Array.isArray(data) ? data : []
+  } catch (error) {
+    console.error('Failed to load managers', error)
+  }
+}
+
 onMounted(() => {
   loadAdminStats()
+  loadManagers()
 })
 
-const recentUsers = [
-  {
-    id: 1,
-    name: 'Mária Kováčová',
-    email: 'maria@uniba.sk',
-    role: 'freelancer',
-    university: 'Univerzita Komenského v Bratislave',
-    joined: 'Today',
-  },
-  {
-    id: 2,
-    name: 'Jakub Novák',
-    email: 'jakub@student.stuba.sk',
-    role: 'freelancer',
-    university: 'Slovenská technická univerzita v Bratislave',
-    joined: 'Yesterday',
-  },
-  {
-    id: 3,
-    name: 'Tatra Studios',
-    email: 'contact@tatra.sk',
-    role: 'client',
-    university: null,
-    joined: '2 days ago',
-  },
-  {
-    id: 4,
-    name: 'Ema Rusnáková',
-    email: 'ema@student.upjs.sk',
-    role: 'freelancer',
-    university: 'Univerzita Pavla Jozefa Šafárika v Košiciach',
-    joined: '3 days ago',
-  },
-]
+const recentUsers = ref([])
 
 const announcements = [
   { id: 1, title: 'Spring internship fair', meta: 'Published 2 hours ago' },
@@ -234,45 +252,121 @@ const announcements = [
   { id: 3, title: 'Payment update', meta: 'Scheduled for Friday' },
 ]
 
-const managers = [
-  {
-    id: 1,
-    name: 'Lucia Hrušková',
-    email: 'lucia@bezrab.sk',
-    department: 'Community & Verification',
-    status: 'active',
-  },
-  {
-    id: 2,
-    name: 'Peter Malík',
-    email: 'peter@bezrab.sk',
-    department: 'Projects & Partnerships',
-    status: 'active',
-  },
-  {
-    id: 3,
-    name: 'Dominika Urbanová',
-    email: 'dominika@bezrab.sk',
-    department: 'Support',
-    status: 'away',
-  },
-]
+
+const managers = ref([])
+const deletingManagerId = ref(null)
+const toast = ref({ show: false, message: '', type: 'success' })
+const showToast = (message, type = 'success') => {
+  toast.value = { show: true, message, type }
+  setTimeout(() => { toast.value.show = false }, 2500)
+}
+
+const showDeleteModal = ref(false)
+const managerToDelete = ref(null)
+
+const askDeleteManager = (manager) => {
+  managerToDelete.value = manager
+  showDeleteModal.value = true
+}
+
+const confirmDeleteManager = async () => {
+  if (!managerToDelete.value) return
+  deletingManagerId.value = managerToDelete.value.id
+  showDeleteModal.value = false
+  try {
+    await api.delete(`/admin/managers/${managerToDelete.value.id}`)
+    managers.value = managers.value.filter((m) => m.id !== managerToDelete.value.id)
+    showToast('Manager deleted successfully', 'success')
+  } catch {
+    showToast('Failed to delete manager', 'error')
+  } finally {
+    deletingManagerId.value = null
+    managerToDelete.value = null
+  }
+}
+
+const cancelDeleteManager = () => {
+  showDeleteModal.value = false
+  managerToDelete.value = null
+}
 
 const filteredUsers = computed(() => {
-  if (filterRole.value === 'all') return recentUsers
-  return recentUsers.filter((user) => user.role === filterRole.value)
+  if (filterRole.value === 'all') return recentUsers.value
+  return recentUsers.value.filter((user) => user.role === filterRole.value)
 })
 
-const initials = (name) =>
-  name
+const initials = (name) => {
+  if (!name) return '?'
+  return name
     .split(' ')
+    .filter(Boolean)
     .map((part) => part[0])
     .slice(0, 2)
     .join('')
     .toUpperCase()
+}
+
+const capitalize = (str) =>
+  typeof str === 'string' && str.length ? str.charAt(0).toUpperCase() + str.slice(1) : str
+
+const rolePillClass = (role) => {
+  switch ((role || '').toLowerCase()) {
+    case 'freelancer':
+      return 'freelancer-pill'
+    case 'client':
+      return 'client-pill'
+    case 'admin':
+      return 'admin-pill'
+    default:
+      return 'user-pill'
+  }
+}
+
+const formatJoined = (date) => {
+  if (!date || date === '—') return '—'
+  const d = new Date(date)
+  if (isNaN(d)) return date
+  return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
+}
 </script>
 
 <style scoped>
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(40, 40, 60, 0.18);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modal-dialog {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 8px 32px rgba(80, 80, 120, 0.13);
+  padding: 32px 28px 22px;
+  min-width: 320px;
+  max-width: 90vw;
+  text-align: center;
+}
+.modal-dialog h4 {
+  margin-bottom: 12px;
+  font-size: 1.18em;
+  font-weight: 700;
+  color: #b91c1c;
+}
+.modal-dialog p {
+  color: #444;
+  margin-bottom: 18px;
+}
+.modal-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+}
 .admin-page {
   padding: 32px 40px 60px;
   background: #f7f6ff;
@@ -374,6 +468,22 @@ const initials = (name) =>
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
 }
 
+.custom-admin-panels {
+  grid-template-columns: 2fr 1fr;
+  align-items: start;
+}
+.recent-signups-panel {
+  grid-column: 1 / 2;
+  min-width: 0;
+}
+.system-overview-panel {
+  grid-column: 2 / 3;
+  min-width: 0;
+}
+.managers-section {
+  margin-top: 20px;
+}
+
 .panel {
   background: white;
   border-radius: 20px;
@@ -401,12 +511,19 @@ const initials = (name) =>
 
 .table-row {
   display: grid;
-  grid-template-columns: 1.4fr 0.6fr 1fr 0.6fr;
+  grid-template-columns: 220px 120px 220px 120px;
   align-items: center;
   gap: 12px;
   padding: 10px 0;
   border-bottom: 1px solid #f1f5f9;
   font-size: 14px;
+}
+
+.role-cell {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  min-width: 80px;
 }
 
 .table-row.header {
@@ -448,14 +565,43 @@ const initials = (name) =>
   background: #e5e7eb;
 }
 
-.pill.freelancer {
+.pill.freelancer-pill {
   background: #ede9fe;
   color: #6d28d9;
 }
-
-.pill.client {
+.pill.client-pill {
   background: #dcfce7;
   color: #15803d;
+}
+.pill.admin-pill {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+.pill.user-pill {
+  background: #e5e7eb;
+  color: #64748b;
+}
+
+.university-cell {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  max-width: 220px;
+  white-space: pre-line;
+}
+
+.empty-row {
+  text-align: center;
+  color: #a1a1aa;
+  font-style: italic;
+  grid-column: 1 / -1;
+}
+.empty-message {
+  grid-column: 1 / -1;
+  width: 100%;
+  text-align: center;
+  padding: 18px 0;
+  color: #a1a1aa;
+  font-size: 15px;
 }
 
 .manager-list {

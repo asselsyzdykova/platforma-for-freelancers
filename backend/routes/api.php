@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\FreelancerNotificationController;
 use App\Http\Controllers\Api\ChatController;
 use App\Http\Controllers\Api\SubscriptionController;
 use App\Http\Controllers\Api\CityController;
+use App\Http\Controllers\Api\ManagerController;
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/projects/{id}/apply', [ProposalController::class, 'apply']);
@@ -59,7 +60,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/subscriptions/cancel', [SubscriptionController::class, 'cancel']);
 
     Route::get('/admin/stats', [UserController::class, 'adminStats']);
-
+    Route::get('/admin/managers', [UserController::class, 'getManagers']);
+    Route::delete('/admin/managers/{id}', [ManagerController::class, 'destroy']);
     // Chat
     Route::get('/conversations', [ChatController::class, 'conversations']);
     Route::get('/messages/{userId}', [ChatController::class, 'index']);

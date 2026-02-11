@@ -30,6 +30,7 @@ import FreelancerChats from '@/views/FreelancerPage/FreelancerChats.vue'
 import AdminProfile from '@/views/AdminPages/AdminProfile.vue'
 import ManagerProfile from '@/views/AdminPages/ManagerProfile.vue'
 import ProjectProposals from '@/views/ClientPage/ProjectProposals.vue'
+import CreateManager from '@/views/AdminPages/CreateManager.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -219,6 +220,12 @@ const router = createRouter({
       name: 'ManagerProfile',
       component: ManagerProfile,
     },
+
+    {
+      path: '/create-manager',
+      name: 'CreateManager',
+      component: CreateManager,
+    }
   ],
 })
 

@@ -8,6 +8,7 @@ use App\Models\Subscription;
 use App\Models\User;
 use Carbon\Carbon;
 use App\Models\Project;
+use App\Models\Manager;
 
 class UserController extends Controller
 {
@@ -101,6 +102,7 @@ class UserController extends Controller
             $projectGrowth = 100;
         }
 
+
         return response()->json([
             'total_freelancers' => (int) User::where(
                 'role', 'freelancer')->count(),
@@ -112,7 +114,31 @@ class UserController extends Controller
                 'Open',
             ])->count(),
             'project_growth' => $projectGrowth,
+
+            //recent signups
+
+            'recent_signups' => User::latest()->take(5)->
+            get(['id','name','email','role','university','created_at']),
         ]);
+    }
+
+    public function getManagers(Request $request)
+    {
+        $user = $request->user();
+        if (!$user || $user->role !== 'admin') {
+            return response()->json(['error' => 'Forbidden'], 403);
+        }
+        $managers = Manager::with('user')->get();
+        $result = $managers->map(function ($manager) {
+            return [
+                'id' => $manager->id,
+                'name' => $manager->user->name,
+                'email' => $manager->user->email,
+                'department' => $manager->department,
+                'status' => $manager->status,
+            ];
+        });
+        return response()->json($result);
     }
 
 }
