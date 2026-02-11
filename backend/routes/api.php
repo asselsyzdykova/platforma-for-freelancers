@@ -58,6 +58,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/billing/transactions', [SubscriptionController::class, 'transactions']);
     Route::post('/subscriptions/cancel', [SubscriptionController::class, 'cancel']);
 
+    Route::get('/admin/stats', [UserController::class, 'adminStats']);
+
     // Chat
     Route::get('/conversations', [ChatController::class, 'conversations']);
     Route::get('/messages/{userId}', [ChatController::class, 'index']);

@@ -76,7 +76,6 @@
           <h2>Discover student talent</h2>
           <p>Search by skill, interest or name. Only verified Slovakia-based students.</p>
         </div>
-        <div class="count">{{ filteredFreelancers.length }} freelancers</div>
       </div>
 
       <div class="filters">
