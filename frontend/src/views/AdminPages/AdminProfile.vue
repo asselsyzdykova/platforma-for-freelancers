@@ -15,17 +15,23 @@
       <div class="stat-card">
         <p class="label">Total users</p>
         <h2>{{ stats.totalUsers }}</h2>
-        <span class="trend up">▲ {{ stats.userGrowth }}% this month</span>
+        <span class="trend" :class="stats.userGrowth < 0 ? 'down' : 'up'">
+          {{ stats.userGrowth < 0 ? '▼' : '▲' }} {{ Math.abs(stats.userGrowth) }}% this month
+        </span>
       </div>
       <div class="stat-card">
         <p class="label">Student freelancers</p>
         <h2>{{ stats.freelancers }}</h2>
-        <span class="trend up">▲ {{ stats.freelancerGrowth }}% this month</span>
+        <span class="trend" :class="stats.freelancerGrowth < 0 ? 'down' : 'up'">
+          {{ stats.freelancerGrowth < 0 ? '▼' : '▲' }} {{ Math.abs(stats.freelancerGrowth) }}% this month
+        </span>
       </div>
       <div class="stat-card">
         <p class="label">Active projects</p>
         <h2>{{ stats.activeProjects }}</h2>
-        <span class="trend down">▼ {{ stats.projectDrop }}% this week</span>
+        <span class="trend" :class="stats.projectGrowth < 0 ? 'down' : 'up'">
+          {{ stats.projectGrowth < 0 ? '▼' : '▲' }} {{ Math.abs(stats.projectGrowth) }}% this month
+        </span>
       </div>
       <div class="stat-card">
         <p class="label">Pending reviews</p>
@@ -147,22 +153,45 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
+import api from '@/services/axios'
 
 const filterRole = ref('all')
 
-const stats = {
-  totalUsers: 1520,
-  userGrowth: 12,
-  freelancers: 860,
-  freelancerGrowth: 18,
-  activeProjects: 124,
-  projectDrop: 4,
+const stats = reactive({
+  totalUsers: 0,
+  userGrowth: 0,
+  freelancers: 0,
+  freelancerGrowth: 0,
+  activeProjects: 0,
+  projectGrowth: 0,
   pendingReviews: 31,
   pendingNote: '7 require manual check',
   avgResponse: 1.8,
   tickets: 14,
+})
+
+const loadAdminStats = async () => {
+  try {
+    const { data } = await api.get('/admin/stats')
+    if (typeof data?.total_users === 'number') {
+      stats.totalUsers = data.total_users
+      stats.freelancers = data.total_freelancers
+      stats.activeProjects = data.active_projects
+    }
+    if (typeof data?.user_growth === 'number') {
+      stats.userGrowth = data.user_growth
+      stats.freelancerGrowth = data.freelancer_growth
+      stats.projectGrowth = data.project_growth
+    }
+  } catch (error) {
+    console.error('Failed to load admin stats', error)
+  }
 }
+
+onMounted(() => {
+  loadAdminStats()
+})
 
 const recentUsers = [
   {
