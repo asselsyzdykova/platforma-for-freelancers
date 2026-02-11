@@ -86,7 +86,7 @@ class AuthController extends Controller
         'university' => 'nullable|string|max:255',
         'study_year' => 'nullable|string|max:255',
         'password' => 'required|string|min:6|confirmed',
-        'role' => 'required|in:user,freelancer',
+        'role' => 'required|in:user,freelancer,manager',
     ]);
 
     $user = User::create([
