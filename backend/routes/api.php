@@ -60,7 +60,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/subscriptions/cancel', [SubscriptionController::class, 'cancel']);
 
     Route::get('/admin/stats', [UserController::class, 'adminStats']);
-    Route::get('/admin/managers', [UserController::class, 'getManagers']);
+    Route::get('/admin/managers', [ManagerController::class, 'index']);
+    Route::post('/admin/managers', [ManagerController::class, 'store']);
     Route::delete('/admin/managers/{id}', [ManagerController::class, 'destroy']);
     // Chat
     Route::get('/conversations', [ChatController::class, 'conversations']);

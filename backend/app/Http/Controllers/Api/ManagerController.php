@@ -4,16 +4,36 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 use App\Models\Manager;
+use App\Models\User;
 
 class ManagerController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $user = $request->user();
+        if (! $user || ($user->role ?? '') !== 'admin') {
+            return response()->json(['error' => 'Forbidden'], 403);
+        }
+
+        $managers = Manager::with('user')->get();
+        $result = $managers->map(function ($manager) {
+            return [
+                'id' => $manager->id,
+                'user_id' => $manager->user_id,
+                'name' => $manager->user->name ?? null,
+                'email' => $manager->user->email ?? null,
+                'department' => $manager->department,
+                'status' => $manager->status,
+            ];
+        });
+
+        return response()->json($result);
     }
 
     /**
@@ -21,7 +41,7 @@ class ManagerController extends Controller
      */
     public function create()
     {
-        //
+        // not used for API
     }
 
     /**
@@ -29,7 +49,41 @@ class ManagerController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $user = $request->user();
+        if (! $user || ($user->role ?? '') !== 'admin') {
+            return response()->json(['error' => 'Forbidden'], 403);
+        }
+
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:users,email',
+            'password' => 'required|string|min:6',
+            'department' => 'nullable|string|max:255',
+        ]);
+
+        return DB::transaction(function () use ($data) {
+            $newUser = User::create([
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'password' => Hash::make($data['password']),
+                'role' => 'manager',
+            ]);
+
+            $manager = Manager::create([
+                'user_id' => $newUser->id,
+                'department' => $data['department'] ?? null,
+                'status' => 'active',
+            ]);
+
+            return response()->json([
+                'id' => $manager->id,
+                'user_id' => $newUser->id,
+                'name' => $newUser->name,
+                'email' => $newUser->email,
+                'department' => $manager->department,
+                'status' => $manager->status,
+            ], 201);
+        });
     }
 
     /**
@@ -37,7 +91,7 @@ class ManagerController extends Controller
      */
     public function show(string $id)
     {
-        //
+        // not used
     }
 
     /**
@@ -45,7 +99,7 @@ class ManagerController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        // not used
     }
 
     /**
@@ -53,16 +107,33 @@ class ManagerController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        // optional: implement update if needed
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Request $request, $id)
     {
-        $manager = Manager::findOrFail($id);
-        $manager->user()->delete();
-        return response()->json(['message'=>'Manager deleted']);
+        $user = $request->user();
+        if (! $user || ($user->role ?? '') !== 'admin') {
+            return response()->json(['error' => 'Forbidden'], 403);
+        }
+
+        $manager = Manager::find($id);
+        if (! $manager) {
+            return response()->json(['error' => 'Not found'], 404);
+        }
+
+        return DB::transaction(function () use ($manager) {
+            $user = $manager->user;
+            if ($user) {
+                $user->delete();
+            } else {
+                $manager->delete();
+            }
+
+            return response()->json(['message' => 'Manager deleted']);
+        });
     }
 }
