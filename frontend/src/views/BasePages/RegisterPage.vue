@@ -174,7 +174,7 @@ const register = async () => {
     }
 
     if (form.role === 'freelancer') {
-      router.push('/freelancer-profile')
+      router.push('/edit-profile')
     } else {
       router.push('/client-profile')
     }

@@ -44,11 +44,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/client/projects/{id}/proposals', [ProposalController::class, 'projectProposals']);
 
 
-     Route::get('/freelancer/profile', [FreelancerProfileController::class, 'show']);
+
+    Route::get('/freelancer/profile', [FreelancerProfileController::class, 'show']);
     Route::post('/freelancer/profile', [FreelancerProfileController::class, 'update']);
+    Route::put('/freelancer/account', [FreelancerProfileController::class, 'update']);
+    Route::put('/freelancer/account', [FreelancerProfileController::class, 'updateAccount']);
     Route::delete('/freelancer/profile', [FreelancerProfileController::class, 'destroy']);
-
-
 
     //subscriptions
     Route::middleware('auth:sanctum')->post('/create-checkout-session', [SubscriptionController::class, 'createCheckoutSession']);

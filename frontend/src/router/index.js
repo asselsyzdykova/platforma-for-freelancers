@@ -29,6 +29,7 @@ import ClientSettings from '@/views/ClientPage/ClientSettings.vue'
 import FreelancerChats from '@/views/FreelancerPage/FreelancerChats.vue'
 import AdminProfile from '@/views/AdminPages/AdminProfile.vue'
 import ManagerProfile from '@/views/AdminPages/ManagerProfile.vue'
+import AdminChats from '@/views/AdminPages/AdminChats.vue'
 import ProjectProposals from '@/views/ClientPage/ProjectProposals.vue'
 import CreateManager from '@/views/AdminPages/CreateManager.vue'
 
@@ -213,6 +214,12 @@ const router = createRouter({
       path: '/admin/profile',
       name: 'AdminProfile',
       component: AdminProfile,
+    },
+
+    {
+      path: '/admin/chats',
+      name: 'AdminChats',
+      component: AdminChats,
     },
 
     {

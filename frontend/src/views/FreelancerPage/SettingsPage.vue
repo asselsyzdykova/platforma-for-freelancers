@@ -5,33 +5,78 @@
     <div class="content">
       <h1>Settings</h1>
 
-      <div v-if="showDeleteModal" class="modal-backdrop" @click.self="closeDeleteModal">
+      <!-- DELETE MODAL -->
+      <div
+        v-if="showDeleteModal"
+        class="modal-backdrop"
+        @click.self="closeDeleteModal"
+      >
         <div class="modal-card">
           <h3>Delete account?</h3>
           <p>This action can’t be undone.</p>
           <div class="modal-actions">
-            <button class="secondary" @click="closeDeleteModal">Cancel</button>
-            <button class="danger" @click="confirmDelete">Delete</button>
+            <button class="secondary" @click="closeDeleteModal">
+              Cancel
+            </button>
+            <button class="danger" @click="confirmDelete">
+              Delete
+            </button>
           </div>
         </div>
       </div>
 
       <div class="settings-card">
+        <!-- NAME -->
         <div class="setting-item">
           <label>Full name</label>
-          <input type="text" placeholder="Your name" />
+          <input
+            type="text"
+            v-model="form.name"
+            placeholder="Your name"
+          />
         </div>
 
+        <!-- EMAIL -->
         <div class="setting-item">
           <label>Email</label>
-          <input type="email" placeholder="your@email.com" />
+          <input
+            type="email"
+            v-model="form.email"
+            placeholder="your@email.com"
+          />
         </div>
 
+        <!-- CURRENT PASSWORD -->
         <div class="setting-item">
-          <label>Password</label>
-          <input type="password" placeholder="********" />
+          <label>Current password</label>
+          <input
+            type="password"
+            v-model="form.current_password"
+            placeholder="Enter current password"
+          />
         </div>
 
+        <!-- NEW PASSWORD -->
+        <div class="setting-item">
+          <label>New password</label>
+          <input
+            type="password"
+            v-model="form.new_password"
+            placeholder="Enter new password"
+          />
+        </div>
+
+        <!-- CONFIRM NEW PASSWORD -->
+        <div class="setting-item">
+          <label>Confirm new password</label>
+          <input
+            type="password"
+            v-model="form.new_password_confirmation"
+            placeholder="Confirm new password"
+          />
+        </div>
+
+        <!-- LANGUAGE (пока не трогаем backend) -->
         <div class="setting-item">
           <label>Language</label>
           <select>
@@ -41,17 +86,20 @@
           </select>
         </div>
 
-        <button class="save-btn">Save changes</button>
+        <button class="save-btn" @click="saveChanges">
+          Save changes
+        </button>
 
-        <button class="delete-btn" @click="openDeleteModal">Delete account</button>
-
+        <button class="delete-btn" @click="openDeleteModal">
+          Delete account
+        </button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import SidebarMenu from '@/components/FreelancerPageMenu/SidebarMenu.vue'
 import api from '@/services/axios'
 import { useRouter } from 'vue-router'
@@ -61,7 +109,45 @@ import { useNotificationStore } from '@/stores/notificationStore'
 const router = useRouter()
 const userStore = useUserStore()
 const notifications = useNotificationStore()
+
 const showDeleteModal = ref(false)
+
+const form = ref({
+  name: '',
+  email: '',
+  current_password: '',
+  new_password: '',
+  new_password_confirmation: ''
+})
+
+onMounted(() => {
+  if (userStore.user) {
+    form.value.name = userStore.user.name
+    form.value.email = userStore.user.email
+  }
+})
+
+const saveChanges = async () => {
+  try {
+    await api.put('/freelancer/account', form.value)
+
+    notifications.success('Profile updated successfully')
+
+    userStore.user.name = form.value.name
+    userStore.user.email = form.value.email
+
+    form.value.current_password = ''
+    form.value.new_password = ''
+    form.value.new_password_confirmation = ''
+
+  } catch (error) {
+    if (error.response?.data?.message) {
+      notifications.error(error.response.data.message)
+    } else {
+      notifications.error('Failed to update profile')
+    }
+  }
+}
 
 const openDeleteModal = () => {
   showDeleteModal.value = true
@@ -74,15 +160,14 @@ const closeDeleteModal = () => {
 const confirmDelete = async () => {
   try {
     await api.delete('/freelancer/profile')
+
     notifications.success('Account deleted successfully')
+
     userStore.logout()
-    try {
-      await router.replace({ name: 'home' })
-    } catch (e) {
-      console.error('Navigation failed after delete', e)
-    }
-  } catch (error) {
-    console.error('Error deleting account:', error)
+
+    await router.replace({ name: 'home' })
+
+  } catch {
     notifications.error('Failed to delete account')
   } finally {
     closeDeleteModal()
@@ -91,8 +176,7 @@ const confirmDelete = async () => {
 </script>
 
 <style scoped>
-
-.delete-btn{
+.delete-btn {
   background-color: red;
   color: white;
   border-radius: 12px;
@@ -101,6 +185,7 @@ const confirmDelete = async () => {
   padding: 12px 24px;
   margin-left: 250px;
 }
+
 .page-layout {
   display: flex;
   min-height: 100vh;
@@ -169,15 +254,6 @@ select {
   width: 100%;
   max-width: 420px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-}
-
-.modal-card h3 {
-  margin-bottom: 8px;
-}
-
-.modal-card p {
-  color: #666;
-  margin-bottom: 20px;
 }
 
 .modal-actions {
