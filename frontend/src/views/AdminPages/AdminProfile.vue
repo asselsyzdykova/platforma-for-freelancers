@@ -6,8 +6,9 @@
         <p class="subtitle">Overview of platform activity and student marketplace health.</p>
       </div>
       <div class="actions">
-        <button class="btn ghost">Export report</button>
-        <button class="btn primary">Create announcement</button>
+          <RouterLink :to="{ name: 'AdminChats' }" class="btn ghost">My Chats</RouterLink>
+          <button class="btn ghost">Export report</button>
+          <button class="btn primary">Create announcement</button>
       </div>
     </header>
 
@@ -143,7 +144,7 @@
               </div>
             </div>
             <div class="manager-actions">
-              <button class="btn ghost">Message</button>
+              <button class="btn ghost" @click="openMessageModal(manager)">Message</button>
               <button class="btn rem" @click="askDeleteManager(manager)" :disabled="deletingManagerId === manager.id">
                 {{ deletingManagerId === manager.id ? 'Removing...' : 'Remove' }}
               </button>
@@ -182,6 +183,17 @@
         <div class="modal-actions">
           <button class="btn rem" @click="confirmDeleteManager">Delete</button>
           <button class="btn ghost" @click="cancelDeleteManager">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <div v-if="showMessageModal" class="modal-overlay">
+      <div class="modal-dialog">
+        <h4>Send message to {{ messageRecipient?.name || messageRecipient?.email }}</h4>
+        <textarea v-model="messageBody" placeholder="Write your message..." rows="6" style="width:100%;padding:10px;border-radius:8px;border:1px solid #e5e7eb"></textarea>
+        <div style="display:flex;gap:12px;justify-content:center;margin-top:14px;">
+          <button class="btn primary" @click="sendMessage" :disabled="messageLoading">{{ messageLoading ? 'Sending...' : 'Send' }}</button>
+          <button class="btn ghost" @click="closeMessageModal" :disabled="messageLoading">Cancel</button>
         </div>
       </div>
     </div>
@@ -328,6 +340,46 @@ const formatJoined = (date) => {
   if (isNaN(d)) return date
   return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
 }
+
+const showMessageModal = ref(false)
+const messageRecipient = ref(null)
+const messageBody = ref('')
+const messageLoading = ref(false)
+
+
+const openMessageModal = (manager) => {
+  messageRecipient.value = manager
+  messageBody.value = ''
+  showMessageModal.value = true
+}
+
+const closeMessageModal = () => {
+  showMessageModal.value = false
+  messageRecipient.value = null
+  messageBody.value = ''
+}
+
+const sendMessage = async () => {
+  if (!messageRecipient.value) return
+  if (!messageBody.value.trim()) {
+    showToast('Please write a message first', 'error')
+    return
+  }
+  messageLoading.value = true
+  try {
+    await api.post('/messages', {
+      receiver_id: messageRecipient.value.user_id || messageRecipient.value.id,
+      body: messageBody.value,
+    })
+    showToast('Message sent', 'success')
+    closeMessageModal()
+  } catch {
+    showToast('Failed to send message', 'error')
+  } finally {
+    messageLoading.value = false
+  }
+}
+
 </script>
 
 <style scoped>
@@ -367,6 +419,27 @@ const formatJoined = (date) => {
   gap: 16px;
   justify-content: center;
 }
+/* Toast styles */
+.custom-toast {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 220px;
+  max-width: 90vw;
+  background: #fff;
+  color: #222;
+  border-radius: 12px;
+  box-shadow: 0 6px 24px rgba(80,80,120,0.13);
+  padding: 12px 20px;
+  font-size: 0.98rem;
+  font-weight: 600;
+  z-index: 10001;
+  text-align: center;
+  opacity: 0.98;
+}
+.custom-toast.success { border: 2px solid #16a34a; color: #15803d }
+.custom-toast.error { border: 2px solid #dc2626; color: #b91c1c }
 .admin-page {
   padding: 32px 40px 60px;
   background: #f7f6ff;
