@@ -39,6 +39,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/client/profile', [ClientProfileController::class, 'show']);
     Route::post('/client/profile', [ClientProfileController::class, 'update']);
+    Route::post('/change-password', [AuthController::class, 'changePassword']);
     Route::post('/client/projects', [ClientProjectController::class, 'store']);
     Route::get('/client/projects', [ClientProjectController::class, 'index']);
     Route::get('/client/projects/{id}/proposals', [ProposalController::class, 'projectProposals']);

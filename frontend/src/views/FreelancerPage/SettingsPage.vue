@@ -5,7 +5,6 @@
     <div class="content">
       <h1>Settings</h1>
 
-      <!-- DELETE MODAL -->
       <div
         v-if="showDeleteModal"
         class="modal-backdrop"
@@ -26,7 +25,6 @@
       </div>
 
       <div class="settings-card">
-        <!-- NAME -->
         <div class="setting-item">
           <label>Full name</label>
           <input
@@ -36,7 +34,6 @@
           />
         </div>
 
-        <!-- EMAIL -->
         <div class="setting-item">
           <label>Email</label>
           <input
@@ -46,7 +43,6 @@
           />
         </div>
 
-        <!-- CURRENT PASSWORD -->
         <div class="setting-item">
           <label>Current password</label>
           <input
@@ -56,7 +52,6 @@
           />
         </div>
 
-        <!-- NEW PASSWORD -->
         <div class="setting-item">
           <label>New password</label>
           <input
@@ -66,7 +61,6 @@
           />
         </div>
 
-        <!-- CONFIRM NEW PASSWORD -->
         <div class="setting-item">
           <label>Confirm new password</label>
           <input
@@ -76,7 +70,6 @@
           />
         </div>
 
-        <!-- LANGUAGE (пока не трогаем backend) -->
         <div class="setting-item">
           <label>Language</label>
           <select>

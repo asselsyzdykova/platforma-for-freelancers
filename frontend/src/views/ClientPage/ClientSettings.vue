@@ -18,8 +18,8 @@
             Language
             <select v-model="form.language">
               <option value="en">English</option>
-              <option value="ru">Русский</option>
-              <option value="kk">Қазақша</option>
+              <option value="ru">Russian</option>
+              <option value="sk">Slovak</option>
             </select>
           </label>
 
@@ -84,6 +84,14 @@ export default {
       this.form = { ...this.form, ...res.data }
     } catch (e) {
       console.warn('Could not load profile', e)
+    }
+    try {
+      const me = await api.get('/me')
+      if (me && me.data && me.data.name) {
+        this.form.name = me.data.name
+      }
+    } catch (e) {
+      console.warn('Could not load user info', e)
     }
   },
   methods: {
@@ -167,5 +175,6 @@ select {
   color: white;
   border: none;
   border-radius: 8px;
+  cursor: pointer;
 }
 </style>

@@ -19,6 +19,7 @@ class ClientProfileController extends Controller
     public function update(Request $request)
     {
         $data = $request->validate([
+            'name' => 'nullable|string',
             'company' => 'nullable|string',
             'location' => 'nullable|string',
             'about' => 'nullable|string',
@@ -37,6 +38,12 @@ class ClientProfileController extends Controller
 
             $profile->avatar = $filename;
             $profile->save();
+        }
+
+        if (!empty($data['name'])) {
+            $user = $request->user();
+            $user->name = $data['name'];
+            $user->save();
         }
 
         return response()->json($profile->load('user'));
