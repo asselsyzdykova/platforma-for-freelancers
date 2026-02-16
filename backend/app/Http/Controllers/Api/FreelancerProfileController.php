@@ -7,6 +7,7 @@ use App\Models\Proposal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Rules\SlovakUniversityEmail;
+use \App\Models\FreelancerProfile;
 
 
 class FreelancerProfileController extends Controller
@@ -51,9 +52,25 @@ class FreelancerProfileController extends Controller
             'certificates_existing' => 'nullable',
         ]);
 
-        if (!empty($validated['skills']) && is_string($validated['skills'])) {
-            $validated['skills'] = json_decode($validated['skills'], true);
-        }
+        
+        if (!empty($validated['skills']) && is_string($validated['skills']))
+            {
+            $decoded = json_decode($validated['skills'], true);
+            if (is_array($decoded))
+                {
+                $normalizedSkills = [];
+
+                foreach ($decoded as $skill)
+                    {
+                    $clean = ucfirst(strtolower(trim($skill)));
+                    if (!in_array($clean, $normalizedSkills))
+                        {
+                        $normalizedSkills[] = $clean;
+                        }
+                    }
+                        $validated['skills'] = $normalizedSkills;
+                }
+            }
 
         $data = collect($validated)
             ->except(['avatar', 'certificates', 'certificates_existing'])
@@ -173,4 +190,31 @@ class FreelancerProfileController extends Controller
             'message' => 'Account deleted successfully'
         ]);
     }
+
+
+    public function allSkills()
+{
+    $profiles = FreelancerProfile::whereNotNull('skills')->get();
+
+    $allSkills = [];
+
+    foreach ($profiles as $profile) {
+        $skills = is_array($profile->skills)
+            ? $profile->skills
+            : json_decode($profile->skills, true);
+
+        if (is_array($skills)) {
+            foreach ($skills as $skill) {
+                $normalized = ucfirst(strtolower(trim($skill)));
+                $allSkills[] = $normalized;
+            }
+        }
+    }
+
+    $uniqueSkills = array_values(array_unique($allSkills));
+    sort($uniqueSkills);
+
+    return response()->json($uniqueSkills);
+}
+
 }
