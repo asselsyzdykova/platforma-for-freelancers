@@ -113,4 +113,25 @@ class AuthController extends Controller
             'message' => 'Logged out successfully',
         ]);
     }
+
+    public function changePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => 'required|string',
+            'new_password' => 'required|string|min:6',
+        ]);
+
+        $user = $request->user();
+
+        if (!
+            \Illuminate\Support\Facades\Hash::check($request->current_password, $user->password)
+        ) {
+            return response()->json(['error' => 'Current password is incorrect'], 422);
+        }
+
+        $user->password = \Illuminate\Support\Facades\Hash::make($request->new_password);
+        $user->save();
+
+        return response()->json(['message' => 'Password changed successfully']);
+    }
 }
