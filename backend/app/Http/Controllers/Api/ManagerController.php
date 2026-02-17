@@ -42,10 +42,17 @@ class ManagerController extends Controller
 
     public function dashboard(Request $request)
 {
-    $manager = $request->user();
+    $user = $request->user();
+    $manager = Manager::where('user_id', $user->id)->first();
 
     return response()->json([
-        'manager' => $manager,
+        'manager' => [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'role' => $user->role,
+            'department' => $manager->department ?? null,
+        ],
         'stats' => [
             'activeTickets' => 18,
             'ticketGrowth' => 6,

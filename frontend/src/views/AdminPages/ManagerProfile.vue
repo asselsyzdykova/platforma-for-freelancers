@@ -14,7 +14,7 @@
         </div>
       </div>
       <div class="header-actions">
-        <button class="btn ghost">Message</button>
+          <RouterLink :to="{ name: 'ManagerChats' }" class="btn ghost">My Chats</RouterLink>
         <button class="btn primary">Assign task</button>
       </div>
     </header>

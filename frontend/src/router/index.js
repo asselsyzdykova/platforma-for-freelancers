@@ -32,6 +32,7 @@ import ManagerProfile from '@/views/AdminPages/ManagerProfile.vue'
 import AdminChats from '@/views/AdminPages/AdminChats.vue'
 import ProjectProposals from '@/views/ClientPage/ProjectProposals.vue'
 import CreateManager from '@/views/AdminPages/CreateManager.vue'
+import ManagerChats from '@/views/AdminPages/ManagerChat.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -232,6 +233,12 @@ const router = createRouter({
       path: '/create-manager',
       name: 'CreateManager',
       component: CreateManager,
+    },
+
+    {
+      path: '/manager/chats',
+      name: 'ManagerChats',
+      component: ManagerChats,
     }
   ],
 })

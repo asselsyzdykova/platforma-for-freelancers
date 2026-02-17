@@ -2,7 +2,7 @@
   <div class="admin-chats-page">
     <header class="admin-header">
       <div>
-        <h1>Admin: Chats</h1>
+        <h1>Manager: Chats</h1>
       </div>
     </header>
 
@@ -56,7 +56,7 @@
 import api from '@/services/axios'
 
 export default {
-  name: 'AdminChats',
+  name: 'ManagerChats',
   data() {
     return {
       conversations: [],
