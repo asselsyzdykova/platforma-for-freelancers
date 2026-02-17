@@ -8,6 +8,10 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use App\Models\Manager;
 use App\Models\User;
+use App\Models\Activity;
+use App\Models\Task;
+use App\Models\Note;
+
 
 class ManagerController extends Controller
 {
@@ -36,6 +40,24 @@ class ManagerController extends Controller
         return response()->json($result);
     }
 
+    public function dashboard(Request $request)
+{
+    $manager = $request->user();
+
+    return response()->json([
+        'manager' => $manager,
+        'stats' => [
+            'activeTickets' => 18,
+            'ticketGrowth' => 6,
+            'resolved' => 42,
+            'responseTime' => 1.6,
+            'responseDrop' => 12,
+        ],
+        'tasks' => Task::where('manager_id', $manager->id)->get(),
+        'activity' => Activity::latest()->take(5)->get(),
+        'notes' => Note::where('manager_id', $manager->id)->get(),
+    ]);
+}
     /**
      * Show the form for creating a new resource.
      */

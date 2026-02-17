@@ -66,6 +66,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/admin/managers', [ManagerController::class, 'index']);
     Route::post('/admin/managers', [ManagerController::class, 'store']);
     Route::delete('/admin/managers/{id}', [ManagerController::class, 'destroy']);
+
+    //managers
+    Route::get('/manager/dashboard', [ManagerController::class, 'dashboard']);
     // Chat
     Route::get('/conversations', [ChatController::class, 'conversations']);
     Route::get('/messages/{userId}', [ChatController::class, 'index']);

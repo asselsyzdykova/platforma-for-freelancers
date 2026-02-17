@@ -47,7 +47,15 @@
       </div>
 
       <form @submit.prevent="sendMessage" class="composer">
-        <input v-model="body" placeholder="Write a message..." />
+        <textarea
+        v-model="body"
+        placeholder="Write a message..."
+        rows="1"
+        @keydown.enter.exact.prevent="addNewLine"
+        @keydown.ctrl.enter.prevent="sendMessage"
+        @keydown.meta.enter.prevent="sendMessage"
+        ></textarea>
+
         <label class="file-button">
           <input type="file" @change="onFileChange" />
           📎
@@ -86,6 +94,12 @@ const markConversationRead = async (partnerId) => {
     console.error('Failed to mark messages as read', e)
   }
 }
+
+
+const addNewLine = () => {
+  body.value += '\n'
+}
+
 
 const fetchMessages = async (page = 1, append = true) => {
   const partnerId = route.params.id
@@ -247,6 +261,8 @@ const downloadAttachment = (message) => {
   max-width: 70%;
   display: inline-block;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 .message.in {
   background: #ffffff;
@@ -266,6 +282,8 @@ const downloadAttachment = (message) => {
 .body {
   font-size: 15px;
   color: #2f2f2f;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 .composer {
   display: flex;
@@ -276,18 +294,27 @@ const downloadAttachment = (message) => {
   border-radius: 14px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
 }
-.composer input {
+.composer textarea {
   flex: 1;
   padding: 10px 12px;
   border-radius: 10px;
   border: 1px solid #e5e7eb;
   background: #fafafa;
+  resize: none;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.4;
+  min-height: 42px;
+  max-height: 120px;
+  overflow-y: auto;
 }
-.composer input:focus {
+
+.composer textarea:focus {
   outline: none;
   border-color: #5b3df5;
   box-shadow: 0 0 0 3px rgba(91, 61, 245, 0.12);
 }
+
 .file-button {
   display: inline-flex;
   align-items: center;
@@ -317,6 +344,7 @@ const downloadAttachment = (message) => {
   color: white;
   border: none;
   box-shadow: 0 8px 16px rgba(91, 61, 245, 0.2);
+  cursor: pointer;
 }
 
 .load-more {

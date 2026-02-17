@@ -1,5 +1,5 @@
 <template>
-  <div class="manager-page">
+  <div class="manager-page" v-if="manager && stats">
     <header class="manager-header">
       <div class="header-left">
         <div class="avatar">{{ initials(manager.name) }}</div>
@@ -91,84 +91,19 @@
       </div>
     </section>
   </div>
+  <div v-else class="loading">
+    Loading manager dashboard...
+  </div>
 </template>
 
 <script setup>
-const manager = {
-  name: 'Lucia Hrušková',
-  role: 'Senior Manager',
-  department: 'Community & Verification',
-  email: 'lucia@bezrab.sk',
-  location: 'Bratislava, Slovakia',
-}
-
-const stats = {
-  activeTickets: 18,
-  ticketGrowth: 6,
-  resolved: 42,
-  responseTime: 1.6,
-  responseDrop: 12,
-}
-
-const tasks = [
-  {
-    id: 1,
-    title: 'Review new freelancer signups',
-    description: 'Verify student emails and approve accounts.',
-    status: 'in-progress',
-    deadline: 'Tomorrow',
-  },
-  {
-    id: 2,
-    title: 'Audit reported chat',
-    description: 'Check message report from Košice project.',
-    status: 'urgent',
-    deadline: 'Today',
-  },
-  {
-    id: 3,
-    title: 'Coordinate internship fair',
-    description: 'Confirm sponsors and update landing page.',
-    status: 'scheduled',
-    deadline: 'Next week',
-  },
-]
-
-const activity = [
-  {
-    id: 1,
-    title: 'Approved 12 freelancer profiles',
-    detail: 'UNIBA & STU student verifications completed.',
-    time: '2 hours ago',
-  },
-  {
-    id: 2,
-    title: 'Resolved ticket #482',
-    detail: 'Client payout delay issue closed.',
-    time: 'Yesterday',
-  },
-  {
-    id: 3,
-    title: 'Added new manager',
-    detail: 'Support lead invited and assigned.',
-    time: '2 days ago',
-  },
-]
-
-const notes = [
-  {
-    id: 1,
-    title: 'Verification backlog',
-    body: 'Need extra help during exam season. Coordinate with support team.',
-    date: 'Feb 2, 2026',
-  },
-  {
-    id: 2,
-    title: 'University outreach',
-    body: 'Plan visit to Žilina campus for new partnership.',
-    date: 'Jan 29, 2026',
-  },
-]
+import {ref, onMounted} from 'vue'
+import api from '@/services/axios'
+const manager = ref(null)
+const stats = ref(null)
+const tasks = ref([])
+const activity = ref([])
+const notes = ref([])
 
 const initials = (name) =>
   name
@@ -177,6 +112,19 @@ const initials = (name) =>
     .slice(0, 2)
     .join('')
     .toUpperCase()
+
+onMounted(async ()=>{
+  try{
+  const res = await api.get('/manager/dashboard')
+  manager.value = res.data.manager
+  stats.value = res.data.stats
+  tasks.value = res.data.tasks
+  activity.value = res.data.activity
+  notes.value = res.data.notes
+  } catch (err) {
+    console.error('Failed to load manager data:', err)
+  }
+})
 </script>
 
 <style scoped>
