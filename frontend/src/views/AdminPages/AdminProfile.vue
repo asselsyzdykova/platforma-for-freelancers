@@ -148,11 +148,45 @@
               <button class="btn rem" @click="askDeleteManager(manager)" :disabled="deletingManagerId === manager.id">
                 {{ deletingManagerId === manager.id ? 'Removing...' : 'Remove' }}
               </button>
+              <button class="btn task" @click="openModal(manager)">Task</button>
             </div>
           </div>
-        </div>
-      </div>
-    </section>
+                <div v-if="isOpen" class="modal-overlay-task" @click.self="closeModal">
+                  <div class="modal-task">
+                    <div class="modal-header">
+                      <h2>Create Task</h2>
+                      <button @click="closeModal" class="close-btn">✖</button>
+                    </div>
+
+                    <div class="form-group">
+                      <label>Task title</label>
+                      <input v-model="taskTitle" placeholder="Enter a task title..." />
+                    </div>
+
+                    <div class="form-group">
+                      <label>Description</label>
+                      <textarea v-model="taskDescription"
+                      placeholder="Describe the task..." rows="4"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                      <label>Deadline</label>
+                      <input
+                      ref="deadlineInput"
+                      placeholder="Select deadline"
+                      class="date-input"
+                      />
+                    </div>
+
+                    <div class="modal-actions">
+                      <button class="btn primary" @click="createTask" :disabled="taskLoading">{{ taskLoading ? 'Creating...' : 'Create Task' }}</button>
+                      <button class="btn ghost" @click="closeModal" :disabled="taskLoading">Cancel</button>
+                    </div>
+                  </div>
+                </div>
+            </div>
+          </div>
+        </section>
 
     <section class="quick-actions">
       <h3>Quick actions</h3>
@@ -201,8 +235,10 @@
 </template>
 
 <script setup>
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref,nextTick } from 'vue'
 import api from '@/services/axios'
+import flatpickr from 'flatpickr'
+import 'flatpickr/dist/flatpickr.min.css'
 
 const filterRole = ref('all')
 
@@ -380,9 +416,191 @@ const sendMessage = async () => {
   }
 }
 
+const isOpen = ref(false)
+const openModal = async (manager) => {
+  selectedManager.value = manager
+  taskTitle.value = ''
+  taskDescription.value = ''
+  taskDeadline.value = ''
+  isOpen.value = true
+
+  await nextTick()
+  initDatePicker()
+}
+const closeModal = () => {
+  isOpen.value = false
+  taskDeadline.value = ''
+
+  if (datePickerInstance) {
+    datePickerInstance.clear()
+  }
+}
+
+const selectedManager = ref(null)
+const taskTitle = ref('')
+const taskDescription = ref('')
+const taskLoading = ref(false)
+const deadlineInput = ref(null)
+const taskDeadline = ref('')
+
+
+const createTask = async () => {
+  if (!taskTitle.value.trim()) {
+    showToast('Task title is required', 'error')
+    return
+  }
+
+  if (!selectedManager.value) return
+
+  taskLoading.value = true
+
+  try {
+    await api.post('/admin/tasks', {
+      manager_id: selectedManager.value.id,
+      title: taskTitle.value,
+      description: taskDescription.value,
+      deadline: taskDeadline.value,
+      status: 'in-progress'
+    })
+
+    showToast('Task created successfully', 'success')
+    closeModal()
+  } catch {
+    showToast('Failed to create task', 'error')
+  } finally {
+    taskLoading.value = false
+  }
+}
+
+let datePickerInstance = null
+const initDatePicker = () => {
+  if (!deadlineInput.value) return
+
+  if (datePickerInstance) {
+    datePickerInstance.destroy()
+  }
+
+  datePickerInstance = flatpickr(deadlineInput.value, {
+    dateFormat: "Y-m-d",
+    minDate: "today",
+    onChange: (selectedDates, dateStr) => {
+      taskDeadline.value = dateStr
+    }
+  })
+}
 </script>
 
 <style scoped>
+.date-input {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.flatpickr-calendar {
+  border-radius: 16px;
+  box-shadow: 0 15px 50px rgba(0,0,0,0.15);
+}
+
+.modal-overlay-task {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20000;
+  animation: fadeIn 0.2s ease;
+}
+
+.modal-task {
+  background: white;
+  width: 420px;
+  max-width: 92%;
+  border-radius: 20px;
+  padding: 26px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.15);
+  animation: scaleIn 0.2s ease;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.modal-header h2 {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.close-btn {
+  background: transparent;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: #6b7280;
+}
+
+.close-btn:hover {
+  color: #111827;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.form-group input,
+.form-group textarea {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 14px;
+  transition: border 0.2s, box-shadow 0.2s;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #7c3aed;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0 }
+  to { opacity: 1 }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -483,6 +701,22 @@ const sendMessage = async () => {
   color: #4338ca;
 }
 
+.btn.ghost:hover{
+  background: #4338ca;
+  color:white;
+}
+
+.btn.task {
+  background: linear-gradient(135deg, #5D3A9B, #7c3aed);
+  cursor: pointer;
+  color: white;
+  border: 1px solid black;
+}
+
+.btn.task:hover {
+  background: #e6e0ff;
+  color: black;
+}
 .btn.link {
   background: transparent;
   color: #5b3df5;

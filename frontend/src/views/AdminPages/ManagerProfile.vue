@@ -41,7 +41,6 @@
       <div class="panel">
         <div class="panel-head">
           <h3>Assigned tasks</h3>
-          <button class="btn link">View all</button>
         </div>
         <div class="task-list">
           <div v-for="task in tasks" :key="task.id" class="task-card">
@@ -51,11 +50,31 @@
             </div>
             <div class="task-meta">
               <span class="pill" :class="task.status">{{ task.status }}</span>
-              <span class="deadline">Due {{ task.deadline }}</span>
+              <span class="deadline">Due {{ formatDate(task.deadline) }}</span>
             </div>
           </div>
-        </div>
+
+          <div class="pagination" v-if="pagination.lastPage > 1">
+            <button
+            class="btn link"
+            :disabled="pagination.currentPage === 1"
+            @click="loadTasks(pagination.currentPage - 1)">
+            Prev
+          </button>
+          <button
+          v-for="page in pagination.lastPage"
+          :key="page"
+          class="btn link"
+          :class="{ 'primary': page === pagination.currentPage }"
+          @click="loadTasks(page)">
+          {{ page }}
+        </button>
+        <button class="btn link"
+        :disabled="pagination.currentPage === pagination.lastPage"
+        @click="loadTasks(pagination.currentPage + 1)">Next</button>
       </div>
+    </div>
+  </div>
 
       <div class="panel">
         <div class="panel-head">
@@ -105,6 +124,13 @@ const tasks = ref([])
 const activity = ref([])
 const notes = ref([])
 
+const pagination = ref({
+  currentPage: 1,
+  lastPage: 1,
+  perPage: 5,
+  total: 0,
+})
+
 const initials = (name) =>
   name
     .split(' ')
@@ -113,21 +139,60 @@ const initials = (name) =>
     .join('')
     .toUpperCase()
 
-onMounted(async ()=>{
-  try{
-  const res = await api.get('/manager/dashboard')
-  manager.value = res.data.manager
-  stats.value = res.data.stats
-  tasks.value = res.data.tasks
-  activity.value = res.data.activity
-  notes.value = res.data.notes
+const formatDate = (date) => {
+  if (!date) return 'No deadline';
+  const d = new Date(date);
+  return d.toLocaleDateString();
+};
+
+const loadDashboard = async () => {
+  try {
+    const res = await api.get('/manager/dashboard')
+    manager.value = res.data.manager
+    stats.value = res.data.stats
+    activity.value = res.data.activity
+    notes.value = res.data.notes
   } catch (err) {
     console.error('Failed to load manager data:', err)
   }
+}
+
+const loadTasks = async (page = 1) => {
+  try {
+    const res = await api.get(`/manager/tasks?page=${page}`)
+    tasks.value = res.data.data
+    pagination.value.currentPage = res.data.current_page
+    pagination.value.lastPage = res.data.last_page
+    pagination.value.perPage = res.data.per_page
+    pagination.value.total = res.data.total
+  } catch (err) {
+    console.error('Failed to load tasks:', err)
+  }
+}
+
+onMounted(async () => {
+  await loadDashboard()
+  await loadTasks()
 })
 </script>
 
 <style scoped>
+.pagination {
+  margin-top: 16px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.pagination .btn.link {
+  padding: 6px 12px;
+  font-size: 13px;
+}
+
+.pagination .btn.primary {
+  background: #5b3df5;
+  color: white;
+}
 .manager-page {
   padding: 32px 40px 60px;
   background: #f7f6ff;

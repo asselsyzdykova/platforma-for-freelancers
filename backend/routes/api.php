@@ -16,6 +16,8 @@ use App\Http\Controllers\Api\ChatController;
 use App\Http\Controllers\Api\SubscriptionController;
 use App\Http\Controllers\Api\CityController;
 use App\Http\Controllers\Api\ManagerController;
+use App\Http\Controllers\Api\AdminController;
+use App\Http\Controllers\Api\TaskController;
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/projects/{id}/apply', [ProposalController::class, 'apply']);
@@ -62,13 +64,17 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/billing/transactions', [SubscriptionController::class, 'transactions']);
     Route::post('/subscriptions/cancel', [SubscriptionController::class, 'cancel']);
 
-    Route::get('/admin/stats', [UserController::class, 'adminStats']);
+    //admin
+    Route::get('/admin/stats', [AdminController::class, 'adminStats']);
     Route::get('/admin/managers', [ManagerController::class, 'index']);
     Route::post('/admin/managers', [ManagerController::class, 'store']);
     Route::delete('/admin/managers/{id}', [ManagerController::class, 'destroy']);
+    Route::post('/admin/tasks', [TaskController::class, 'store']);
 
     //managers
     Route::get('/manager/dashboard', [ManagerController::class, 'dashboard']);
+    Route::get('/manager/tasks', [TaskController::class, 'getManagerTasks']);
+    Route::post('/manager/tasks', [TaskController::class, 'store']);
     // Chat
     Route::get('/conversations', [ChatController::class, 'conversations']);
     Route::get('/messages/{userId}', [ChatController::class, 'index']);
