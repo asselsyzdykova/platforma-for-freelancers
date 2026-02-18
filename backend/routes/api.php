@@ -75,6 +75,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/manager/dashboard', [ManagerController::class, 'dashboard']);
     Route::get('/manager/tasks', [TaskController::class, 'getManagerTasks']);
     Route::post('/manager/tasks', [TaskController::class, 'store']);
+    Route::patch('/manager/tasks/{task}', [TaskController::class, 'update']);
+
     // Chat
     Route::get('/conversations', [ChatController::class, 'conversations']);
     Route::get('/messages/{userId}', [ChatController::class, 'index']);

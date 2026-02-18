@@ -460,7 +460,6 @@ const createTask = async () => {
       title: taskTitle.value,
       description: taskDescription.value,
       deadline: taskDeadline.value,
-      status: 'in-progress'
     })
 
     showToast('Task created successfully', 'success')

@@ -37,10 +37,28 @@ class TaskController extends Controller
             'title' => $data['title'],
             'description' => $data['description'] ?? null,
             'deadline' => $data['deadline'] ?? null,
-            'status' => $data['status'] ?? 'in-progress',
+            'status' => $data['status'] ?? null,
             ]);
 
         return response()->json($task, 201);
     }
+
+    public function update(Request $request, Task $task)
+{
+    $managerId = $request->user()->manager?->id;
+
+    if (!$managerId || $task->manager_id !== $managerId) {
+        return response()->json(['error' => 'Forbidden'], 403);
+    }
+
+    $data = $request->validate([
+        'status' => 'required|string|in:Not set,Urgent,In-Progress,Done',
+    ]);
+
+    $task->status = $data['status'];
+    $task->save();
+
+    return response()->json($task);
+}
 
 }

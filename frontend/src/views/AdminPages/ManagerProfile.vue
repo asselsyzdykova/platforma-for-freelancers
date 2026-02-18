@@ -18,64 +18,84 @@
         <button class="btn primary">Assign task</button>
       </div>
     </header>
-
+            <!--1 kvadrat-->
     <section class="summary-grid">
       <div class="summary-card">
         <p>Active tickets</p>
         <h2>{{ stats.activeTickets }}</h2>
         <span class="trend up">▲ {{ stats.ticketGrowth }}% this week</span>
       </div>
+            <!--2 kvadrat-->
       <div class="summary-card">
         <p>Resolved cases</p>
         <h2>{{ stats.resolved }}</h2>
         <span class="trend">Last 7 days</span>
       </div>
+            <!--3 kvadrat-->
       <div class="summary-card">
         <p>Avg. response time</p>
         <h2>{{ stats.responseTime }}h</h2>
         <span class="trend down">▼ {{ stats.responseDrop }}% improvement</span>
       </div>
     </section>
-
+            <!--4 kvadrat-->
     <section class="content-grid">
       <div class="panel">
         <div class="panel-head">
           <h3>Assigned tasks</h3>
         </div>
-        <div class="task-list">
-          <div v-for="task in tasks" :key="task.id" class="task-card">
-            <div>
-              <h4>{{ task.title }}</h4>
-              <p>{{ task.description }}</p>
-            </div>
-            <div class="task-meta">
-              <span class="pill" :class="task.status">{{ task.status }}</span>
-              <span class="deadline">Due {{ formatDate(task.deadline) }}</span>
-            </div>
-          </div>
+    <div class="task-list">
+      <div v-for="task in tasks" :key="task.id" class="task-card"
+      @click="toggleTask(task.id)">
 
-          <div class="pagination" v-if="pagination.lastPage > 1">
-            <button
-            class="btn link"
-            :disabled="pagination.currentPage === 1"
-            @click="loadTasks(pagination.currentPage - 1)">
-            Prev
-          </button>
-          <button
-          v-for="page in pagination.lastPage"
-          :key="page"
-          class="btn link"
-          :class="{ 'primary': page === pagination.currentPage }"
-          @click="loadTasks(page)">
-          {{ page }}
-        </button>
-        <button class="btn link"
-        :disabled="pagination.currentPage === pagination.lastPage"
-        @click="loadTasks(pagination.currentPage + 1)">Next</button>
+      <div>
+        <h4>{{ task.title }}</h4>
+        <span
+        v-if="task.status"
+        class="pill"
+        :class="task.status.toLowerCase()">
+        {{ task.status }}
+      </span>
+      <span v-else class="pill not-set">Not set</span>
+    </div>
+
+        <transition name="fade">
+        <div v-if="openedTaskId === task.id" class="task-details">
+          <p>{{ task.description }}</p>
+          <div class="status-buttons">
+            <button @click.stop="updateStatus(task, 'Urgent')">Urgent</button>
+            <button @click.stop="updateStatus(task, 'In-Progress')">In Progress</button>
+            <button @click.stop="updateStatus(task, 'Done')">Done</button>
+          </div>
+        </div>
+      </transition>
+        <div class="task-meta">
+          <span class="deadline">Due {{ formatDate(task.deadline) }}</span>
+        </div>
       </div>
     </div>
-  </div>
 
+    <div class="pagination" v-if="pagination.lastPage > 1">
+      <button
+      class="btn link"
+      :disabled="pagination.currentPage === 1"
+      @click="loadTasks(pagination.currentPage - 1)">
+      Prev
+      </button>
+      <button
+      v-for="page in pagination.lastPage"
+      :key="page"
+      class="btn link"
+      :class="{ 'primary': page === pagination.currentPage }"
+      @click="loadTasks(page)">
+      {{ page }}
+      </button>
+      <button class="btn link"
+      :disabled="pagination.currentPage === pagination.lastPage"
+      @click="loadTasks(pagination.currentPage + 1)">Next</button>
+    </div>
+  </div>
+            <!--5 kvadrat-->
       <div class="panel">
         <div class="panel-head">
           <h3>Recent activity</h3>
@@ -93,7 +113,7 @@
         </ul>
       </div>
     </section>
-
+            <!--POD VOPROSOM-->
     <section class="notes">
       <div class="panel">
         <div class="panel-head">
@@ -174,9 +194,115 @@ onMounted(async () => {
   await loadDashboard()
   await loadTasks()
 })
+
+const openedTaskId = ref(null)
+
+const toggleTask = (id) => {
+  openedTaskId.value =
+    openedTaskId.value === id ? null : id
+}
+
+const updateStatus = async (task, newStatus) => {
+  try {
+    await api.patch(`/manager/tasks/${task.id}`, {
+      status: newStatus
+    })
+
+    task.status = newStatus
+  } catch (err) {
+    console.error('Failed to update status:', err)
+  }
+}
 </script>
 
 <style scoped>
+
+.pill.in-progress {
+  background: #e0e7ff;
+  color: #4338ca;
+}
+
+.pill.urgent {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.pill.done {
+  background: #dcfce7;
+  color: #15803d;
+}
+.pill.not-set {
+  background: #f1f5f9;
+  color: #94a3b8;
+}
+
+.task-details {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.status-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.status-buttons button {
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: none;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* urgent */
+.status-buttons button:nth-child(1) {
+  background: #fee2e2;
+  color: red;
+}
+
+.status-buttons button:nth-child(1):hover {
+  background: red;
+  color: white;
+}
+
+/* In Progress */
+.status-buttons button:nth-child(2) {
+  background: #e0e7ff;
+  color: #4338ca;
+}
+
+.status-buttons button:nth-child(2):hover {
+  background: #5b3df5;
+  color: white;
+}
+
+/* Done */
+.status-buttons button:nth-child(3) {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.status-buttons button:nth-child(3):hover {
+  background: #16a34a;
+  color: white;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: all 0.2s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+
 .pagination {
   margin-top: 16px;
   display: flex;
@@ -366,22 +492,6 @@ onMounted(async () => {
   text-transform: capitalize;
   background: #e5e7eb;
 }
-
-.pill.in-progress {
-  background: #e0e7ff;
-  color: #4338ca;
-}
-
-.pill.urgent {
-  background: #fee2e2;
-  color: #b91c1c;
-}
-
-.pill.scheduled {
-  background: #fef3c7;
-  color: #b45309;
-}
-
 .deadline {
   font-size: 12px;
   color: #9ca3af;

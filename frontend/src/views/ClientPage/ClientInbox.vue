@@ -89,7 +89,6 @@ export default {
         }
 
         if (note.link) {
-          // Direct handling for application-details to avoid router.resolve emitting warnings
           if (note.link.startsWith('/application-details/') && note.related_id) {
             this.$router.push({ name: 'ApplicationDetails', params: { id: note.related_id } })
             return
