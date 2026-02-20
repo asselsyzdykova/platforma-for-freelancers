@@ -18,6 +18,7 @@ use App\Http\Controllers\Api\CityController;
 use App\Http\Controllers\Api\ManagerController;
 use App\Http\Controllers\Api\AdminController;
 use App\Http\Controllers\Api\TaskController;
+use App\Http\Controllers\Api\EmailVerificationController;
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/projects/{id}/apply', [ProposalController::class, 'apply']);
@@ -105,3 +106,13 @@ Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logo
 // Public endpoint for Stripe webhooks
 Route::post('/stripe/webhook', [SubscriptionController::class, 'handleWebhook']);
 Route::post('/paypal/webhook', [SubscriptionController::class, 'handlePaypalWebhook']);
+
+
+//email
+Route::get('/email/verify/{id}/{hash}', [EmailVerificationController::class, '__invoke'])
+    ->middleware(['signed'])
+    ->name('verification.verify');
+    
+Route::post('/email/verification-notification', [EmailVerificationController::class, 'resend'])
+    ->middleware(['auth:sanctum', 'throttle:6,1'])
+    ->name('verification.send');

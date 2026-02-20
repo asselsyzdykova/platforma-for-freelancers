@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use App\Rules\SlovakUniversityEmail;
+use Illuminate\Auth\Events\Registered;
 
 class AuthController extends Controller
 {
@@ -53,6 +54,8 @@ class AuthController extends Controller
         'role' => $request->role,
     ]);
 
+    event(new Registered($user));
+
     if ($user->role === 'freelancer') {
         Subscription::firstOrCreate(
             [
@@ -93,6 +96,12 @@ class AuthController extends Controller
                 'email' => ['Incorrect email or password'],
             ]);
         }
+
+        if (! $user->hasVerifiedEmail()) {
+            return response()->json([
+                'message' => 'Email not verified. Please check your inbox.'
+                ], 403);
+                }
 
         $user->tokens()->delete();
 

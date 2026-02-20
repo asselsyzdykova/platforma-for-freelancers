@@ -33,7 +33,8 @@ import AdminChats from '@/views/AdminPages/AdminChats.vue'
 import ProjectProposals from '@/views/ClientPage/ProjectProposals.vue'
 import CreateManager from '@/views/AdminPages/CreateManager.vue'
 import ManagerChats from '@/views/AdminPages/ManagerChat.vue'
-
+import VerifyEmail from '@/views/Email/EmailVerify.vue'
+import VerifySuccess from '@/views/Email/VerifySuccess.vue'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -239,6 +240,18 @@ const router = createRouter({
       path: '/manager/chats',
       name: 'ManagerChats',
       component: ManagerChats,
+    },
+
+    //email
+    {
+  path: '/verify-email',
+  name: 'VerifyEmail',
+  component: VerifyEmail,
+    },
+    {
+      path: '/verified',
+      name: 'VerifySuccess',
+      component: VerifySuccess,
     }
   ],
 })

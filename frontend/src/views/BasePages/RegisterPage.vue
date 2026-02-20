@@ -127,11 +127,9 @@
 import { reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '../../services/axios'
-import { useUserStore } from '@/stores/userStore'
 import { useNotificationStore } from '@/stores/notificationStore'
 
 const router = useRouter()
-const userStore = useUserStore()
 const notifications = useNotificationStore()
 
 const form = reactive({
@@ -157,27 +155,17 @@ const register = async () => {
   }
 
   try {
-    const response = await api.post('/register', {
+     await api.post('/register', {
       name: form.name,
       email: form.email,
       password: form.password,
       password_confirmation: form.passwordConfirm,
       role: form.role,
       university: form.university,
-      study_year: form.studyYear,
+      study_year: form.study_year,
     })
 
-    userStore.setToken(response.data.access_token)
-    await userStore.loadUser()
-    if (!userStore.user) {
-      userStore.setUser(response.data.user)
-    }
-
-    if (form.role === 'freelancer') {
-      router.push('/edit-profile')
-    } else {
-      router.push('/client-profile')
-    }
+    router.push('/verify-email')
   } catch (error) {
     if (error.response?.data?.errors) {
       notifications.error(Object.values(error.response.data.errors).flat().join('\n'))

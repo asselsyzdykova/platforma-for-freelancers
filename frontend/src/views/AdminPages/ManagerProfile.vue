@@ -8,14 +8,11 @@
           <p class="subtitle">{{ manager.role }} • {{ manager.department }}</p>
           <div class="meta">
             <span>{{ manager.email }}</span>
-            <span class="dot">•</span>
-            <span>{{ manager.location }}</span>
           </div>
         </div>
       </div>
       <div class="header-actions">
           <RouterLink :to="{ name: 'ManagerChats' }" class="btn ghost">My Chats</RouterLink>
-        <button class="btn primary">Assign task</button>
       </div>
     </header>
             <!--1 kvadrat-->
@@ -381,10 +378,6 @@ const updateStatus = async (task, newStatus) => {
   cursor: pointer;
 }
 
-.btn.primary {
-  background: #5b3df5;
-  color: white;
-}
 
 .btn.ghost {
   background: white;
