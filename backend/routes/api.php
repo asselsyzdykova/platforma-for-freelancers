@@ -112,7 +112,7 @@ Route::post('/paypal/webhook', [SubscriptionController::class, 'handlePaypalWebh
 Route::get('/email/verify/{id}/{hash}', [EmailVerificationController::class, '__invoke'])
     ->middleware(['signed'])
     ->name('verification.verify');
-    
+
 Route::post('/email/verification-notification', [EmailVerificationController::class, 'resend'])
-    ->middleware(['auth:sanctum', 'throttle:6,1'])
+    ->middleware(['throttle:6,1'])
     ->name('verification.send');

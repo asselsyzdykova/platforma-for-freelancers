@@ -165,7 +165,7 @@ const register = async () => {
       study_year: form.study_year,
     })
 
-    router.push('/verify-email')
+    router.push('/verify-email?email=' + encodeURIComponent(form.email))
   } catch (error) {
     if (error.response?.data?.errors) {
       notifications.error(Object.values(error.response.data.errors).flat().join('\n'))

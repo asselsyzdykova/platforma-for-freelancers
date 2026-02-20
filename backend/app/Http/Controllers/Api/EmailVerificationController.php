@@ -33,11 +33,13 @@ class EmailVerificationController extends Controller
 
     public function resend(Request $request)
     {
-        if ($request->user()->hasVerifiedEmail()) {
+        $request->validate(['email' => 'required|email|exists:users,email']);
+        $user = User::where('email', $request->email)->first();
+        if ($user->hasVerifiedEmail()) {
             return response()->json(['message' => 'Email already verified'], 200);
         }
 
-        $request->user()->sendEmailVerificationNotification();
+        $user->sendEmailVerificationNotification();
 
         return response()->json(['message' => 'Verification email sent'], 200);
     }
