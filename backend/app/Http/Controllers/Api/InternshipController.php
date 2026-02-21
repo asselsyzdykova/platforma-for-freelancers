@@ -1,0 +1,107 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Models\Internship;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+class InternshipController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     */
+    public function index()
+    {
+        $internships = Internship::with('client.clientProfile')->get();
+        $internships = $internships->map(function($intern) {
+            return [
+                'id' => $intern->id,
+                'name' => $intern->client->name ?? null,
+                'avatar_url' => optional($intern->client->clientProfile)->avatar_url,                'company' => $intern->company,
+                'title' => $intern->title,
+                'description' => $intern->description,
+                'stipendType' => $intern->stipendType,
+                'price' => $intern->stipendType === 'paid' ? "$".$intern->price : 'Unpaid',
+                'time' => $intern->time,
+                'number' => $intern->number,
+            ];
+        });
+        return response()->json($internships);
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
+    {
+        $request->validate([
+            'title' => 'required|string',
+            'company' => 'required|string',
+            'description' => 'required|string',
+            'stipendType' => 'required|in:paid,unpaid',
+            'price' => 'nullable|string',
+            'time' => 'required|string',
+            'number' => 'required|integer',
+        ]);
+
+        $internship = Internship::create([
+            'client_id' => Auth::id(),
+            'title' => $request->title,
+            'company' => $request->company,
+            'description' => $request->description,
+            'stipendType' => $request->stipendType,
+            'price' => $request->price,
+            'time' => $request->time,
+            'number' => $request->number,
+        ]);
+
+        $internship->load('client.clientProfile');
+        return response()->json($internship, 201);
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(string $id)
+    {
+        $internship = Internship::with('client')->findOrFail($id);
+        return response()->json($internship);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, string $id)
+    {
+        $internship = Internship::findOrFail($id);
+
+        $request->validate([
+            'title' => 'sometimes|required|string',
+            'company' => 'sometimes|required|string',
+            'description' => 'sometimes|required|string',
+            'stipendType' => 'sometimes|required|in:paid,unpaid',
+            'price' => 'nullable|string',
+            'time' => 'sometimes|required|string',
+            'number' => 'sometimes|required|integer',
+        ]);
+
+        $internship->update($request->all());
+
+        $internship->load('client');
+
+        return response()->json($internship);
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(string $id)
+    {
+        $internship = Internship::findOrFail($id);
+        $internship->delete();
+
+        return response()->json(['message' => 'Internship deleted successfully']);
+    }
+}

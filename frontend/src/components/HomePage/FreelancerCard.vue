@@ -1,7 +1,10 @@
 <template>
   <div class="card">
-    <img :src="freelancer.avatar_url" class="avatar-img" alt="Avatar" />
-
+    <img
+    :src="freelancer.avatar_url || '/default-avatar.png'"
+    class="avatar-img"
+    alt="Avatar"
+    />
     <h3>{{ freelancer.name }}</h3>
     <p class="role">{{ freelancer.role }}</p>
 

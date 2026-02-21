@@ -1,109 +1,167 @@
 <template>
-  <div class="intern-card">
-    <div class="card-in" v-for="intern in interns" :key="intern.id">
-      <div class="header">
-      <img :src="intern.avatar_url" class="avatar-img" alt="Avatar" />
-      <h3 class="client-name">{{ intern.name }}</h3>
+  <div class="internships-container">
+    <div class="internships-grid">
+      <div
+        class="card-in"
+        v-for="intern in interns"
+        :key="intern.id"
+      >
+        <div class="header">
+          <img
+            v-if="intern.avatar"
+            :src="intern.avatar"
+            class="avatar-img"
+            alt="Client avatar"
+          />
+          <h3 class="client-name">{{ intern.name || 'Company' }}</h3>
+        </div>
+
+        <h2 class="company">{{ intern.company }}</h2>
+        <h3 class="title">{{ intern.title }}</h3>
+
+        <p class="description">{{ intern.description }}</p>
+
+        <div class="meta">
+          <p class="cena">{{ intern.price }}</p>
+          <p class="cas">Duration: {{ intern.time }}</p>
+          <p class="cas">Spots: {{ intern.number }}</p>
+        </div>
+
+        <button class="btn-apply" @click="toApply(intern.id)">
+          To Apply
+        </button>
       </div>
-      <h2>{{ intern.company }}</h2>
-      <h3>{{ intern.title }}</h3>
-      <p class="description">{{ intern.description }}</p>
-      <p class="cena">{{ intern.price }}</p>
-      <p class="cas">The internship duration: {{ intern.time }}</p>
-      <p class="cas">The allowed number of students: {{ intern.number }}</p>
-      <button @click="toApply" class="btn-apply">To Apply</button>
     </div>
   </div>
 </template>
 
-<script>
-export default{
-  name : 'InternCard',
-  data() {
-    return {
-      interns: [
-        {
-          id: 1,
-          name:'Assel Syzdykova',
-          company: 'Power Play Studio',
-          avatar_url: 'img.png',
-          title: 'Frontend Developer Intern',
-          description: 'Learn Vue.js and modern web development Learn Vue.js and modern web development Learn Vue.js and modern web development Learn Vue.js and modern web development',
-          price: 3000,
-          time: '3 months',
-          number: '10'
-        }
-      ]
-    }
+<script setup>
+import { useRouter } from 'vue-router'
+
+const props = defineProps({
+  intern: {
+    type: Object,
+    required: true
   }
+})
+const router = useRouter()
+
+const toApply = () => {
+  router.push(`/internships/${props.intern.id}`)
 }
 </script>
 
 
 
 <style scoped>
-.intern-card{
-  max-width: 1200px;
-  width: 100%;
+.internships-container {
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 40px 24px;
-  border-radius: 10px;
-  margin: 30px;
-  box-shadow: 0 2px 6px rgba(93, 58, 155, 0.6);
-  background: rgba(255, 255, 255, 0.5);
-  backdrop-filter: blur(10px);
+  padding: 20px;
 }
+
+.internships-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 28px;
+}
+
+.card-in {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(93, 58, 155, 0.15);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card-in:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 32px rgba(93, 58, 155, 0.25);
+}
+
 .header {
   display: flex;
   align-items: center;
-  gap: 15px;
-  margin-bottom: 10px;
-}
-.client-name{
-  margin: 0;
-  font-size: 1.5em;
-  font-weight: bold;
-}
-.avatar-img {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  object-fit: cover;
-  display: block;
-  background: #ddd;
-}
-.card-in {
-  margin-bottom: 20px;
-}
-.card-in h3{
-  padding-left: 30px;
-}
-.card-in p{
-  padding-left: 30px;
-}
-.description{
-  max-width: 700px;
-}
-.cena{
-  text-align: right;
-  padding-right: 30px;
-}
-.cas{
-  text-align: right;
-  padding-right: 30px;
+  gap: 16px;
 }
 
-.btn-apply{
-  border-radius: 15px;
+.avatar-img {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #e0d4ff;
+  background: #f8f5ff;
+}
+
+.client-name {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #3c1f7b;
+}
+
+.company {
+  margin: 8px 0 4px;
+  font-size: 1.5rem;
+  color: #2c3e50;
+}
+
+.title {
+  margin: 0 0 12px;
+  font-size: 1.25rem;
+  color: #5D3A9B;
+  font-weight: 600;
+}
+
+.description {
+  margin: 0;
+  color: #555;
+  line-height: 1.5;
+  flex-grow: 1;
+}
+
+.meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  font-size: 0.95rem;
+  color: #444;
+}
+
+.cena {
+  font-weight: bold;
+  font-size: 1.15rem;
+  color: #2e7d32;
+}
+
+.cas {
+  margin: 4px 0;
+}
+
+.btn-apply {
+  margin-top: auto;
+  align-self: center;
+  width: 100%;
+  max-width: 220px;
+  padding: 12px 24px;
+  border-radius: 12px;
   background: linear-gradient(135deg, #5D3A9B, #7c3aed);
   color: white;
-  padding: 10px;
-  box-shadow: 0 2px 6px rgba(93, 58, 155, 0.6);
-  cursor: pointer;
+  font-weight: 600;
   border: none;
+  cursor: pointer;
+  transition: all 0.25s ease;
 }
-.btn-apply:hover{
+
+.btn-apply:hover {
   background: white;
   color: #5D3A9B;
+  box-shadow: 0 0 0 3px rgba(93, 58, 155, 0.3);
 }
 </style>

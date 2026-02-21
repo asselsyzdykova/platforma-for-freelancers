@@ -5,31 +5,23 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\User;
-use \App\Models\Proposal;
-class Project extends Model
+
+
+class Internship extends Model
 {
     protected $primaryKey = 'id';
     use HasFactory;
 
-    protected $fillable = [
+    protected $fillable= [
         'client_id',
         'title',
+        'company',
         'description',
-        'budget',
-        'category',
-        'tags',
-        'status',
+        'stipendType',
+        'price',
+        'time',
+        'number'
     ];
-
-
-    protected $casts = [
-        'tags' => 'array',
-    ];
-
-    public function proposals() {
-    return $this->hasMany(Proposal::class);
-}
-
 
     public function client()
     {

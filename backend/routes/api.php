@@ -19,6 +19,7 @@ use App\Http\Controllers\Api\ManagerController;
 use App\Http\Controllers\Api\AdminController;
 use App\Http\Controllers\Api\TaskController;
 use App\Http\Controllers\Api\EmailVerificationController;
+use App\Http\Controllers\Api\InternshipController;
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/projects/{id}/apply', [ProposalController::class, 'apply']);
@@ -98,7 +99,10 @@ Route::middleware('auth:sanctum')->get('/me', [UserController::class, 'me']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
-
+//intern
+Route::get('/internships', [InternshipController::class, 'index']);
+Route::post('/internships', [InternshipController::class, 'store'])
+    ->middleware('auth:sanctum');
 
 
 Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);

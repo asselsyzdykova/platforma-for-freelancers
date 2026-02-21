@@ -16,9 +16,6 @@ class Manager extends Model
         'status',
     ];
 
-    /**
-     * Get the user that owns the manager profile.
-     */
     public function user()
     {
         return $this->belongsTo(User::class);

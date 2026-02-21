@@ -78,9 +78,9 @@ const intern = reactive({
 
 const createIntern = async () => {
   try {
-    await api.post('/interns', intern)
+    await api.post('/internships', intern)
     notifications.success('Internship created successfully!')
-    router.push({ name: 'ClientPage' })
+    router.push({ name: 'ClientProfile' })
   } catch (error) {
     console.error(error.response?.data || error)
     notifications.error('Failed to create internship.')

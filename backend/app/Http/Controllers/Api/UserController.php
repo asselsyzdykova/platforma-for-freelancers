@@ -5,10 +5,6 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Subscription;
-use App\Models\User;
-use Carbon\Carbon;
-use App\Models\Project;
-use App\Models\Manager;
 
 class UserController extends Controller
 {

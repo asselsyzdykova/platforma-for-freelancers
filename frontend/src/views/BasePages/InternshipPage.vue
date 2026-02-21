@@ -4,12 +4,31 @@
       <h2>Internships</h2>
     </div>
     <div class="intern-card">
-      <InternCard/>
+      <InternCard
+      v-for="intern in interns"
+        :key="intern.id"
+        :intern="intern"/>
     </div>
   </div>
 </template>
 <script setup>
+import { ref, onMounted } from 'vue'
 import InternCard from '@/components/Intern/InternCard.vue'
+import api from '@/services/axios'
+
+const interns = ref([])
+
+onMounted(async () => {
+    console.log('Mounted called')
+
+  try {
+    const response = await api.get('/internships')
+    console.log('DATA:', response.data)
+    interns.value = response.data
+  } catch (error) {
+    console.error('Failed to load internships:', error)
+  }
+})
 </script>
 <style scoped>
 .first-block{
