@@ -48,13 +48,13 @@ const planSuffix = computed(() => {
         >
 
         <RouterLink v-if="!userStore.isLoggedIn" :to="{ name: 'login' }" exact-active-class="active"
-          >Login</RouterLink
+          >Log In</RouterLink
         >
         <RouterLink
           v-if="!userStore.isLoggedIn"
           :to="{ name: 'register' }"
           exact-active-class="active"
-          >Register</RouterLink
+          >Sign Up</RouterLink
         >
 
         <RouterLink
@@ -97,65 +97,108 @@ const planSuffix = computed(() => {
 
 <style scoped>
 .site-header {
-  padding: 16px 32px;
-  background-color: #e6e0ff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);  padding: 16px 32px;
+  background-color: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
 
 .header-inner {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  gap: 20px;
 }
 
 .logo {
-  height: 30px;
+  height: 40px;
+  transition: transform 0.3s ease;
+}
+.logo:hover {
+  transform: scale(1.05);
 }
 
 .nav {
   display: flex;
-  gap: 16px;
+  justify-content: center;
+  gap: 20px;
   align-items: center;
+  flex-wrap: wrap;
 }
 
-@media (max-width: 640px) {
+.nav a {
+  color: linear-gradient(135deg, #5D3A9B, #7c3aed);
+  text-decoration: none;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: 20px;
+  transition: all 0.3s ease;
+  position: relative;
+}
+.nav a:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.nav .active {
+  background-color: rgba(255, 255, 255, 0.3);
+  font-weight: bold;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.nav button {
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+  color: white;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.nav button:hover {
+  background: linear-gradient(135deg, #ee5a24, #ff6b6b);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+@media (max-width: 768px) {
   .site-header {
     padding: 12px 16px;
   }
 
   .header-inner {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
+    gap: 12px;
   }
 
   .nav {
-    flex-wrap: wrap;
-    gap: 10px 12px;
+    gap: 12px;
   }
 
   .nav a,
   .nav button {
     font-size: 14px;
+    padding: 6px 12px;
   }
 }
 
-.nav .active {
-  font-weight: bold;
-  color: linear-gradient(135deg, #5D3A9B, #7c3aed);
-}
-
-button {
-  padding: 6px 12px;
-  background: linear-gradient(135deg, #5D3A9B, #7c3aed);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-button:hover {
-  opacity: 0.9;
+@media (max-width: 480px) {
+  .nav {
+    flex-direction: column;
+    width: 100%;
+  }
+   .nav a,
+  .nav button {
+    width: 100%;
+    text-align: center;
+  }
 }
 </style>

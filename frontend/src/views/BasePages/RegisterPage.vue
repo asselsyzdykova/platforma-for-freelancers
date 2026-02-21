@@ -19,64 +19,24 @@
           <div class="form-group select-group">
             <select v-model="form.university" required>
                <option value="" disabled selected hidden>Select your university</option>
-              <optgroup label="Bratislava">
-                <option disabled class="optgroup-separator">────────</option>
-                <option>Univerzita Komenského v Bratislave</option>
-                <option>Slovenská technická univerzita v Bratislave</option>
-                <option>Ekonomická univerzita v Bratislave</option>
-                <option>Slovenská zdravotnícka univerzita v Bratislave</option>
-              </optgroup>
-
-              <optgroup label="Kosice">
-                <option disabled class="optgroup-separator">────────</option>
-                <option>Technická univerzita v Košiciach</option>
-                <option>Univerzita Pavla Jozefa Šafárika v Košiciach</option>
-                <option>Univerzita veterinárskeho lekárstva a farmácie v Košiciach</option>
-              </optgroup>
-
-              <optgroup label="Nitra">
-                <option disabled class="optgroup-separator">────────</option>
-                <option>Univerzita Konštantína Filozofa v Nitre</option>
-                <option>Slovenská poľnohospodárska univerzita v Nitre</option>
-              </optgroup>
-
-              <optgroup label="Trnava">
-                <option disabled class="optgroup-separator">────────</option>
-                <option>Trnavská univerzita v Trnave</option>
-                <option>Univerzita sv. Cyrila a Metoda v Trnave</option>
-              </optgroup>
-
-              <optgroup label="Banska-Bystrica">
-                <option disabled class="optgroup-separator">────────</option>
-                <option>Univerzita Mateja Bela v Banskej Bystrici</option>
-              </optgroup>
-
-              <optgroup label="Zilina">
-                <option disabled class="optgroup-separator">────────</option>
-                <option>Žilinská univerzita v Žiline</option>
-              </optgroup>
-
-              <optgroup label="Presov">
-                <option disabled class="optgroup-separator">────────</option>
-                <option>Prešovská univerzita v Prešove</option>
-              </optgroup>
-
-              <optgroup label="Zloven">
-                <option disabled class="optgroup-separator">────────</option>
-                <option>Technická univerzita vo Zvolene</option>
+               <optgroup v-for="group in univerData.univery"
+               :key="group.mesto"
+               :label="group.mesto">
+               <option v-for="uni in group.univer"
+               :key="uni"
+               :label="uni">
+               {{ uni }}
+              </option>
               </optgroup>
             </select>
 
             <select v-model="form.study_year" required>
               <option value="" disabled selected hidden>Select your study year</option>
-              <optgroup label="Rok studia">
-                <option disabled class="optgroup-separator">────────</option>
-                <option>1. ročník</option>
-                <option>2. ročník</option>
-                <option>3. ročník</option>
-                <option>4. ročník</option>
-                <option>5. ročník</option>
-              </optgroup>
+                <option v-for="rok in univerData.rok"
+                :key="rok"
+                :label="rok">
+                {{ rok }}
+              </option>
             </select>
           </div>
         </div>
@@ -128,6 +88,7 @@ import { reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '../../services/axios'
 import { useNotificationStore } from '@/stores/notificationStore'
+import univerData from '@/data/univer.json'
 
 const router = useRouter()
 const notifications = useNotificationStore()

@@ -1,0 +1,66 @@
+{
+    "univery": [
+        {
+            "mesto": "Bratislava",
+            "univer": ["Univerzita Komenského v Bratislave",
+            "Slovenská technická univerzita v Bratislave",
+            "Ekonomická univerzita v Bratislave",
+            "Slovenská zdravotnícka univerzita v Bratislave"
+        ]
+        },
+        {
+            "mesto": "Košice",
+            "univer": [
+                "Technická univerzita v Košiciach",
+                "Univerzita Pavla Jozefa Šafárika v Košiciach",
+                "Univerzita veterinárskeho lekárstva a farmácie v Košiciach"
+            ]
+        },
+        {
+            "mesto": "Nitra",
+            "univer": [
+                "Univerzita Konštantína Filozofa v Nitre",
+                "Slovenská poľnohospodárska univerzita v Nitre"
+            ]
+        },
+        {
+            "mesto": "Trnava",
+            "univer": [
+                "Trnavská univerzita v Trnave",
+                "Univerzita sv. Cyrila a Metoda v Trnave"
+            ]
+        },
+        {
+            "mesto": "Banská Bystrica",
+            "univer": [
+                "Univerzita Mateja Bela v Banskej Bystrici"
+            ]
+        },
+        {
+            "mesto": "Žilina",
+            "univer": [
+                "Žilinská univerzita v Žiline"
+            ]
+        },
+        {
+            "mesto": "Prešov",
+            "univer": [
+                "Prešovská univerzita v Prešove"
+            ]
+        },
+        {
+            "mesto": "Zloven",
+            "univer": [
+                "Technická univerzita vo Zvolene"
+            ]
+        }
+    ],
+
+    "rok":[
+        "1. ročník",
+        "2. ročník",
+        "3. ročník",
+        "4. ročník",
+        "5. ročník"
+    ]
+}
