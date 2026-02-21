@@ -1,0 +1,22 @@
+export const categories = [
+  'Frontend',
+  'Backend',
+  'UI/UX',
+  'Mobile',
+  'Fullstack',
+  'DevOps',
+  'Data Science',
+  'Design',
+  'Digital Marketing',
+  'Writing',
+  'Translation',
+  'Video Editing',
+  'Audio Editing',
+  'Graphics',
+  'Animation',
+  'Video Production',
+  'Photography',
+  'SEO',
+  'Content Creation',
+  'Other'
+]

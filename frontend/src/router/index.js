@@ -36,6 +36,7 @@ import ManagerChats from '@/views/AdminPages/ManagerChat.vue'
 import VerifyEmail from '@/views/Email/EmailVerify.vue'
 import VerifySuccess from '@/views/Email/VerifySuccess.vue'
 import InternshipPage from '@/views/BasePages/InternshipPage.vue'
+import CreateIntern from '@/views/ClientPage/CreateIntern.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -260,6 +261,11 @@ const router = createRouter({
       path: '/internship',
       name: 'InternshipPage',
       component: InternshipPage,
+    },
+    {
+      path: '/create-internship',
+      name: 'CreateIntern',
+      component: CreateIntern,
     }
   ],
 })

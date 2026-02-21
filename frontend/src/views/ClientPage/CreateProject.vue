@@ -20,30 +20,17 @@
       </div>
 
       <div class="field">
-        <label>Category</label>
         <select v-model="project.category" required>
           <option disabled value="">Select category</option>
-          <option>Frontend</option>
-          <option>Backend</option>
-          <option>UI/UX</option>
-          <option>Mobile</option>
-          <option>Fullstack</option>
-          <option>DevOps</option>
-          <option>Data Science</option>
-          <option>Design</option>
-          <option>Digital Marketing</option>
-          <option>Writing</option>
-          <option>Translation</option>
-          <option>Video Editing</option>
-          <option>Audio Editing</option>
-          <option>Graphics</option>
-          <option>Animation</option>
-          <option>Video Production</option>
-          <option>Photography</option>
-          <option>SEO</option>
-          <option>Content Creation</option>
-          <option>Other</option>
+          <option v-for="category in categories" :key="category">
+            {{ category }}
+          </option>
         </select>
+      </div>
+
+      <div class="field" v-if="project.category === 'Other'">
+        <label>Specify category</label>
+        <input v-model="project.otherCategory" type="text" placeholder="Type category" />
       </div>
 
       <div class="field">
@@ -63,7 +50,8 @@
 
       <div class="actions">
         <button type="submit" class="primary">Publish project</button>
-        <button type="button" class="secondary" @click="cancel">Cancel</button>
+        <RouterLink :to="{ name: 'ClientProfile' }" exact-active-class="active"
+        class="secondary">Cancel</RouterLink>
       </div>
     </form>
   </div>
@@ -72,6 +60,7 @@
 <script>
 import api from '@/services/axios'
 import { useNotificationStore } from '@/stores/notificationStore'
+import { categories } from '@/constants/categories'
 
 export default {
   name: 'CreateProject',
@@ -83,10 +72,12 @@ export default {
         description: '',
         budget: '',
         category: '',
+        otherCategory: '',
         tags: [],
       },
       tagInput: '',
       notifications: useNotificationStore(),
+      categories,
     }
   },
 
@@ -103,11 +94,17 @@ export default {
 
     async createProject() {
       try {
+        if (this.project.category === 'Other' && !this.project.otherCategory.trim()) {
+          this.notifications.error('Please specify the category.')
+          return
+        }
         const payload = {
-          ...this.project,
+          title: this.project.title,
+          description: this.project.description,
+          budget: this.project.budget,
+          category: this.project.category === 'Other' ? this.project.otherCategory.trim() : this.project.category,
           tags: this.project.tags,
         }
-
         await api.post('/client/projects', payload)
 
         this.notifications.success('Project created successfully!')
@@ -119,10 +116,6 @@ export default {
         console.error(error.response?.data || error)
         this.notifications.error('Failed to create project. Check all fields.')
       }
-    },
-
-    cancel() {
-      this.$router.push({ name: 'ClientProfile' })
     },
   },
 }
@@ -213,5 +206,6 @@ select {
   padding: 12px;
   border-radius: 14px;
   cursor: pointer;
+  text-align: center;
 }
 </style>

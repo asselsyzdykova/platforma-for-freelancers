@@ -53,10 +53,24 @@
           <p><strong>Completed:</strong> {{ stats.completed }}</p>
           <p><strong>Member since:</strong> {{ memberSince }}</p>
 
-          <button class="edit-btn" @click="editProfile">Edit profile</button>
-          <button class="primary-btn" @click="createProject">+ Create project</button>
+          <RouterLink :to="{ name: 'EditClientProfile' }" exact-active-class="active"
+          class="edit-btn"
+          >Edit Page</RouterLink>
+
+          <RouterLink :to="{ name: 'CreateProject' }" exact-active-class="active"
+          class="primary-btn"
+          >+ Create Project</RouterLink>
         </div>
       </div>
+
+      <section class="intern">
+        <div class="intern-header">
+          <h3>Would you like to offer an internship?</h3>
+          <RouterLink :to="{ name: 'CreateIntern' }" exact-active-class="active"
+          class="primary-btn"
+          >Create Internship</RouterLink>
+        </div>
+      </section>
 
       <section class="projects">
         <h2>ACTIVE PROJECTS</h2>
@@ -213,15 +227,6 @@ export default {
         console.error(e)
       }
     },
-
-    editProfile() {
-      this.$router.push({ name: 'EditClientProfile' })
-    },
-
-    createProject() {
-      this.$router.push({ name: 'CreateProject' })
-    },
-
     viewProposals(projectId) {
       this.$router.push({ name: 'ClientProjectProposals', params: { id: projectId } })
     },
@@ -388,6 +393,7 @@ export default {
   background: #111;
   color: #fff;
   cursor: pointer;
+  text-align: center;
 }
 
 .projects h2 {
@@ -581,5 +587,26 @@ export default {
 .pagination button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.intern {
+  margin: 40px 0;
+}
+
+.intern-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+
+.intern-header h3 {
+  margin: 0;
+  flex: 1;
+}
+
+.intern-header .primary-btn {
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 </style>
