@@ -37,6 +37,7 @@ const planSuffix = computed(() => {
           exact-active-class="active"
           >Freelancers</RouterLink
         >
+        <RouterLink :to="{ name: 'InternshipPage' }" exact-active-class="active">Internship</RouterLink>
         <RouterLink
           v-if="userStore.isLoggedIn"
           :to="{ name: 'projects' }"

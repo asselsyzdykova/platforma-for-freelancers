@@ -35,6 +35,8 @@ import CreateManager from '@/views/AdminPages/CreateManager.vue'
 import ManagerChats from '@/views/AdminPages/ManagerChat.vue'
 import VerifyEmail from '@/views/Email/EmailVerify.vue'
 import VerifySuccess from '@/views/Email/VerifySuccess.vue'
+import InternshipPage from '@/views/BasePages/InternshipPage.vue'
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -244,14 +246,20 @@ const router = createRouter({
 
     //email
     {
-  path: '/verify-email',
-  name: 'VerifyEmail',
-  component: VerifyEmail,
+      path: '/verify-email',
+      name: 'VerifyEmail',
+      component: VerifyEmail,
     },
     {
       path: '/verified',
       name: 'VerifySuccess',
       component: VerifySuccess,
+    },
+
+    {
+      path: '/internship',
+      name: 'InternshipPage',
+      component: InternshipPage,
     }
   ],
 })

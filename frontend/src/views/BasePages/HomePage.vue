@@ -41,20 +41,6 @@
       </div>
     </section>
 
-    <section class="student-banner">
-      <div class="banner-text">
-        <p class="eyebrow">For students in Slovakia only</p>
-        <h2>Najdi si flexibilnú prácu popri škole</h2>
-        <p>
-          Podporujeme slovenských študentov: reálne projekty, férové odmeny a bezpečná komunikácia.
-        </p>
-      </div>
-      <div class="banner-actions">
-        <RouterLink class="btn primary" to="/register">Create student account</RouterLink>
-        <RouterLink class="btn ghost" to="/freelancers">Explore talent</RouterLink>
-      </div>
-    </section>
-
     <section class="trust">
       <div class="trust-card">
         <div>
@@ -66,33 +52,6 @@
           <span>Startup clubs</span>
           <span>NGO partners</span>
           <span>Local agencies</span>
-        </div>
-      </div>
-    </section>
-
-    <section class="discover">
-      <div class="section-head">
-        <div>
-          <h2>Discover student talent</h2>
-          <p>Search by skill, interest or name. Only verified Slovakia-based students.</p>
-        </div>
-      </div>
-
-      <div class="filters">
-        <label class="search">
-          <span>🔎</span>
-          <input v-model="query" type="text" placeholder="Search UI, Vue, marketing..." />
-        </label>
-        <div class="chips">
-          <button
-            v-for="cat in categories"
-            :key="cat.id"
-            :class="['chip', { active: selectedCategory === cat.id }]"
-            @click="selectedCategory = cat.id"
-            type="button"
-          >
-            {{ cat.label }}
-          </button>
         </div>
       </div>
     </section>
@@ -183,18 +142,9 @@ import FreelancerCard from '@/components/HomePage/FreelancerCard.vue'
 
 const freelancers = ref([])
 const query = ref('')
-const selectedCategory = ref('all')
 const activeCity = ref('Bratislava')
 const sliderRef = ref(null)
 
-const categories = [
-  { id: 'all', label: 'All', match: [] },
-  { id: 'web', label: 'Web dev', match: ['web', 'frontend', 'backend', 'vue', 'react', 'js'] },
-  { id: 'design', label: 'Design', match: ['design', 'ui', 'ux', 'figma', 'graphic'] },
-  { id: 'marketing', label: 'Marketing', match: ['marketing', 'social', 'seo', 'content'] },
-  { id: 'writing', label: 'Writing', match: ['writing', 'copy', 'content', 'blog'] },
-  { id: 'data', label: 'Data', match: ['data', 'analysis', 'excel', 'sql'] },
-]
 
 const cities = [
   { name: 'Bratislava' },
@@ -234,19 +184,13 @@ const cityHighlights = {
 
 const filteredFreelancers = computed(() => {
   const q = query.value.trim().toLowerCase()
-  const selected = categories.find((c) => c.id === selectedCategory.value)
   const list = freelancers.value.filter((f) => {
     const skills = Array.isArray(f.skills) ? f.skills : []
     const name = String(f.name || '').toLowerCase()
     const role = String(f.role || '').toLowerCase()
     const skillText = skills.join(' ').toLowerCase()
 
-    const matchesQuery = !q || name.includes(q) || role.includes(q) || skillText.includes(q)
-
-    if (selected?.id === 'all') return matchesQuery
-
-    const matchesCategory = selected?.match?.some((m) => skillText.includes(m))
-    return matchesQuery && matchesCategory
+    return !q || name.includes(q) || role.includes(q) || skillText.includes(q)
   })
 
   return list
@@ -364,43 +308,14 @@ section {
   box-shadow: none;
 }
 
+
 .hero-card h3 {
   margin-bottom: 6px;
 }
 
-.student-banner {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 24px;
-  padding: 30px 34px;
-  border-radius: 22px;
-  background: linear-gradient(135deg, #5D3A9B, #7c3aed);
-  color: white;
-  align-items: center;
-  justify-content: space-between;
-  box-shadow: 0 20px 40px rgba(91, 61, 245, 0.2);
-}
-
-.student-banner .eyebrow {
-  text-transform: uppercase;
-  letter-spacing: 0.2em;
-  font-size: 12px;
-  opacity: 0.8;
-  margin-bottom: 8px;
-}
-
-.student-banner h2 {
-  font-size: 28px;
-  margin-bottom: 8px;
-}
-
-.banner-actions {
-  display: flex;
-  gap: 12px;
-}
 
 .trust-card {
-  background: rgba(124, 93, 250, 0.12);
+  background: linear-gradient(135deg, #5D3A9B, #7c3aed);
   border: 1px solid rgba(124, 93, 250, 0.18);
   border-radius: 20px;
   padding: 26px;
@@ -413,11 +328,17 @@ section {
   backdrop-filter: blur(6px);
 }
 
+.trust-card h2{
+  color: white;
+}
+.trust-card p{
+  color:white;
+}
 .trust-logos {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  color: #6b7280;
+  color: white;
   font-weight: 600;
 }
 
@@ -463,30 +384,6 @@ section {
   border-radius: 999px;
   font-weight: 600;
   white-space: nowrap;
-}
-
-.filters {
-  display: grid;
-  gap: 16px;
-}
-
-.search {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 14px;
-  border-radius: 14px;
-  background: rgba(124, 93, 250, 0.12);
-  border: 1px solid rgba(124, 93, 250, 0.18);
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
-  backdrop-filter: blur(6px);
-}
-
-.search input {
-  border: none;
-  outline: none;
-  flex: 1;
-  font-size: 14px;
 }
 
 .chips {
