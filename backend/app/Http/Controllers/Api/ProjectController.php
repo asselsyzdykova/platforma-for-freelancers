@@ -13,7 +13,13 @@ class ProjectController extends Controller
         $perPage = (int) request()->get('per_page', 8);
         $perPage = $perPage > 0 ? min($perPage, 50) : 8;
 
-        $paginated = Project::with('client.clientProfile')->latest()->paginate($perPage);
+        $paginated = Project::with('client.clientProfile')
+        ->withCount([
+            'proposals as already_applied' => function ($q) {
+                $q->where('freelancer_id', Auth::id());
+            }
+        ])
+        ->latest()->paginate($perPage);
 
         return response()->json([
             'data' => $paginated->items(),

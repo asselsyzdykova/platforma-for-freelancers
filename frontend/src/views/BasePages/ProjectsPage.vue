@@ -4,28 +4,12 @@
     <p class="subtitle">Browse available projects and find work that matches your skills</p>
 
     <div class="project-grid">
-      <div class="project-card" v-for="project in projects" :key="project.id">
-        <h3>{{ project.title }}</h3>
-        <p class="description">{{ project.description }}</p>
-
-        <div class="client" v-if="project.client">
-          <img v-if="project.client.avatar_url" :src="project.client.avatar_url" class="avatar" />
-          <span>{{ project.client.name }}</span>
-        </div>
-
-        <div class="meta">
-          <span class="budget">💰 {{ project.budget }} €</span>
-          <span class="category">{{ project.category }}</span>
-        </div>
-
-        <div class="tags" v-if="project.tags?.length">
-          <span class="tag" v-for="tag in project.tags" :key="tag">
-            {{ tag }}
-          </span>
-        </div>
-
-        <button class="btn" @click="respondToJob(project)">Response to a job</button>
-      </div>
+      <ProjectCard
+        v-for="project in projects"
+        :key="project.id"
+        :project="project"
+        @respond="respondToJob"
+      />
     </div>
 
     <div class="pagination" v-if="totalPages > 1">
@@ -87,9 +71,14 @@
 <script>
 import api from '@/services/axios'
 import { useNotificationStore } from '@/stores/notificationStore'
+import ProjectCard from "@/components/Project/ProjectCard.vue";
 
 export default {
   name: 'ProjectsPage',
+
+  components: {
+    ProjectCard,
+  },
 
   data() {
     return {
@@ -164,22 +153,22 @@ export default {
           budget: budget,
         })
 
+        this.selectedProject.already_applied = 1
+
         this.notifications.success('Response sent! The client will receive a notification.')
         this.closeProposalModal()
       } catch (e) {
         console.error('Failed to send response', e)
 
         if (e.response && e.response.status === 403) {
-          this.notifications.warning(e.response.data?.message || 'Upgrade required to apply.')
-        } else if (e.response && e.response.status === 422) {
-          const errors = e.response.data.errors
-          this.notifications.error(
-            'Failed to send response:\n' +
-              Object.entries(errors)
-                .map(([field, messages]) => `${field}: ${messages.join(', ')}`)
-                .join('\n'),
-          )
-        } else {
+          this.notifications.warning
+          (e.response.data?.message || 'Upgrade required to apply.'
+
+          )} else if (
+            e.response && e.response.status === 422){
+              this.notifications.warning(
+            e.response.data?.message || 'You already applied to this project.'
+            )} else {
           this.notifications.error('Failed to send response. See console for details.')
         }
       }
@@ -223,71 +212,6 @@ export default {
   .project-grid {
     grid-template-columns: 1fr;
   }
-}
-
-.project-card {
-  background: #f3efff;
-  border-radius: 20px;
-  padding: 24px;
-}
-
-.project-card h3 {
-  margin-bottom: 8px;
-}
-
-.description {
-  color: #555;
-  margin-bottom: 16px;
-}
-
-.client {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 12px;
-  font-size: 14px;
-  color: #444;
-}
-
-.avatar {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-.meta {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 12px;
-  font-size: 14px;
-}
-
-.tags {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-bottom: 16px;
-}
-
-.tag {
-  background: #e6e0ff;
-  padding: 6px 12px;
-  border-radius: 12px;
-  font-size: 13px;
-}
-
-.btn {
-  background: #5b3df5;
-  color: white;
-  border: none;
-  padding: 10px 16px;
-  border-radius: 12px;
-  cursor: pointer;
-}
-
-.btn:hover {
-  opacity: 0.9;
 }
 
 .pagination {
