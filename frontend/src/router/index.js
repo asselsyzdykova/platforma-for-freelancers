@@ -23,7 +23,7 @@ import FreelancerInbox from '@/views/FreelancerPage/FreelancerInbox.vue'
 import ApplicationDetails from '@/views/ClientPage/ApplicationDetails.vue'
 import PublicProfile from '@/views/FreelancerPage/PublicProfile.vue'
 import ClientChats from '@/views/ClientPage/ClientChats.vue'
-import ClientProjects from '@/views/ClientPage/ClientProjects.vue'
+import ClientInternships from '@/views/ClientPage/ClientInternships.vue'
 import ClientSupport from '@/views/ClientPage/ClientSupport.vue'
 import ClientSettings from '@/views/ClientPage/ClientSettings.vue'
 import FreelancerChats from '@/views/FreelancerPage/FreelancerChats.vue'
@@ -169,9 +169,9 @@ const router = createRouter({
     },
 
     {
-      path: '/client/projects',
-      name: 'ClientProjects',
-      component: ClientProjects,
+      path: '/client/internships',
+      name: 'ClientInternships',
+      component: ClientInternships,
     },
     {
       path: '/client/projects/:id/proposals',

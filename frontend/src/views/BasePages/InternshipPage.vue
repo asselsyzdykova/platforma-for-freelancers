@@ -10,24 +10,68 @@
         :key="intern.id"
         :intern="intern"/>
       </div>
+        <div class="pagination" v-if="totalPages > 1">
+      <button :disabled="currentPage === 1" @click="currentPage--">Prev</button>
+      <button
+        v-for="page in totalPages"
+        :key="page"
+        :class="{ active: page === currentPage }"
+        @click="currentPage = page"
+      >
+        {{ page }}
+      </button>
+      <button :disabled="currentPage === totalPages" @click="currentPage++">Next</button>
+    </div>
     </div>
     </div>
 </template>
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import InternCard from '@/components/Intern/InternCard.vue'
 import api from '@/services/axios'
 
-const interns = ref([])
+const route = useRoute()
+const router = useRouter()
 
-onMounted(async () => {
+const interns = ref([])
+const totalPages = ref(1)
+const perPage = ref(9)
+
+const currentPage = ref(Number(route.query.page) || 1)
+
+
+const loadInternships = async () => {
   try {
-    const response = await api.get('/internships')
-    interns.value = response.data
+    const response = await api.get('/internships', {
+      params: {
+        page: currentPage.value,
+        per_page: perPage.value
+      }
+    })
+
+    interns.value = response.data.data
+    totalPages.value = response.data.last_page
   } catch (error) {
     console.error('Failed to load internships:', error)
   }
+}
+
+loadInternships()
+
+watch(currentPage, (newPage) => {
+  router.push({
+    query:{...route.query, page:newPage}
+  })
 })
+
+watch(
+  () => route.query.page,
+  (newPage) => {
+    currentPage.value = Number(newPage) || 1
+    loadInternships()
+  }
+)
 </script>
 <style scoped>
 .first-block{
@@ -61,5 +105,37 @@ onMounted(async () => {
     grid-template-columns: 1fr;
     padding: 0 12px;
   }
+}
+
+.pagination {
+  margin-top: 32px;
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+}
+
+.pagination button {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  background: #fff;
+  cursor: pointer;
+}
+
+.pagination button.active {
+  background: #5b3df5;
+  color: #fff;
+  border-color: #5b3df5;
+}
+
+.pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.page-info {
+  font-size: 1.1rem;
+  color: #555;
 }
 </style>

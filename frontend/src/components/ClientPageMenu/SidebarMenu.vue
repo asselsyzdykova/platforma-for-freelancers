@@ -5,8 +5,8 @@
         Profile
       </RouterLink>
 
-      <RouterLink :to="{ name: 'ClientProjects' }" class="menu-item" active-class="active">
-        Projects
+      <RouterLink :to="{ name: 'ClientInternships' }" class="menu-item" active-class="active">
+        Internships
       </RouterLink>
 
       <RouterLink :to="{ name: 'ClientChats' }" class="menu-item" active-class="active">

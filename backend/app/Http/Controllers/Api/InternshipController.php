@@ -12,10 +12,12 @@ class InternshipController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $internships = Internship::with('client.clientProfile')->get();
-        $internships = $internships->map(function($intern) {
+        $perPage= $request->query('per_page', 9);
+        $query = Internship::with('client.clientProfile');
+        $paginator = $query->paginate($perPage);
+        $paginator->getCollection()->transform(function($intern) {
             return [
                 'id' => $intern->id,
                 'name' => $intern->client->name ?? null,
@@ -28,7 +30,7 @@ class InternshipController extends Controller
                 'number' => $intern->number,
             ];
         });
-        return response()->json($internships);
+        return response()->json($paginator);
     }
 
     /**

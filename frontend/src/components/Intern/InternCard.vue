@@ -21,7 +21,7 @@
         <div class="meta">
           <p class="cena">{{ intern.price }}</p>
           <p class="cas">Duration: {{ intern.time }}</p>
-          <p class="cas">Spots: {{ intern.number }}</p>
+          <p class="cas">Number of interns: {{ intern.number }}</p>
         </div>
 
         <button class="btn-apply" @click="toApply(intern.id)">
