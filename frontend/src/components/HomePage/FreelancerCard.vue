@@ -54,7 +54,7 @@ export default {
   border-radius: 20px;
   text-align: center;
   width: 300px;
-  box-shadow: 0 8px 20px rgba(91, 75, 138, 0.2); /* мягкая тень */
+  box-shadow: 0 8px 20px rgba(91, 75, 138, 0.2);
   transition:
     transform 0.3s,
     box-shadow 0.3s;

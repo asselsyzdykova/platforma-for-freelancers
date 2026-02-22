@@ -2,14 +2,11 @@
   <div class="internships-container">
     <div class="internships-grid">
       <div
-        class="card-in"
-        v-for="intern in interns"
-        :key="intern.id"
-      >
+        class="card-in">
         <div class="header">
           <img
-            v-if="intern.avatar"
-            :src="intern.avatar"
+            v-if="intern.avatar_url"
+            :src="intern.avatar_url"
             class="avatar-img"
             alt="Client avatar"
           />

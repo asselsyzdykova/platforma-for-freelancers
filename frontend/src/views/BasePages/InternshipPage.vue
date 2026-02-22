@@ -3,13 +3,15 @@
     <div class="first-block">
       <h2>Internships</h2>
     </div>
-    <div class="intern-card">
-      <InternCard
+    <div class="internships-container">
+      <div class="internships-grid">
+    <InternCard
       v-for="intern in interns"
         :key="intern.id"
         :intern="intern"/>
+      </div>
     </div>
-  </div>
+    </div>
 </template>
 <script setup>
 import { ref, onMounted } from 'vue'
@@ -19,11 +21,8 @@ import api from '@/services/axios'
 const interns = ref([])
 
 onMounted(async () => {
-    console.log('Mounted called')
-
   try {
     const response = await api.get('/internships')
-    console.log('DATA:', response.data)
     interns.value = response.data
   } catch (error) {
     console.error('Failed to load internships:', error)
@@ -44,5 +43,23 @@ onMounted(async () => {
   color: #2c3e50;
   font-size: 36px;
   text-align: center;
+}
+
+.internships-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 20px 40px;
+}
+
+.internships-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  gap: 28px 24px;
+}
+@media (max-width: 500px) {
+  .internships-grid {
+    grid-template-columns: 1fr;
+    padding: 0 12px;
+  }
 }
 </style>
