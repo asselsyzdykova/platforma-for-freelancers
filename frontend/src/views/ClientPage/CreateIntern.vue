@@ -34,7 +34,7 @@
         v-if="intern.stipendType === 'paid'"
         v-model="intern.price"
         type="text"
-        placeholder="$500 – $1000"
+        placeholder="€500 – €1000"
         required
         />
       </div>

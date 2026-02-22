@@ -40,16 +40,23 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import api from '@/services/axios'
 import FreelancerCard from '@/components/HomePage/FreelancerCard.vue'
+
+const route = useRoute()
+const router = useRouter()
+
 
 const search = ref('')
 const category = ref('')
 const freelancers = ref([])
-const currentPage = ref(1)
 const pageSize = 8
 const totalPages = ref(1)
+
+const currentPage = ref(Number(route.query.page) || 1)
+
 
 const categories = computed(() => {
   const allSkills = freelancers.value.flatMap((f) => f.skills || [])
@@ -76,16 +83,26 @@ const loadFreelancers = async () => {
   }
 }
 
-onMounted(loadFreelancers)
+loadFreelancers()
 
 watch([search, category], () => {
   currentPage.value = 1
   loadFreelancers()
 })
 
-watch(currentPage, () => {
-  loadFreelancers()
+watch(currentPage, (newPage) => {
+  router.push({
+    query:{...route.query, page:newPage}
+  })
 })
+
+watch(
+  () => route.query.page,
+  (newPage) => {
+    currentPage.value = Number(newPage) || 1
+    loadFreelancers()
+  }
+)
 </script>
 
 <style scoped>

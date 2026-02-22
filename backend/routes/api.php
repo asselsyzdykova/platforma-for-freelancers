@@ -103,8 +103,7 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::get('/internships', [InternshipController::class, 'index']);
 Route::post('/internships', [InternshipController::class, 'store'])
     ->middleware('auth:sanctum');
-
-
+Route::middleware('auth:sanctum')->post('/internships/{internship}/apply', [InternshipController::class, 'apply']);
 Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
 
 // stripe paypal webhook

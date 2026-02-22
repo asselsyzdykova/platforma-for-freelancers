@@ -24,8 +24,13 @@
           <p class="cas">Number of interns: {{ intern.number }}</p>
         </div>
 
-        <button class="btn-apply" @click="toApply(intern.id)">
-          To Apply
+        <button
+        v-if="isFreelancer"
+        class="btn-apply"
+          @click="applyInternship"
+          :disabled="applied"
+        >
+          {{ applied ? 'Applied' : 'To Apply' }}
         </button>
       </div>
     </div>
@@ -33,7 +38,10 @@
 </template>
 
 <script setup>
-import { useRouter } from 'vue-router'
+import { ref, reactive, computed } from 'vue'
+import api from '@/services/axios'
+import { useUserStore } from '@/stores/userStore'
+import { useNotificationStore } from '@/stores/notificationStore'
 
 const props = defineProps({
   intern: {
@@ -41,10 +49,22 @@ const props = defineProps({
     required: true
   }
 })
-const router = useRouter()
+const notifications = useNotificationStore()
+const userStore = useUserStore()
+const applied = ref(false)
+const isFreelancer = computed(() => userStore.user?.role === 'freelancer')
+const localIntern = reactive({ ...props.intern })
 
-const toApply = () => {
-  router.push(`/internships/${props.intern.id}`)
+const applyInternship = async () => {
+  try {
+    await api.post(`/internships/${props.intern.id}/apply`)
+    applied.value = true
+    localIntern.number = Math.max(0, localIntern.number - 1)
+    notifications.success('You applied successfully! The client will get notified.')
+  } catch (error) {
+    console.error('Failed to apply:', error)
+    notifications.error(error.response?.data?.message || 'Failed to apply.')
+  }
 }
 </script>
 

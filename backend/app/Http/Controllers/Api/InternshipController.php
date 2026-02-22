@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Internship;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class InternshipController extends Controller
 {
@@ -25,7 +26,7 @@ class InternshipController extends Controller
                 'title' => $intern->title,
                 'description' => $intern->description,
                 'stipendType' => $intern->stipendType,
-                'price' => $intern->stipendType === 'paid' ? "$".$intern->price : 'Unpaid',
+                'price' => $intern->stipendType === 'paid' ? "€".$intern->price : 'Unpaid',
                 'time' => $intern->time,
                 'number' => $intern->number,
             ];
@@ -63,6 +64,63 @@ class InternshipController extends Controller
         return response()->json($internship, 201);
     }
 
+    public function apply(Internship $internship)
+{
+    $user = Auth::user();
+
+    $user = Auth::user();
+
+    if (!$user) {
+        return response()->json([
+            'message' => 'Unauthorized'
+        ], 401);
+    }
+
+    if ($user->role !== 'freelancer') {
+        return response()->json([
+            'message' => 'Only freelancers can apply.'
+        ], 403);
+    }
+
+    $alreadyApplied = DB::table('internship_applications')
+        ->where('internship_id', $internship->id)
+        ->where('user_id', $user->id)
+        ->exists();
+
+    if ($alreadyApplied) {
+        return response()->json(['message' => 'You already applied to this internship.'], 422);
+    }
+
+    if ($internship->number <= 0) {
+        return response()->json([
+            'message' => 'No available positions.'
+        ], 422);
+    }
+
+    DB::table('internship_applications')->insert([
+        'internship_id' => $internship->id,
+        'user_id' => $user->id,
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+
+    $internship->decrement('number');
+    DB::table('notifications')->insert([
+            'user_id' => $internship->client->id,
+            'type' => 'internship_application',
+            'title' => 'New application',
+            'body' => $user->name . ' applied to your internship: ' . $internship->title,
+            'link' => '/internships/' . $internship->id,
+            'related_id' => $internship->id,
+            'is_read' => 0,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+         return response()->json([
+            'message' => 'Applied successfully'
+        ]);
+}
     /**
      * Display the specified resource.
      */
