@@ -8,7 +8,7 @@
         <input v-model="intern.title" type="text" required />
       </div>
 
-       <div class="field">
+      <div class="field">
         <label>Company Name</label>
         <input v-model="intern.company" type="text" required />
       </div>
@@ -30,29 +30,23 @@
             <span>Unpaid</span>
           </label>
         </div>
-        <input
-        v-if="intern.stipendType === 'paid'"
-        v-model="intern.price"
-        type="text"
-        placeholder="€500 – €1000"
-        required
-        />
+        <input v-if="intern.stipendType === 'paid'" v-model="intern.price" type="text" placeholder="€500 – €1000"
+          required />
       </div>
 
       <div class="field">
-          <label>Duration</label>
-          <input v-model="intern.time" type="text" placeholder="e.g. 3 months" required />
+        <label>Duration</label>
+        <input v-model="intern.time" type="text" placeholder="e.g. 3 months" required />
       </div>
 
       <div class="field">
-          <label>Number of Positions</label>
-          <input v-model="intern.number" type="number" placeholder="e.g. 2" required />
+        <label>Number of Positions</label>
+        <input v-model="intern.number" type="number" placeholder="e.g. 2" required />
       </div>
 
       <div class="actions">
         <button type="submit" class="primary">Publish Internship</button>
-        <RouterLink :to="{ name: 'ClientProfile' }" exact-active-class="active"
-        class="secondary">Cancel</RouterLink>
+        <RouterLink :to="{ name: 'ClientProfile' }" exact-active-class="active" class="secondary">Cancel</RouterLink>
       </div>
     </form>
   </div>
@@ -175,6 +169,7 @@ select {
   cursor: pointer;
   text-align: center;
 }
+
 .stipend-options {
   display: flex;
   gap: 20px;

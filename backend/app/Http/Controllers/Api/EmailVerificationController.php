@@ -7,9 +7,10 @@ use Illuminate\Http\Request;
 use Illuminate\Auth\Events\Verified;
 use App\Models\User;
 use Illuminate\Validation\ValidationException;
+
 class EmailVerificationController extends Controller
 {
-     public function __invoke(Request $request, $id, $hash)
+    public function __invoke(Request $request, $id, $hash)
     {
         $user = User::findOrFail($id);
 

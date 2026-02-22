@@ -14,75 +14,75 @@ use Illuminate\Auth\Events\Registered;
 class AuthController extends Controller
 {
     public function register(Request $request)
-{
-    $emailRules = [
-        'required',
-        'string',
-        'email',
-        'max:255',
-        'unique:users',
-    ];
-
-    if ($request->role === 'freelancer') {
-        $emailRules[] = new SlovakUniversityEmail;
-    }
-
-    $request->validate([
-        'name' => [
+    {
+        $emailRules = [
             'required',
             'string',
+            'email',
             'max:255',
-            function ($attribute, $value, $fail) {
-                if (!preg_match('/^[A-ZА-ЯЁ][a-zа-яё]+\s+[A-ZА-ЯЁ][a-zа-яё]+$/u', $value)) {
-                    $fail('Name must include first and last name, each starting with a capital letter.');
-                }
-            },
-        ],
-        'email' => $emailRules,
-        'university' => 'nullable|string|max:255',
-        'study_year' => 'nullable|string|max:255',
-        'password' => 'required|string|min:6|confirmed',
-        'role' => 'required|in:user,freelancer,manager',
-    ]);
+            'unique:users',
+        ];
 
-    $user = User::create([
-        'name' => $request->name,
-        'email' => $request->email,
-        'university' => $request->university,
-        'study_year' => $request->study_year,
-        'password' => Hash::make($request->password),
-        'role' => $request->role,
-    ]);
+        if ($request->role === 'freelancer') {
+            $emailRules[] = new SlovakUniversityEmail;
+        }
 
-    event(new Registered($user));
-
-    if ($user->role === 'freelancer') {
-        Subscription::firstOrCreate(
-            [
-                'user_id' => $user->id,
-                'provider' => 'internal',
-                'provider_id' => 'free',
+        $request->validate([
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                function ($attribute, $value, $fail) {
+                    if (!preg_match('/^[A-ZА-ЯЁ][a-zа-яё]+\s+[A-ZА-ЯЁ][a-zа-яё]+$/u', $value)) {
+                        $fail('Name must include first and last name, each starting with a capital letter.');
+                    }
+                },
             ],
-            [
-                'plan' => 'free',
-                'status' => 'active',
-                'start_date' => now(),
-                'end_date' => null,
-            ]
-        );
+            'email' => $emailRules,
+            'university' => 'nullable|string|max:255',
+            'study_year' => 'nullable|string|max:255',
+            'password' => 'required|string|min:6|confirmed',
+            'role' => 'required|in:user,freelancer,manager',
+        ]);
+
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'university' => $request->university,
+            'study_year' => $request->study_year,
+            'password' => Hash::make($request->password),
+            'role' => $request->role,
+        ]);
+
+        event(new Registered($user));
+
+        if ($user->role === 'freelancer') {
+            Subscription::firstOrCreate(
+                [
+                    'user_id' => $user->id,
+                    'provider' => 'internal',
+                    'provider_id' => 'free',
+                ],
+                [
+                    'plan' => 'free',
+                    'status' => 'active',
+                    'start_date' => now(),
+                    'end_date' => null,
+                ]
+            );
+        }
+
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'access_token' => $token,
+            'token_type' => 'Bearer',
+            'user' => $user,
+        ]);
     }
 
-    $token = $user->createToken('auth_token')->plainTextToken;
 
-    return response()->json([
-        'access_token' => $token,
-        'token_type' => 'Bearer',
-        'user' => $user,
-    ]);
-}
-
-
- public function login(Request $request)
+    public function login(Request $request)
     {
         $request->validate([
             'email' => 'required|email',
@@ -100,8 +100,8 @@ class AuthController extends Controller
         if (! $user->hasVerifiedEmail()) {
             return response()->json([
                 'message' => 'Email not verified. Please check your inbox.'
-                ], 403);
-                }
+            ], 403);
+        }
 
         $user->tokens()->delete();
 
@@ -132,9 +132,7 @@ class AuthController extends Controller
 
         $user = $request->user();
 
-        if (!
-            \Illuminate\Support\Facades\Hash::check($request->current_password, $user->password)
-        ) {
+        if (! \Illuminate\Support\Facades\Hash::check($request->current_password, $user->password)) {
             return response()->json(['error' => 'Current password is incorrect'], 422);
         }
 

@@ -41,30 +41,30 @@ class ManagerController extends Controller
     }
 
     public function dashboard(Request $request)
-{
-    $user = $request->user();
-    $manager = Manager::where('user_id', $user->id)->first();
+    {
+        $user = $request->user();
+        $manager = Manager::where('user_id', $user->id)->first();
 
-    return response()->json([
-        'manager' => [
-            'id' => $user->id,
-            'name' => $user->name,
-            'email' => $user->email,
-            'role' => $user->role,
-            'department' => $manager->department ?? null,
-        ],
-        'stats' => [
-            'activeTickets' => 18,
-            'ticketGrowth' => 6,
-            'resolved' => 42,
-            'responseTime' => 1.6,
-            'responseDrop' => 12,
-        ],
-        'tasks' => Task::where('manager_id', $manager->id)->get(),
-        'activity' => Activity::latest()->take(5)->get(),
-        'notes' => Note::where('manager_id', $manager->id)->get(),
-    ]);
-}
+        return response()->json([
+            'manager' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $user->role,
+                'department' => $manager->department ?? null,
+            ],
+            'stats' => [
+                'activeTickets' => 18,
+                'ticketGrowth' => 6,
+                'resolved' => 42,
+                'responseTime' => 1.6,
+                'responseDrop' => 12,
+            ],
+            'tasks' => Task::where('manager_id', $manager->id)->get(),
+            'activity' => Activity::latest()->take(5)->get(),
+            'notes' => Note::where('manager_id', $manager->id)->get(),
+        ]);
+    }
     /**
      * Show the form for creating a new resource.
      */

@@ -4,22 +4,13 @@
     <p class="subtitle">Browse available projects and find work that matches your skills</p>
 
     <div class="project-grid">
-      <ProjectCard
-        v-for="project in projects"
-        :key="project.id"
-        :project="project"
-        @respond="respondToJob"
-      />
+      <ProjectCard v-for="project in projects" :key="project.id" :project="project" @respond="respondToJob" />
     </div>
 
     <div class="pagination" v-if="totalPages > 1">
       <button :disabled="currentPage === 1" @click="currentPage--">Prev</button>
-      <button
-        v-for="page in totalPages"
-        :key="page"
-        :class="{ active: page === currentPage }"
-        @click="currentPage = page"
-      >
+      <button v-for="page in totalPages" :key="page" :class="{ active: page === currentPage }"
+        @click="currentPage = page">
         {{ page }}
       </button>
       <button :disabled="currentPage === totalPages" @click="currentPage++">Next</button>
@@ -40,22 +31,13 @@
         <div class="modal-body">
           <label class="field">
             Message
-            <textarea
-              v-model="proposalForm.message"
-              rows="4"
-              placeholder="Write a short message to the client"
-            ></textarea>
+            <textarea v-model="proposalForm.message" rows="4"
+              placeholder="Write a short message to the client"></textarea>
           </label>
 
           <label class="field">
             Proposed budget (€)
-            <input
-              v-model="proposalForm.budget"
-              type="number"
-              min="1"
-              step="1"
-              placeholder="e.g. 500"
-            />
+            <input v-model="proposalForm.budget" type="number" min="1" step="1" placeholder="e.g. 500" />
           </label>
         </div>
 
@@ -162,13 +144,15 @@ export default {
 
         if (e.response && e.response.status === 403) {
           this.notifications.warning
-          (e.response.data?.message || 'Upgrade required to apply.'
+            (e.response.data?.message || 'Upgrade required to apply.'
 
-          )} else if (
-            e.response && e.response.status === 422){
-              this.notifications.warning(
+            )
+        } else if (
+          e.response && e.response.status === 422) {
+          this.notifications.warning(
             e.response.data?.message || 'You already applied to this project.'
-            )} else {
+          )
+        } else {
           this.notifications.error('Failed to send response. See console for details.')
         }
       }

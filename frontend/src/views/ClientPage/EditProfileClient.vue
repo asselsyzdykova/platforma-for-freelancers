@@ -5,11 +5,7 @@
 
       <form @submit.prevent="saveProfile">
         <div class="avatar-block">
-          <img
-            v-if="previewAvatar || form.avatar_url"
-            :src="previewAvatar || form.avatar_url"
-            class="avatar"
-          />
+          <img v-if="previewAvatar || form.avatar_url" :src="previewAvatar || form.avatar_url" class="avatar" />
           <input type="file" @change="onAvatarChange" />
         </div>
 
@@ -26,20 +22,10 @@
         <div class="field">
           <label>Location</label>
           <div class="city-selector">
-            <input
-              v-model="citySearch"
-              type="text"
-              placeholder="Search city..."
-              @focus="showCitiesList = true"
-              @input="filterCities"
-            />
+            <input v-model="citySearch" type="text" placeholder="Search city..." @focus="showCitiesList = true"
+              @input="filterCities" />
             <div v-if="showCitiesList" class="cities-dropdown">
-              <div
-                v-for="city in filteredCities"
-                :key="city"
-                class="city-option"
-                @click="selectCity(city)"
-              >
+              <div v-for="city in filteredCities" :key="city" class="city-option" @click="selectCity(city)">
                 {{ city }}
               </div>
               <div v-if="filteredCities.length === 0" class="no-results">No cities found</div>

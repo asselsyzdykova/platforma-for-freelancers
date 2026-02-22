@@ -35,11 +35,7 @@
 
       <div class="field">
         <label>Skills / Tags</label>
-        <input
-          v-model="tagInput"
-          @keydown.enter.prevent="addTag"
-          placeholder="Press Enter to add tag"
-        />
+        <input v-model="tagInput" @keydown.enter.prevent="addTag" placeholder="Press Enter to add tag" />
         <div class="tags">
           <span class="tag" v-for="(tag, index) in project.tags" :key="index">
             {{ tag }}
@@ -50,8 +46,7 @@
 
       <div class="actions">
         <button type="submit" class="primary">Publish project</button>
-        <RouterLink :to="{ name: 'ClientProfile' }" exact-active-class="active"
-        class="secondary">Cancel</RouterLink>
+        <RouterLink :to="{ name: 'ClientProfile' }" exact-active-class="active" class="secondary">Cancel</RouterLink>
       </div>
     </form>
   </div>

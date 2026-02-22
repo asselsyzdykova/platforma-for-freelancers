@@ -7,38 +7,27 @@
       <h1>Chat with {{ partner?.name || '...' }}</h1>
 
       <div class="messages">
-      <button v-if="hasMore" class="load-more" @click="loadMore" :disabled="isLoadingMore">
-        {{ isLoadingMore ? 'Loading...' : 'Load older messages' }}
-      </button>
-      <div
-        v-for="m in messages"
-        :key="m.id"
-        :class="['message', m.sender_id === user.id ? 'out' : 'in']"
-      >
-        <div class="meta">{{ m.sender.name }} • {{ new Date(m.created_at).toLocaleString() }}</div>
-        <div class="body" v-if="m.body">{{ m.body }}</div>
-        <div class="attachment" v-if="m.attachment_url">
-          <button
-            v-if="isImage(m.attachment_url)"
-            class="attachment-image-button"
-            @click="openAttachment(m.attachment_url)"
-          >
-            <img :src="m.attachment_url" alt="Attachment" />
-          </button>
-          <div v-else class="attachment-file" @click="downloadAttachment(m)">
-            <span class="attachment-icon">📄</span>
-            <span class="attachment-filename">{{ m.attachment_name || 'File' }}</span>
+        <button v-if="hasMore" class="load-more" @click="loadMore" :disabled="isLoadingMore">
+          {{ isLoadingMore ? 'Loading...' : 'Load older messages' }}
+        </button>
+        <div v-for="m in messages" :key="m.id" :class="['message', m.sender_id === user.id ? 'out' : 'in']">
+          <div class="meta">{{ m.sender.name }} • {{ new Date(m.created_at).toLocaleString() }}</div>
+          <div class="body" v-if="m.body">{{ m.body }}</div>
+          <div class="attachment" v-if="m.attachment_url">
+            <button v-if="isImage(m.attachment_url)" class="attachment-image-button"
+              @click="openAttachment(m.attachment_url)">
+              <img :src="m.attachment_url" alt="Attachment" />
+            </button>
+            <div v-else class="attachment-file" @click="downloadAttachment(m)">
+              <span class="attachment-icon">📄</span>
+              <span class="attachment-filename">{{ m.attachment_name || 'File' }}</span>
+            </div>
+            <a class="attachment-download" :href="m.attachment_url" :download="m.attachment_name || ''">
+              Download
+            </a>
           </div>
-          <a
-            class="attachment-download"
-            :href="m.attachment_url"
-            :download="m.attachment_name || ''"
-          >
-            Download
-          </a>
         </div>
       </div>
-    </div>
 
       <div v-if="selectedAttachment" class="attachment-modal" @click.self="closeAttachment">
         <button class="attachment-modal-close" @click="closeAttachment">×</button>
@@ -47,14 +36,8 @@
       </div>
 
       <form @submit.prevent="sendMessage" class="composer">
-        <textarea
-        v-model="body"
-        placeholder="Write a message..."
-        rows="1"
-        @keydown.enter.exact.prevent="addNewLine"
-        @keydown.ctrl.enter.prevent="sendMessage"
-        @keydown.meta.enter.prevent="sendMessage"
-        ></textarea>
+        <textarea v-model="body" placeholder="Write a message..." rows="1" @keydown.enter.exact.prevent="addNewLine"
+          @keydown.ctrl.enter.prevent="sendMessage" @keydown.meta.enter.prevent="sendMessage"></textarea>
 
         <label class="file-button">
           <input type="file" @change="onFileChange" />
@@ -233,16 +216,19 @@ const downloadAttachment = (message) => {
   margin: 32px auto;
   padding: 0 28px 40px;
 }
+
 .page-layout {
   display: flex;
   min-height: 100vh;
   background: #f7f6ff;
 }
+
 .chat-page h1 {
   font-size: 28px;
   margin-bottom: 16px;
   color: #2b2b2b;
 }
+
 .messages {
   max-height: 62vh;
   overflow-y: auto;
@@ -255,6 +241,7 @@ const downloadAttachment = (message) => {
   gap: 10px;
   box-shadow: inset 0 0 0 1px rgba(91, 61, 245, 0.08);
 }
+
 .message {
   padding: 12px 14px;
   border-radius: 14px;
@@ -264,27 +251,32 @@ const downloadAttachment = (message) => {
   word-break: break-word;
   overflow-wrap: anywhere;
 }
+
 .message.in {
   background: #ffffff;
   align-self: flex-start;
   border: 1px solid rgba(0, 0, 0, 0.04);
 }
+
 .message.out {
   background: #ece6ff;
   margin-left: auto;
   border: 1px solid rgba(91, 61, 245, 0.12);
 }
+
 .meta {
   font-size: 12px;
   color: #6b7280;
   margin-bottom: 8px;
 }
+
 .body {
   font-size: 15px;
   color: #2f2f2f;
   word-break: break-word;
   overflow-wrap: anywhere;
 }
+
 .composer {
   display: flex;
   gap: 10px;
@@ -294,6 +286,7 @@ const downloadAttachment = (message) => {
   border-radius: 14px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
 }
+
 .composer textarea {
   flex: 1;
   padding: 10px 12px;
@@ -326,9 +319,11 @@ const downloadAttachment = (message) => {
   background: #fff;
   cursor: pointer;
 }
+
 .file-button input {
   display: none;
 }
+
 .file-name {
   font-size: 12px;
   color: #666;
@@ -337,6 +332,7 @@ const downloadAttachment = (message) => {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
 .composer button {
   padding: 10px 16px;
   border-radius: 10px;
@@ -364,18 +360,21 @@ const downloadAttachment = (message) => {
   gap: 12px;
   flex-wrap: wrap;
 }
+
 .attachment img {
   max-width: 220px;
   max-height: 160px;
   border-radius: 10px;
   display: block;
 }
+
 .attachment-image-button {
   background: none;
   border: none;
   padding: 0;
   cursor: pointer;
 }
+
 .attachment-file {
   display: inline-flex;
   align-items: center;
@@ -387,9 +386,11 @@ const downloadAttachment = (message) => {
   cursor: pointer;
   max-width: 240px;
 }
+
 .attachment-icon {
   font-size: 18px;
 }
+
 .attachment-filename {
   font-size: 13px;
   color: #4f46e5;
@@ -397,11 +398,13 @@ const downloadAttachment = (message) => {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
 .attachment-download {
   font-size: 12px;
   color: #4f46e5;
   text-decoration: underline;
 }
+
 .attachment-modal {
   position: fixed;
   inset: 0;
@@ -413,12 +416,14 @@ const downloadAttachment = (message) => {
   z-index: 9999;
   gap: 12px;
 }
+
 .attachment-modal img {
   max-width: 90vw;
   max-height: 80vh;
   border-radius: 16px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
 }
+
 .attachment-modal-close {
   position: absolute;
   top: 20px;
@@ -432,6 +437,7 @@ const downloadAttachment = (message) => {
   font-size: 24px;
   cursor: pointer;
 }
+
 .attachment-modal-download {
   padding: 8px 14px;
   border-radius: 10px;

@@ -15,21 +15,13 @@
     </div>
 
     <div class="freelancer-grid">
-      <FreelancerCard
-        v-for="freelancer in freelancers"
-        :key="freelancer.id"
-        :freelancer="freelancer"
-      />
+      <FreelancerCard v-for="freelancer in freelancers" :key="freelancer.id" :freelancer="freelancer" />
     </div>
 
     <div class="pagination" v-if="totalPages > 1">
       <button :disabled="currentPage === 1" @click="currentPage--">Prev</button>
-      <button
-        v-for="page in totalPages"
-        :key="page"
-        :class="{ active: page === currentPage }"
-        @click="currentPage = page"
-      >
+      <button v-for="page in totalPages" :key="page" :class="{ active: page === currentPage }"
+        @click="currentPage = page">
         {{ page }}
       </button>
       <button :disabled="currentPage === totalPages" @click="currentPage++">Next</button>
@@ -92,7 +84,7 @@ watch([search, category], () => {
 
 watch(currentPage, (newPage) => {
   router.push({
-    query:{...route.query, page:newPage}
+    query: { ...route.query, page: newPage }
   })
 })
 

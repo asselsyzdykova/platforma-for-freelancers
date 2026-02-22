@@ -52,25 +52,21 @@ class FreelancerProfileController extends Controller
             'certificates_existing' => 'nullable',
         ]);
 
-        
-        if (!empty($validated['skills']) && is_string($validated['skills']))
-            {
+
+        if (!empty($validated['skills']) && is_string($validated['skills'])) {
             $decoded = json_decode($validated['skills'], true);
-            if (is_array($decoded))
-                {
+            if (is_array($decoded)) {
                 $normalizedSkills = [];
 
-                foreach ($decoded as $skill)
-                    {
+                foreach ($decoded as $skill) {
                     $clean = ucfirst(strtolower(trim($skill)));
-                    if (!in_array($clean, $normalizedSkills))
-                        {
+                    if (!in_array($clean, $normalizedSkills)) {
                         $normalizedSkills[] = $clean;
-                        }
                     }
-                        $validated['skills'] = $normalizedSkills;
                 }
+                $validated['skills'] = $normalizedSkills;
             }
+        }
 
         $data = collect($validated)
             ->except(['avatar', 'certificates', 'certificates_existing'])
@@ -131,51 +127,51 @@ class FreelancerProfileController extends Controller
     }
 
     public function updateAccount(Request $request)
-{
-    $user = $request->user();
+    {
+        $user = $request->user();
 
-    $emailRules = [
-        'required',
-        'email',
-        'unique:users,email,' . $user->id,
-    ];
+        $emailRules = [
+            'required',
+            'email',
+            'unique:users,email,' . $user->id,
+        ];
 
-    if ($user->role === 'freelancer') {
-        $emailRules[] = new SlovakUniversityEmail;
-    }
-
-    $validated = $request->validate([
-        'name' => 'required|string|max:255',
-        'email' => $emailRules,
-        'current_password' => 'nullable|string',
-        'new_password' => 'nullable|string|min:6|confirmed',
-    ]);
-
-    if ($request->filled('new_password')) {
-        if (!$request->filled('current_password')) {
-            return response()->json([
-                'message' => 'Current password is required'
-            ], 422);
+        if ($user->role === 'freelancer') {
+            $emailRules[] = new SlovakUniversityEmail;
         }
 
-        if (!Hash::check($request->current_password, $user->password)) {
-            return response()->json([
-                'message' => 'Current password is incorrect'
-            ], 422);
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => $emailRules,
+            'current_password' => 'nullable|string',
+            'new_password' => 'nullable|string|min:6|confirmed',
+        ]);
+
+        if ($request->filled('new_password')) {
+            if (!$request->filled('current_password')) {
+                return response()->json([
+                    'message' => 'Current password is required'
+                ], 422);
+            }
+
+            if (!Hash::check($request->current_password, $user->password)) {
+                return response()->json([
+                    'message' => 'Current password is incorrect'
+                ], 422);
+            }
+
+            $user->password = Hash::make($validated['new_password']);
         }
 
-        $user->password = Hash::make($validated['new_password']);
+        $user->name = $validated['name'];
+        $user->email = $validated['email'];
+        $user->save();
+
+        return response()->json([
+            'message' => 'Account updated successfully',
+            'user' => $user
+        ]);
     }
-
-    $user->name = $validated['name'];
-    $user->email = $validated['email'];
-    $user->save();
-
-    return response()->json([
-        'message' => 'Account updated successfully',
-        'user' => $user
-    ]);
-}
 
 
 
@@ -193,28 +189,27 @@ class FreelancerProfileController extends Controller
 
 
     public function allSkills()
-{
-    $profiles = FreelancerProfile::whereNotNull('skills')->get();
+    {
+        $profiles = FreelancerProfile::whereNotNull('skills')->get();
 
-    $allSkills = [];
+        $allSkills = [];
 
-    foreach ($profiles as $profile) {
-        $skills = is_array($profile->skills)
-            ? $profile->skills
-            : json_decode($profile->skills, true);
+        foreach ($profiles as $profile) {
+            $skills = is_array($profile->skills)
+                ? $profile->skills
+                : json_decode($profile->skills, true);
 
-        if (is_array($skills)) {
-            foreach ($skills as $skill) {
-                $normalized = ucfirst(strtolower(trim($skill)));
-                $allSkills[] = $normalized;
+            if (is_array($skills)) {
+                foreach ($skills as $skill) {
+                    $normalized = ucfirst(strtolower(trim($skill)));
+                    $allSkills[] = $normalized;
+                }
             }
         }
+
+        $uniqueSkills = array_values(array_unique($allSkills));
+        sort($uniqueSkills);
+
+        return response()->json($uniqueSkills);
     }
-
-    $uniqueSkills = array_values(array_unique($allSkills));
-    sort($uniqueSkills);
-
-    return response()->json($uniqueSkills);
-}
-
 }

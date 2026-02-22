@@ -67,26 +67,31 @@ const submitForm = async () => {
   box-shadow: 0 8px 32px rgba(80, 80, 120, 0.08);
   padding: 32px 28px 28px;
 }
+
 .create-manager-page h2 {
   margin-bottom: 22px;
   font-size: 1.5rem;
   font-weight: 700;
   color: #4338ca;
 }
+
 .manager-form {
   display: flex;
   flex-direction: column;
   gap: 18px;
 }
+
 .form-group {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
+
 label {
   font-weight: 600;
   color: #444;
 }
+
 input[type="text"],
 input[type="email"] {
   border: 1px solid #e5e7eb;
@@ -96,19 +101,23 @@ input[type="email"] {
   background: #f8fafc;
   transition: border 0.2s;
 }
+
 input:focus {
   border-color: #5b3df5;
   outline: none;
 }
+
 .optional {
   color: #a1a1aa;
   font-weight: 400;
   font-size: 0.95em;
 }
+
 .hint {
   color: #6b7280;
   font-size: 0.92em;
 }
+
 .btn.primary {
   background: #5b3df5;
   color: #fff;
@@ -121,15 +130,18 @@ input:focus {
   margin-top: 8px;
   transition: background 0.2s;
 }
+
 .btn.primary:disabled {
   background: #a5b4fc;
   cursor: not-allowed;
 }
+
 .error-message {
   color: #dc2626;
   margin-top: 8px;
   font-size: 1em;
 }
+
 .success-message {
   color: #16a34a;
   margin-top: 8px;

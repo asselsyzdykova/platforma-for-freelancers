@@ -47,5 +47,4 @@ class UserController extends Controller
             'created_at' => $user->created_at,
         ]);
     }
-
 }

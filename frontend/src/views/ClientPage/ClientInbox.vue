@@ -1,50 +1,41 @@
 <template>
 
 
-    <div class="inbox-page">
-      <h1>Inbox</h1>
-      <p class="subtitle">Messages and notifications from freelancers</p>
+  <div class="inbox-page">
+    <h1>Inbox</h1>
+    <p class="subtitle">Messages and notifications from freelancers</p>
 
-      <template v-if="notifications.length">
-        <div class="list">
-          <div
-            class="notification"
-            v-for="note in notifications"
-            :key="note.id"
-            :class="{ unread: !note.is_read }"
-            @click="openNotification(note)"
-          >
-            <div class="left">
-              <span v-if="!note.is_read" class="dot"></span>
-            </div>
+    <template v-if="notifications.length">
+      <div class="list">
+        <div class="notification" v-for="note in notifications" :key="note.id" :class="{ unread: !note.is_read }"
+          @click="openNotification(note)">
+          <div class="left">
+            <span v-if="!note.is_read" class="dot"></span>
+          </div>
 
-            <div class="content">
-              <p class="title">{{ note.title }}</p>
-              <p class="body">{{ note.body }}</p>
-            </div>
+          <div class="content">
+            <p class="title">{{ note.title }}</p>
+            <p class="body">{{ note.body }}</p>
+          </div>
 
-            <div class="time">
-              {{ formatDate(note.created_at) }}
-            </div>
+          <div class="time">
+            {{ formatDate(note.created_at) }}
           </div>
         </div>
+      </div>
 
-        <div class="pagination" v-if="totalPages > 1">
-          <button :disabled="currentPage === 1" @click="currentPage--">Prev</button>
-          <button
-            v-for="page in totalPages"
-            :key="page"
-            :class="{ active: page === currentPage }"
-            @click="currentPage = page"
-          >
-            {{ page }}
-          </button>
-          <button :disabled="currentPage === totalPages" @click="currentPage++">Next</button>
-        </div>
-      </template>
+      <div class="pagination" v-if="totalPages > 1">
+        <button :disabled="currentPage === 1" @click="currentPage--">Prev</button>
+        <button v-for="page in totalPages" :key="page" :class="{ active: page === currentPage }"
+          @click="currentPage = page">
+          {{ page }}
+        </button>
+        <button :disabled="currentPage === totalPages" @click="currentPage++">Next</button>
+      </div>
+    </template>
 
-      <p v-else class="empty">Inbox is empty</p>
-    </div>
+    <p v-else class="empty">Inbox is empty</p>
+  </div>
 
 </template>
 

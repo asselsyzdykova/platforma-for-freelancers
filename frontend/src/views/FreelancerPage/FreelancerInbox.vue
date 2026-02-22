@@ -6,12 +6,7 @@
       <p class="subtitle">Messages from clients and project updates</p>
 
       <div v-if="notifications.length" class="list">
-        <div
-          class="notification"
-          v-for="note in notifications"
-          :key="note.id"
-          :class="{ unread: !note.is_read }"
-        >
+        <div class="notification" v-for="note in notifications" :key="note.id" :class="{ unread: !note.is_read }">
           <div class="left">
             <span v-if="!note.is_read" class="dot"></span>
           </div>
@@ -25,11 +20,7 @@
             {{ formatDate(note.created_at) }}
           </div>
 
-          <button
-            class="mark-read"
-            v-if="!note.is_read"
-            @click.stop="markAsRead(note)"
-          >
+          <button class="mark-read" v-if="!note.is_read" @click.stop="markAsRead(note)">
             Mark as read
           </button>
         </div>
@@ -39,12 +30,8 @@
 
       <div class="pagination" v-if="totalPages > 1">
         <button :disabled="currentPage === 1" @click="currentPage--">Prev</button>
-        <button
-          v-for="page in totalPages"
-          :key="page"
-          :class="{ active: page === currentPage }"
-          @click="currentPage = page"
-        >
+        <button v-for="page in totalPages" :key="page" :class="{ active: page === currentPage }"
+          @click="currentPage = page">
           {{ page }}
         </button>
         <button :disabled="currentPage === totalPages" @click="currentPage++">Next</button>
@@ -130,6 +117,7 @@ export default {
   display: flex;
   min-height: 100vh;
 }
+
 .inbox-page {
   max-width: 900px;
   padding: 40px 24px;

@@ -53,22 +53,19 @@
           <p><strong>Completed:</strong> {{ stats.completed }}</p>
           <p><strong>Member since:</strong> {{ memberSince }}</p>
 
-          <RouterLink :to="{ name: 'EditClientProfile' }" exact-active-class="active"
-          class="edit-btn"
-          >Edit Page</RouterLink>
+          <RouterLink :to="{ name: 'EditClientProfile' }" exact-active-class="active" class="edit-btn">Edit Page
+          </RouterLink>
 
-          <RouterLink :to="{ name: 'CreateProject' }" exact-active-class="active"
-          class="primary-btn"
-          >+ Create Project</RouterLink>
+          <RouterLink :to="{ name: 'CreateProject' }" exact-active-class="active" class="primary-btn">+ Create Project
+          </RouterLink>
         </div>
       </div>
 
       <section class="intern">
         <div class="intern-header">
           <h3>Would you like to offer an internship?</h3>
-          <RouterLink :to="{ name: 'CreateIntern' }" exact-active-class="active"
-          class="primary-btn"
-          >Create Internship</RouterLink>
+          <RouterLink :to="{ name: 'CreateIntern' }" exact-active-class="active" class="primary-btn">Create Internship
+          </RouterLink>
         </div>
       </section>
 
@@ -96,12 +93,8 @@
 
           <div class="pagination" v-if="totalPages > 1">
             <button :disabled="currentPage === 1" @click="currentPage--">Prev</button>
-            <button
-              v-for="page in totalPages"
-              :key="page"
-              :class="{ active: page === currentPage }"
-              @click="currentPage = page"
-            >
+            <button v-for="page in totalPages" :key="page" :class="{ active: page === currentPage }"
+              @click="currentPage = page">
               {{ page }}
             </button>
             <button :disabled="currentPage === totalPages" @click="currentPage++">Next</button>
@@ -345,6 +338,7 @@ export default {
   margin: 0 auto;
   min-height: 100vh;
 }
+
 .client-page {
   max-width: 1100px;
   margin: 0 auto;

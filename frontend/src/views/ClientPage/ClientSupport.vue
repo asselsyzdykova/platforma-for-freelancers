@@ -59,26 +59,31 @@ export default {
   display: flex;
   min-height: 100vh;
 }
+
 .support-page {
   width: 60%;
   padding: 30px;
   margin: 0 auto;
 }
+
 .subtitle {
   color: #666;
   margin-bottom: 20px;
 }
+
 .support-form {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
+
 .support-form input,
 .support-form textarea {
   padding: 10px;
   border-radius: 8px;
   border: 1px solid #ddd;
 }
+
 .primary-btn {
   padding: 10px 14px;
   border-radius: 8px;
@@ -86,6 +91,7 @@ export default {
   color: white;
   border: none;
 }
+
 .notice {
   color: #22c55e;
   margin-top: 12px;

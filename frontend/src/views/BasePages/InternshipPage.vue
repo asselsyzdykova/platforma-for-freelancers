@@ -5,25 +5,18 @@
     </div>
     <div class="internships-container">
       <div class="internships-grid">
-    <InternCard
-      v-for="intern in interns"
-        :key="intern.id"
-        :intern="intern"/>
+        <InternCard v-for="intern in interns" :key="intern.id" :intern="intern" />
       </div>
-        <div class="pagination" v-if="totalPages > 1">
-      <button :disabled="currentPage === 1" @click="currentPage--">Prev</button>
-      <button
-        v-for="page in totalPages"
-        :key="page"
-        :class="{ active: page === currentPage }"
-        @click="currentPage = page"
-      >
-        {{ page }}
-      </button>
-      <button :disabled="currentPage === totalPages" @click="currentPage++">Next</button>
+      <div class="pagination" v-if="totalPages > 1">
+        <button :disabled="currentPage === 1" @click="currentPage--">Prev</button>
+        <button v-for="page in totalPages" :key="page" :class="{ active: page === currentPage }"
+          @click="currentPage = page">
+          {{ page }}
+        </button>
+        <button :disabled="currentPage === totalPages" @click="currentPage++">Next</button>
+      </div>
     </div>
-    </div>
-    </div>
+  </div>
 </template>
 <script setup>
 import { ref, watch } from 'vue'
@@ -61,7 +54,7 @@ loadInternships()
 
 watch(currentPage, (newPage) => {
   router.push({
-    query:{...route.query, page:newPage}
+    query: { ...route.query, page: newPage }
   })
 })
 
@@ -74,7 +67,7 @@ watch(
 )
 </script>
 <style scoped>
-.first-block{
+.first-block {
   border-radius: 10px;
   margin: 30px;
   box-shadow: 0 2px 6px rgba(93, 58, 155, 0.9);
@@ -83,6 +76,7 @@ watch(
   margin-left: 500px;
   margin-right: 500px;
 }
+
 .first-block h2 {
   color: #2c3e50;
   font-size: 36px;
@@ -100,6 +94,7 @@ watch(
   grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
   gap: 28px 24px;
 }
+
 @media (max-width: 500px) {
   .internships-grid {
     grid-template-columns: 1fr;

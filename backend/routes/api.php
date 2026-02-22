@@ -37,8 +37,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/notifications', [NotificationController::class, 'store']);
 
     Route::get('/freelancer/notifications', [FreelancerNotificationController::class, 'index']);
-    Route::post('/freelancer/notifications/{id}/read',[FreelancerNotificationController::class, 'markAsRead']);
-    Route::get('/freelancer/notifications-unread-count',[FreelancerNotificationController::class, 'unreadCount']);
+    Route::post('/freelancer/notifications/{id}/read', [FreelancerNotificationController::class, 'markAsRead']);
+    Route::get('/freelancer/notifications-unread-count', [FreelancerNotificationController::class, 'unreadCount']);
 
 
     Route::get('/client/profile', [ClientProfileController::class, 'show']);
@@ -105,7 +105,7 @@ Route::post('/internships', [InternshipController::class, 'store'])
     ->middleware('auth:sanctum');
 Route::middleware('auth:sanctum')->post('/internships/{internship}/apply', [InternshipController::class, 'apply']);
 Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
-
+Route::middleware('auth:sanctum')->get('/internships/my', [InternshipController::class, 'my']);
 // stripe paypal webhook
 Route::post('/stripe/webhook', [SubscriptionController::class, 'handleWebhook']);
 Route::post('/paypal/webhook', [SubscriptionController::class, 'handlePaypalWebhook']);

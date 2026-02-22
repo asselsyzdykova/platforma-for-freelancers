@@ -6,9 +6,9 @@
         <p class="subtitle">Overview of platform activity and student marketplace health.</p>
       </div>
       <div class="actions">
-          <RouterLink :to="{ name: 'AdminChats' }" class="btn ghost">My Chats</RouterLink>
-          <button class="btn ghost">Export report</button>
-          <button class="btn primary">Create announcement</button>
+        <RouterLink :to="{ name: 'AdminChats' }" class="btn ghost">My Chats</RouterLink>
+        <button class="btn ghost">Export report</button>
+        <button class="btn primary">Create announcement</button>
       </div>
     </header>
 
@@ -17,22 +17,19 @@
         <p class="label">Total users</p>
         <h2>{{ stats.totalUsers }}</h2>
         <span class="trend" :class="stats.userGrowth < 0 ? 'down' : 'up'">
-          {{ stats.userGrowth < 0 ? '▼' : '▲' }} {{ Math.abs(stats.userGrowth) }}% this month
-        </span>
+          {{ stats.userGrowth < 0 ? '▼' : '▲' }} {{ Math.abs(stats.userGrowth) }}% this month </span>
       </div>
       <div class="stat-card">
         <p class="label">Student freelancers</p>
         <h2>{{ stats.freelancers }}</h2>
         <span class="trend" :class="stats.freelancerGrowth < 0 ? 'down' : 'up'">
-          {{ stats.freelancerGrowth < 0 ? '▼' : '▲' }} {{ Math.abs(stats.freelancerGrowth) }}% this month
-        </span>
+          {{ stats.freelancerGrowth < 0 ? '▼' : '▲' }} {{ Math.abs(stats.freelancerGrowth) }}% this month </span>
       </div>
       <div class="stat-card">
         <p class="label">Active projects</p>
         <h2>{{ stats.activeProjects }}</h2>
         <span class="trend" :class="stats.projectGrowth < 0 ? 'down' : 'up'">
-          {{ stats.projectGrowth < 0 ? '▼' : '▲' }} {{ Math.abs(stats.projectGrowth) }}% this month
-        </span>
+          {{ stats.projectGrowth < 0 ? '▼' : '▲' }} {{ Math.abs(stats.projectGrowth) }}% this month </span>
       </div>
       <div class="stat-card">
         <p class="label">Pending reviews</p>
@@ -70,11 +67,7 @@
                 </span>
               </span>
               <span class="role-cell">
-                <span
-                  class="pill"
-                  :class="rolePillClass(user.role)"
-                  :aria-label="user.role"
-                >
+                <span class="pill" :class="rolePillClass(user.role)" :aria-label="user.role">
                   {{ user.role ? capitalize(user.role) : 'User' }}
                 </span>
               </span>
@@ -125,9 +118,9 @@
         <div class="panel-head">
           <h3>Managers</h3>
           <RouterLink :to="{ name: 'CreateManager' }" class="btn link">
-        Add Manager
-      </RouterLink>
-      </div>
+            Add Manager
+          </RouterLink>
+        </div>
         <div class="manager-list">
           <div v-for="manager in managers" :key="manager.id" class="manager-card">
             <div class="manager-content">
@@ -151,42 +144,38 @@
               <button class="btn task" @click="openModal(manager)">Task</button>
             </div>
           </div>
-                <div v-if="isOpen" class="modal-overlay-task" @click.self="closeModal">
-                  <div class="modal-task">
-                    <div class="modal-header">
-                      <h2>Create Task</h2>
-                      <button @click="closeModal" class="close-btn">✖</button>
-                    </div>
+          <div v-if="isOpen" class="modal-overlay-task" @click.self="closeModal">
+            <div class="modal-task">
+              <div class="modal-header">
+                <h2>Create Task</h2>
+                <button @click="closeModal" class="close-btn">✖</button>
+              </div>
 
-                    <div class="form-group">
-                      <label>Task title</label>
-                      <input v-model="taskTitle" placeholder="Enter a task title..." />
-                    </div>
+              <div class="form-group">
+                <label>Task title</label>
+                <input v-model="taskTitle" placeholder="Enter a task title..." />
+              </div>
 
-                    <div class="form-group">
-                      <label>Description</label>
-                      <textarea v-model="taskDescription"
-                      placeholder="Describe the task..." rows="4"></textarea>
-                    </div>
+              <div class="form-group">
+                <label>Description</label>
+                <textarea v-model="taskDescription" placeholder="Describe the task..." rows="4"></textarea>
+              </div>
 
-                    <div class="form-group">
-                      <label>Deadline</label>
-                      <input
-                      ref="deadlineInput"
-                      placeholder="Select deadline"
-                      class="date-input"
-                      />
-                    </div>
+              <div class="form-group">
+                <label>Deadline</label>
+                <input ref="deadlineInput" placeholder="Select deadline" class="date-input" />
+              </div>
 
-                    <div class="modal-actions">
-                      <button class="btn primary" @click="createTask" :disabled="taskLoading">{{ taskLoading ? 'Creating...' : 'Create Task' }}</button>
-                      <button class="btn ghost" @click="closeModal" :disabled="taskLoading">Cancel</button>
-                    </div>
-                  </div>
-                </div>
+              <div class="modal-actions">
+                <button class="btn primary" @click="createTask" :disabled="taskLoading">{{ taskLoading ? 'Creating...' :
+                  'Create Task' }}</button>
+                <button class="btn ghost" @click="closeModal" :disabled="taskLoading">Cancel</button>
+              </div>
             </div>
           </div>
-        </section>
+        </div>
+      </div>
+    </section>
 
     <section class="quick-actions">
       <h3>Quick actions</h3>
@@ -224,9 +213,11 @@
     <div v-if="showMessageModal" class="modal-overlay">
       <div class="modal-dialog">
         <h4>Send message to {{ messageRecipient?.name || messageRecipient?.email }}</h4>
-        <textarea v-model="messageBody" placeholder="Write your message..." rows="6" style="width:100%;padding:10px;border-radius:8px;border:1px solid #e5e7eb"></textarea>
+        <textarea v-model="messageBody" placeholder="Write your message..." rows="6"
+          style="width:100%;padding:10px;border-radius:8px;border:1px solid #e5e7eb"></textarea>
         <div style="display:flex;gap:12px;justify-content:center;margin-top:14px;">
-          <button class="btn primary" @click="sendMessage" :disabled="messageLoading">{{ messageLoading ? 'Sending...' : 'Send' }}</button>
+          <button class="btn primary" @click="sendMessage" :disabled="messageLoading">{{ messageLoading ? 'Sending...' :
+            'Send' }}</button>
           <button class="btn ghost" @click="closeMessageModal" :disabled="messageLoading">Cancel</button>
         </div>
       </div>
@@ -235,7 +226,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, reactive, ref,nextTick } from 'vue'
+import { computed, onMounted, reactive, ref, nextTick } from 'vue'
 import api from '@/services/axios'
 import flatpickr from 'flatpickr'
 import 'flatpickr/dist/flatpickr.min.css'
@@ -500,7 +491,7 @@ const initDatePicker = () => {
 
 .flatpickr-calendar {
   border-radius: 16px;
-  box-shadow: 0 15px 50px rgba(0,0,0,0.15);
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15);
 }
 
 .modal-overlay-task {
@@ -586,8 +577,13 @@ const initDatePicker = () => {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0 }
-  to { opacity: 1 }
+  from {
+    opacity: 0
+  }
+
+  to {
+    opacity: 1
+  }
 }
 
 @keyframes scaleIn {
@@ -595,11 +591,13 @@ const initDatePicker = () => {
     opacity: 0;
     transform: scale(0.95);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
   }
 }
+
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -612,6 +610,7 @@ const initDatePicker = () => {
   align-items: center;
   justify-content: center;
 }
+
 .modal-dialog {
   background: #fff;
   border-radius: 18px;
@@ -621,21 +620,25 @@ const initDatePicker = () => {
   max-width: 90vw;
   text-align: center;
 }
+
 .modal-dialog h4 {
   margin-bottom: 12px;
   font-size: 1.18em;
   font-weight: 700;
   color: #b91c1c;
 }
+
 .modal-dialog p {
   color: #444;
   margin-bottom: 18px;
 }
+
 .modal-actions {
   display: flex;
   gap: 16px;
   justify-content: center;
 }
+
 /* Toast styles */
 .custom-toast {
   position: fixed;
@@ -647,7 +650,7 @@ const initDatePicker = () => {
   background: #fff;
   color: #222;
   border-radius: 12px;
-  box-shadow: 0 6px 24px rgba(80,80,120,0.13);
+  box-shadow: 0 6px 24px rgba(80, 80, 120, 0.13);
   padding: 12px 20px;
   font-size: 0.98rem;
   font-weight: 600;
@@ -655,8 +658,17 @@ const initDatePicker = () => {
   text-align: center;
   opacity: 0.98;
 }
-.custom-toast.success { border: 2px solid #16a34a; color: #15803d }
-.custom-toast.error { border: 2px solid #dc2626; color: #b91c1c }
+
+.custom-toast.success {
+  border: 2px solid #16a34a;
+  color: #15803d
+}
+
+.custom-toast.error {
+  border: 2px solid #dc2626;
+  color: #b91c1c
+}
+
 .admin-page {
   padding: 32px 40px 60px;
   background: #f7f6ff;
@@ -700,9 +712,9 @@ const initDatePicker = () => {
   color: #4338ca;
 }
 
-.btn.ghost:hover{
+.btn.ghost:hover {
   background: #4338ca;
-  color:white;
+  color: white;
 }
 
 .btn.task {
@@ -716,6 +728,7 @@ const initDatePicker = () => {
   background: #e6e0ff;
   color: black;
 }
+
 .btn.link {
   background: transparent;
   color: #5b3df5;
@@ -778,14 +791,17 @@ const initDatePicker = () => {
   grid-template-columns: 2fr 1fr;
   align-items: start;
 }
+
 .recent-signups-panel {
   grid-column: 1 / 2;
   min-width: 0;
 }
+
 .system-overview-panel {
   grid-column: 2 / 3;
   min-width: 0;
 }
+
 .managers-section {
   margin-top: 20px;
 }
@@ -875,14 +891,17 @@ const initDatePicker = () => {
   background: #ede9fe;
   color: #6d28d9;
 }
+
 .pill.client-pill {
   background: #dcfce7;
   color: #15803d;
 }
+
 .pill.admin-pill {
   background: #fee2e2;
   color: #b91c1c;
 }
+
 .pill.user-pill {
   background: #e5e7eb;
   color: #64748b;
@@ -901,6 +920,7 @@ const initDatePicker = () => {
   font-style: italic;
   grid-column: 1 / -1;
 }
+
 .empty-message {
   grid-column: 1 / -1;
   width: 100%;

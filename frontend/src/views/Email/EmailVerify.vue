@@ -31,7 +31,7 @@ const resendVerification = async () => {
   loading.value = true
   message.value = ''
   try {
-    await api.post('/email/verification-notification',{ email: email.value })
+    await api.post('/email/verification-notification', { email: email.value })
     message.value = 'Email resent successfully!'
   } catch {
     message.value = 'Error sending email. Please try again later.'
@@ -46,6 +46,7 @@ const resendVerification = async () => {
   text-align: center;
   padding: 2rem;
 }
+
 button {
   padding: 0.5rem 1rem;
   margin-top: 1rem;
@@ -54,6 +55,7 @@ button {
   border-radius: 10px;
   cursor: pointer;
 }
+
 button:hover {
   background: white;
   color: black;

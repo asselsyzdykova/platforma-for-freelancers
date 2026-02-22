@@ -5,11 +5,7 @@
     <div class="content">
       <h1>Settings</h1>
 
-      <div
-        v-if="showDeleteModal"
-        class="modal-backdrop"
-        @click.self="closeDeleteModal"
-      >
+      <div v-if="showDeleteModal" class="modal-backdrop" @click.self="closeDeleteModal">
         <div class="modal-card">
           <h3>Delete account?</h3>
           <p>This action can’t be undone.</p>
@@ -27,47 +23,27 @@
       <div class="settings-card">
         <div class="setting-item">
           <label>Full name</label>
-          <input
-            type="text"
-            v-model="form.name"
-            placeholder="Your name"
-          />
+          <input type="text" v-model="form.name" placeholder="Your name" />
         </div>
 
         <div class="setting-item">
           <label>Email</label>
-          <input
-            type="email"
-            v-model="form.email"
-            placeholder="your@email.com"
-          />
+          <input type="email" v-model="form.email" placeholder="your@email.com" />
         </div>
 
         <div class="setting-item">
           <label>Current password</label>
-          <input
-            type="password"
-            v-model="form.current_password"
-            placeholder="Enter current password"
-          />
+          <input type="password" v-model="form.current_password" placeholder="Enter current password" />
         </div>
 
         <div class="setting-item">
           <label>New password</label>
-          <input
-            type="password"
-            v-model="form.new_password"
-            placeholder="Enter new password"
-          />
+          <input type="password" v-model="form.new_password" placeholder="Enter new password" />
         </div>
 
         <div class="setting-item">
           <label>Confirm new password</label>
-          <input
-            type="password"
-            v-model="form.new_password_confirmation"
-            placeholder="Confirm new password"
-          />
+          <input type="password" v-model="form.new_password_confirmation" placeholder="Confirm new password" />
         </div>
 
         <div class="setting-item">

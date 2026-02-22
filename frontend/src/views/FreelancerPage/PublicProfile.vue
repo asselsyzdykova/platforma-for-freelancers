@@ -2,12 +2,7 @@
   <div class="public-profile-layout">
     <div class="public-card" v-if="freelancer">
       <div class="public-left">
-        <img
-          v-if="freelancer.avatar_url"
-          :src="freelancer.avatar_url"
-          alt="Avatar"
-          class="avatar-img"
-        />
+        <img v-if="freelancer.avatar_url" :src="freelancer.avatar_url" alt="Avatar" class="avatar-img" />
         <h2>{{ freelancer.name }}</h2>
         <p class="role">{{ freelancer.role }}</p>
         <p class="rating">⭐ {{ freelancer.rating }} ({{ freelancer.reviews ?? 0 }})</p>
@@ -29,7 +24,7 @@
               </button>
               <a v-else :href="cert" target="_blank" rel="noopener">{{
                 certificateLabel(cert, index)
-              }}</a>
+                }}</a>
             </div>
           </div>
         </div>
@@ -150,6 +145,7 @@ const closeCertificate = () => {
   max-width: 1000px;
   margin: 40px auto;
 }
+
 .public-card {
   display: flex;
   gap: 32px;
@@ -158,10 +154,12 @@ const closeCertificate = () => {
   border-radius: 16px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
 }
+
 .public-left {
   width: 320px;
   text-align: center;
 }
+
 .avatar-img {
   width: 160px;
   height: 160px;
@@ -169,6 +167,7 @@ const closeCertificate = () => {
   object-fit: cover;
   margin-bottom: 12px;
 }
+
 .skills span {
   display: inline-block;
   background: #f3efff;
@@ -176,18 +175,22 @@ const closeCertificate = () => {
   border-radius: 10px;
   margin: 4px;
 }
+
 .public-right {
   flex: 1;
 }
+
 .certificates {
   margin-top: 16px;
 }
+
 .cert-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 16px;
   margin-top: 12px;
 }
+
 .cert-card {
   height: 120px;
   background: #fff;
@@ -199,12 +202,14 @@ const closeCertificate = () => {
   text-align: center;
   padding: 8px;
 }
+
 .cert-card img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   border-radius: 12px;
 }
+
 .cert-image-button {
   background: none;
   border: none;
@@ -213,6 +218,7 @@ const closeCertificate = () => {
   height: 100%;
   cursor: pointer;
 }
+
 .cert-modal {
   position: fixed;
   inset: 0;
@@ -222,12 +228,14 @@ const closeCertificate = () => {
   justify-content: center;
   z-index: 9999;
 }
+
 .cert-modal img {
   max-width: 90vw;
   max-height: 90vh;
   border-radius: 16px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
 }
+
 .cert-modal-close {
   position: absolute;
   top: 20px;
@@ -241,11 +249,13 @@ const closeCertificate = () => {
   font-size: 24px;
   cursor: pointer;
 }
+
 .actions {
   margin-top: 20px;
   display: flex;
   gap: 12px;
 }
+
 .actions button {
   padding: 10px 16px;
   border-radius: 10px;

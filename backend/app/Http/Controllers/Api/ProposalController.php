@@ -109,7 +109,7 @@ class ProposalController extends Controller
                 $query->where('created_at', '>', $proposal->created_at)
                     ->orWhere(function ($q) use ($proposal) {
                         $q->where('created_at', $proposal->created_at)
-                          ->where('id', '>', $proposal->id);
+                            ->where('id', '>', $proposal->id);
                     });
             })
             ->count() + 1;

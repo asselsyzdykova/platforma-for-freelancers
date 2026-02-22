@@ -12,12 +12,7 @@
       <div v-else>
         <template v-if="conversations.length">
           <div class="list">
-            <div
-              class="conversation"
-              v-for="conv in conversations"
-              :key="conv.partner.id"
-              @click="openChat(conv)"
-            >
+            <div class="conversation" v-for="conv in conversations" :key="conv.partner.id" @click="openChat(conv)">
               <div class="left">
                 <div class="avatar-placeholder">{{ initials(conv.partner.name) }}</div>
               </div>
@@ -34,12 +29,8 @@
 
           <div class="pagination" v-if="totalPages > 1">
             <button :disabled="currentPage === 1" @click="currentPage--">Prev</button>
-            <button
-              v-for="page in totalPages"
-              :key="page"
-              :class="{ active: page === currentPage }"
-              @click="currentPage = page"
-            >
+            <button v-for="page in totalPages" :key="page" :class="{ active: page === currentPage }"
+              @click="currentPage = page">
               {{ page }}
             </button>
             <button :disabled="currentPage === totalPages" @click="currentPage++">Next</button>
@@ -127,81 +118,95 @@ export default {
   gap: 12px;
   padding: 20px 24px;
 }
+
 .subtitle {
   color: #6b7280;
-  margin-top:6px
+  margin-top: 6px
 }
+
 .chats-wrapper {
   padding: 16px 24px
 }
+
 .list {
-  display:flex;
-  flex-direction:column;
-  gap:10px
+  display: flex;
+  flex-direction: column;
+  gap: 10px
 }
+
 .conversation {
-  display:grid;
-  grid-template-columns:48px 1fr auto;
-  gap:12px;
-  align-items:center;
-  padding:12px;
-  border-radius:12px;
-  background:#fff;
-  cursor:pointer;
-  border:1px solid #f1f5f9
+  display: grid;
+  grid-template-columns: 48px 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 12px;
+  border-radius: 12px;
+  background: #fff;
+  cursor: pointer;
+  border: 1px solid #f1f5f9
 }
+
 .avatar-placeholder {
-  width:48px;
-  height:48px;
-  background:#eee;
-  border-radius:8px;
-  display:grid;
-  place-items:center;
-  font-weight:700
+  width: 48px;
+  height: 48px;
+  background: #eee;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  font-weight: 700
 }
+
 .title {
-  font-weight:600
+  font-weight: 600
 }
+
 .body {
-  color:#555;
-  font-size:14px
+  color: #555;
+  font-size: 14px
 }
+
 .meta {
-  display:flex;
-  flex-direction:column;
-  align-items:flex-end;
-  gap:6px
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px
 }
+
 .unread-count {
-  background:#ef4444;
-  color:#fff;
-  padding:4px 8px;
-  border-radius:10px;
-  font-size:12px
+  background: #ef4444;
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 10px;
+  font-size: 12px
 }
+
 .time {
-  font-size:12px;
-  color:#9ca3af
+  font-size: 12px;
+  color: #9ca3af
 }
+
 .empty {
-  color:#777;
-  text-align:center;
-  margin-top:40px
+  color: #777;
+  text-align: center;
+  margin-top: 40px
 }
+
 .pagination {
-  margin-top:14px;
-  display:flex;
-  gap:8px;
-  justify-content:center
+  margin-top: 14px;
+  display: flex;
+  gap: 8px;
+  justify-content: center
 }
+
 .pagination button {
-  padding:6px 10px;
-  border-radius:8px;
-  border:1px solid #e5e7eb;
-  background:#fff
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  background: #fff
 }
+
 .pagination button.active {
-  background:#5b3df5;
-  color:#fff
-  }
+  background: #5b3df5;
+  color: #fff
+}
 </style>

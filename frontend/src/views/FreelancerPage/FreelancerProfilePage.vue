@@ -10,12 +10,7 @@
           <!-- LEFT -->
           <div class="left">
             <div class="avatar">
-              <img
-                v-if="profile.avatar_url"
-                :src="profile.avatar_url"
-                alt="Avatar"
-                class="avatar-img"
-              />
+              <img v-if="profile.avatar_url" :src="profile.avatar_url" alt="Avatar" class="avatar-img" />
             </div>
 
             <div class="name-row">
@@ -66,16 +61,12 @@
             <div class="cert-window">
               <div class="cert-track" :style="{ transform: `translateX(-${currentCert * 240}px)` }">
                 <div class="cert-card" v-for="(cert, index) in certificateUrls" :key="cert">
-                  <button
-                    v-if="isImage(cert)"
-                    class="cert-image-button"
-                    @click="openCertificate(cert)"
-                  >
+                  <button v-if="isImage(cert)" class="cert-image-button" @click="openCertificate(cert)">
                     <img :src="cert" :alt="certificateLabel(cert, index)" />
                   </button>
                   <a v-else :href="cert" target="_blank" rel="noopener">{{
                     certificateLabel(cert, index)
-                  }}</a>
+                    }}</a>
                 </div>
               </div>
             </div>
@@ -282,6 +273,7 @@ const editProfile = () => router.push('/edit-profile')
   vertical-align: middle;
   pointer-events: none;
 }
+
 .profile-layout {
   display: flex;
   min-height: 100vh;

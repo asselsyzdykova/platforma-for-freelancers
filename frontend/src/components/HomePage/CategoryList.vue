@@ -22,7 +22,7 @@ const topCategories = computed(() => {
   const list = props.freelancers || []
 
   list.forEach(f => {
-    ;(f.skills || []).forEach(skill => {
+    ; (f.skills || []).forEach(skill => {
       counter[skill] = (counter[skill] || 0) + 1
     })
   })

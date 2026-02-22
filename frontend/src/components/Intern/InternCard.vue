@@ -1,15 +1,9 @@
 <template>
   <div class="internships-container">
     <div class="internships-grid">
-      <div
-        class="card-in">
+      <div class="card-in">
         <div class="header">
-          <img
-            v-if="intern.avatar_url"
-            :src="intern.avatar_url"
-            class="avatar-img"
-            alt="Client avatar"
-          />
+          <img v-if="intern.avatar_url" :src="intern.avatar_url" class="avatar-img" alt="Client avatar" />
           <h3 class="client-name">{{ intern.name || 'Company' }}</h3>
         </div>
 
@@ -24,12 +18,7 @@
           <p class="cas">Number of interns: {{ intern.number }}</p>
         </div>
 
-        <button
-        v-if="isFreelancer"
-        class="btn-apply"
-          @click="applyInternship"
-          :disabled="applied"
-        >
+        <button v-if="isFreelancer" class="btn-apply" @click="applyInternship" :disabled="applied">
           {{ applied ? 'Applied' : 'To Apply' }}
         </button>
       </div>

@@ -15,46 +15,42 @@
         <template v-if="proposals.length">
           <div class="proposals-list">
             <div class="proposal-card" v-for="item in proposals" :key="item.id">
-            <div class="left">
-              <div class="avatar">
-                <img v-if="item.freelancer?.avatar_url" :src="item.freelancer.avatar_url" alt="" />
-                <span v-else>{{ initials(item.freelancer?.name) }}</span>
+              <div class="left">
+                <div class="avatar">
+                  <img v-if="item.freelancer?.avatar_url" :src="item.freelancer.avatar_url" alt="" />
+                  <span v-else>{{ initials(item.freelancer?.name) }}</span>
+                </div>
+                <div>
+                  <h3>{{ item.freelancer?.name || 'Freelancer' }}</h3>
+                  <p class="time">{{ formatDate(item.created_at) }}</p>
+                </div>
               </div>
-              <div>
-                <h3>{{ item.freelancer?.name || 'Freelancer' }}</h3>
-                <p class="time">{{ formatDate(item.created_at) }}</p>
-              </div>
-            </div>
 
-            <div class="body">
-              <p>{{ item.message }}</p>
-            </div>
-
-            <div class="meta">
-              <div>
-                <span class="label">Budget</span>
-                <div class="value">{{ item.budget }} €</div>
+              <div class="body">
+                <p>{{ item.message }}</p>
               </div>
-              <div>
-                <span class="label">Status</span>
-                <div class="value status">{{ item.status }}</div>
-              </div>
-            </div>
 
-            <div class="actions">
-              <button class="primary" @click="openDetails(item.id)">View details</button>
-            </div>
+              <div class="meta">
+                <div>
+                  <span class="label">Budget</span>
+                  <div class="value">{{ item.budget }} €</div>
+                </div>
+                <div>
+                  <span class="label">Status</span>
+                  <div class="value status">{{ item.status }}</div>
+                </div>
+              </div>
+
+              <div class="actions">
+                <button class="primary" @click="openDetails(item.id)">View details</button>
+              </div>
             </div>
           </div>
 
           <div class="pagination" v-if="totalPages > 1">
             <button :disabled="currentPage === 1" @click="currentPage--">Prev</button>
-            <button
-              v-for="page in totalPages"
-              :key="page"
-              :class="{ active: page === currentPage }"
-              @click="currentPage = page"
-            >
+            <button v-for="page in totalPages" :key="page" :class="{ active: page === currentPage }"
+              @click="currentPage = page">
               {{ page }}
             </button>
             <button :disabled="currentPage === totalPages" @click="currentPage++">Next</button>

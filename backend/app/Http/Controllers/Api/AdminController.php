@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Project;
 use App\Models\Manager;
 use Carbon\Carbon;
+
 class AdminController extends Controller
 {
     public function adminStats(Request $request)
@@ -35,16 +36,14 @@ class AdminController extends Controller
             $userGrowth = 100;
         }
 
-        $currentCountFreelancer = User::where('role', 'freelancer')->
-        where('created_at', '>=', $currentStart)->count();
+        $currentCountFreelancer = User::where('role', 'freelancer')->where('created_at', '>=', $currentStart)->count();
 
-        $previousCountFreelancer = User::where('role', 'freelancer')->
-        whereBetween('created_at', [$previousStart, $previousEnd])->count();
+        $previousCountFreelancer = User::where('role', 'freelancer')->whereBetween('created_at', [$previousStart, $previousEnd])->count();
 
         $freelancerGrowth = 0;
-        if ($previousCountFreelancer > 0){
+        if ($previousCountFreelancer > 0) {
             $freelancerGrowth = (int) round((($currentCountFreelancer - $previousCountFreelancer) /
-            $previousCountFreelancer) * 100);
+                $previousCountFreelancer) * 100);
         } elseif ($currentCountFreelancer > 0) {
             $freelancerGrowth = 100;
         }
@@ -63,7 +62,9 @@ class AdminController extends Controller
 
         return response()->json([
             'total_freelancers' => (int) User::where(
-                'role', 'freelancer')->count(),
+                'role',
+                'freelancer'
+            )->count(),
             'total_users' => (int) User::count(),
             'user_growth' => $userGrowth,
             'freelancer_growth' => $freelancerGrowth,
@@ -75,8 +76,7 @@ class AdminController extends Controller
 
             //recent signups
 
-            'recent_signups' => User::latest()->take(5)->
-            get(['id','name','email','role','university','created_at']),
+            'recent_signups' => User::latest()->take(5)->get(['id', 'name', 'email', 'role', 'university', 'created_at']),
         ]);
     }
 

@@ -12,20 +12,6 @@
           <RouterLink class="btn primary" to="/freelancers">Find talent</RouterLink>
           <RouterLink class="btn ghost" to="/projects">Browse projects</RouterLink>
         </div>
-        <div class="hero-stats">
-          <div class="stat">
-            <strong>{{ filteredFreelancers.length }}</strong>
-            <span>Freelancers</span>
-          </div>
-          <div class="stat">
-            <strong>24h</strong>
-            <span>Avg response</span>
-          </div>
-          <div class="stat">
-            <strong>Safe</strong>
-            <span>Verified emails</span>
-          </div>
-        </div>
       </div>
       <div class="hero-right">
         <div class="hero-card">
@@ -110,13 +96,8 @@
           <h2>Campus hubs</h2>
           <p>Pick a city to see what students are building right now.</p>
           <div class="city-tabs">
-            <button
-              v-for="city in cities"
-              :key="city.name"
-              :class="['city', { active: activeCity === city.name }]"
-              @click="activeCity = city.name"
-              type="button"
-            >
+            <button v-for="city in cities" :key="city.name" :class="['city', { active: activeCity === city.name }]"
+              @click="activeCity = city.name" type="button">
               {{ city.name }}
             </button>
           </div>
@@ -263,31 +244,6 @@ section {
   margin: 20px 0 26px;
 }
 
-.hero-stats {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-}
-
-.stat {
-  background: rgba(124, 93, 250, 0.12);
-  border: 1px solid rgba(124, 93, 250, 0.18);
-  border-radius: 14px;
-  padding: 12px 16px;
-  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
-  backdrop-filter: blur(6px);
-}
-
-.stat strong {
-  display: block;
-  font-size: 18px;
-}
-
-.stat span {
-  font-size: 12px;
-  color: #6b7280;
-}
-
 .hero-right {
   display: grid;
   gap: 16px;
@@ -328,12 +284,14 @@ section {
   backdrop-filter: blur(6px);
 }
 
-.trust-card h2{
+.trust-card h2 {
   color: white;
 }
-.trust-card p{
-  color:white;
+
+.trust-card p {
+  color: white;
 }
+
 .trust-logos {
   display: flex;
   flex-wrap: wrap;

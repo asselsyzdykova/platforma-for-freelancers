@@ -2,89 +2,84 @@
   <div class="profile-layout">
     <ClientSidebar />
 
-    <div class="projects-page">
-      <h1>Your Projects</h1>
-      <p class="subtitle">Projects you posted on the platform</p>
-
+    <div class="intern-page">
+      <h1>Your Internships and proposals</h1>
       <div v-if="loading" class="empty">Loading...</div>
-
       <div v-else>
-        <div v-if="projects.length" class="projects-list">
-          <div class="project-card" v-for="project in projects" :key="project.id">
-            <h3>{{ project.title }}</h3>
-            <p class="desc">{{ project.description }}</p>
+        <div v-if="internships.length === 0" class="empty">
+          No internships yet
+        </div>
+        <div v-else class="internships-list">
+          <InternshipsCard v-for="intern in internships" :key="intern.id" :intern="intern" />
 
-            <div class="meta">
-              <span>💰 {{ project.budget }} €</span>
-              <span>📅 {{ project.deadline }}</span>
-              <span>📌 {{ project.status }}</span>
-            </div>
-
-            <div class="actions">
-              <button class="secondary" @click="viewProposals(project.id)">View proposals</button>
-              <button class="danger" @click="deleteProject(project.id)">Delete project</button>
-            </div>
+          <div class="pagination" v-if="totalPages > 1">
+            <button :disabled="currentPage === 1" @click="currentPage--">Prev</button>
+            <button v-for="page in totalPages" :key="page" :class="{ active: page === currentPage }"
+              @click="currentPage = page">
+              {{ page }}
+            </button>
+            <button :disabled="currentPage === totalPages" @click="currentPage++">Next</button>
           </div>
         </div>
-
-        <p v-else class="empty">No projects yet</p>
       </div>
     </div>
   </div>
 </template>
 
-<script>
+<script setup>
 import api from '@/services/axios'
-import { useNotificationStore } from '@/stores/notificationStore'
 import ClientSidebar from '@/components/ClientPageMenu/SidebarMenu.vue'
+import InternshipsCard from '@/components/Intern/InternshipsCard.vue'
+import { ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 
-export default {
-  name: 'ClientProjects',
+const route = useRoute()
+const router = useRouter()
 
-  components: { ClientSidebar },
+const totalPages = ref(1)
+const perPage = ref(9)
 
-  data() {
-    return {
-      projects: [],
-      loading: true,
-      notifications: useNotificationStore(),
-    }
-  },
+const internships = ref([])
+const loading = ref(false)
 
-  async mounted() {
-    await this.loadProjects()
-  },
+const currentPage = ref(Number(route.query.page) || 1)
 
-  methods: {
-    async loadProjects() {
-      this.loading = true
-      try {
-        const res = await api.get('/client/projects')
-        this.projects = res.data
-      } catch (e) {
-        console.error('Failed to load client projects', e)
-      } finally {
-        this.loading = false
+const loadInternships = async () => {
+  loading.value = true
+  try {
+    const response = await api.get('/internships/my', {
+      params: {
+        page: currentPage.value,
+        per_page: perPage.value
       }
-    },
+    })
 
-    viewProposals(projectId) {
-      this.$router.push({ name: 'ApplicationDetails', params: { id: projectId } })
-    },
-
-    async deleteProject(projectId) {
-      if (!confirm('Are you sure you want to delete this project?')) return
-      try {
-        await api.delete(`/client/projects/${projectId}`)
-        await this.loadProjects()
-        this.notifications.success('Project deleted')
-      } catch (e) {
-        console.error('Failed to delete project', e)
-        this.notifications.error('Failed to delete project')
-      }
-    },
-  },
+    internships.value = response.data.data
+    totalPages.value = response.data.meta.last_page
+  } catch (e) {
+    console.error('Failed to load internships', e)
+    internships.value = []
+  } finally {
+    loading.value = false
+  }
 }
+
+loadInternships()
+
+watch(currentPage, (newPage) => {
+  router.push({
+    query: { ...route.query, page: newPage }
+  })
+  loadInternships()
+})
+
+watch(
+  () => route.query.page,
+  (newPage) => {
+    currentPage.value = Number(newPage) || 1
+    loadInternships()
+  }
+)
 </script>
 
 <style scoped>
@@ -92,54 +87,49 @@ export default {
   display: flex;
   min-height: 100vh;
 }
-.projects-page {
+
+.intern-page {
   width: 60%;
   padding: 30px;
   margin: 0 auto;
 }
-.subtitle {
-  color: #666;
-  margin-bottom: 20px;
-}
-.projects-list {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-.project-card {
-  background: #fff;
-  border-radius: 12px;
-  padding: 18px;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
-}
-.meta {
-  display: flex;
-  gap: 18px;
-  margin-top: 10px;
-}
-.actions {
-  display: flex;
-  gap: 10px;
-  margin-top: 12px;
-}
-.secondary {
-  background: #eee;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 8px;
-  cursor: pointer;
-}
-.danger {
-  background: #ff4d4f;
-  color: white;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 8px;
-  cursor: pointer;
-}
+
 .empty {
   color: #777;
   text-align: center;
   margin-top: 60px;
+}
+
+.internships-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.pagination {
+  margin-top: 32px;
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+}
+
+.pagination button {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  background: #fff;
+  cursor: pointer;
+}
+
+.pagination button.active {
+  background: #5b3df5;
+  color: #fff;
+  border-color: #5b3df5;
+}
+
+.pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 </style>

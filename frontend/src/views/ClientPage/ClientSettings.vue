@@ -137,28 +137,34 @@ export default {
   display: flex;
   min-height: 100vh;
 }
+
 .settings-page {
   width: 60%;
   padding: 30px;
   margin: 0 auto;
 }
+
 .subtitle {
   color: #666;
   margin-bottom: 20px;
 }
+
 .card {
   background: #fff;
   padding: 18px;
   border-radius: 12px;
   margin-bottom: 18px;
 }
+
 .card h3 {
   margin-bottom: 12px;
 }
+
 label {
   display: block;
   margin-bottom: 10px;
 }
+
 input,
 select {
   width: 100%;
@@ -166,9 +172,11 @@ select {
   border-radius: 8px;
   border: 1px solid #ddd;
 }
+
 .actions {
   margin-top: 12px;
 }
+
 .primary-btn {
   padding: 10px 14px;
   background: #5b4b8a;

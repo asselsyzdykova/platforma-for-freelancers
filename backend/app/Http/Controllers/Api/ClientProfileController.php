@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
@@ -33,7 +34,7 @@ class ClientProfileController extends Controller
             );
 
         if ($request->hasFile('avatar')) {
-            $filename = time().'_'.$request->avatar->getClientOriginalName();
+            $filename = time() . '_' . $request->avatar->getClientOriginalName();
             $request->avatar->storeAs('avatars', $filename, 'public');
 
             $profile->avatar = $filename;

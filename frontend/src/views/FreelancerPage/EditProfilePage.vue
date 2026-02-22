@@ -19,20 +19,10 @@
       <div class="form-group">
         <label>Location</label>
         <div class="city-selector">
-          <input
-            v-model="citySearch"
-            type="text"
-            placeholder="Search city..."
-            @focus="showCitiesList = true"
-            @input="filterCities"
-          />
+          <input v-model="citySearch" type="text" placeholder="Search city..." @focus="showCitiesList = true"
+            @input="filterCities" />
           <div v-if="showCitiesList" class="cities-dropdown">
-            <div
-              v-for="city in filteredCities"
-              :key="city"
-              class="city-option"
-              @click="selectCity(city)"
-            >
+            <div v-for="city in filteredCities" :key="city" class="city-option" @click="selectCity(city)">
               {{ city }}
             </div>
             <div v-if="filteredCities.length === 0" class="no-results">No cities found</div>
@@ -41,48 +31,30 @@
         <div v-if="form.location" class="selected-city">Selected: {{ form.location }}</div>
       </div>
 
-<div class="form-group">
-  <label>Skills</label>
+      <div class="form-group">
+        <label>Skills</label>
 
-  <div class="skills-input">
-    <input
-      v-model="skillsInput"
-      type="text"
-      placeholder="Add a skill"
-      @input="onSkillInput"
-      @keydown.enter.prevent="addSkill()"
-    />
-    <button type="button" @click="addSkill()">Add</button>
-  </div>
+        <div class="skills-input">
+          <input v-model="skillsInput" type="text" placeholder="Add a skill" @input="onSkillInput"
+            @keydown.enter.prevent="addSkill()" />
+          <button type="button" @click="addSkill()">Add</button>
+        </div>
 
-  <div v-if="showSkillsDropdown && filteredSkills.length" class="cities-dropdown">
-    <div
-      v-for="skill in filteredSkills"
-      :key="skill"
-      class="city-option"
-      @click="addSkill(skill)"
-    >
-      {{ skill }}
-    </div>
-  </div>
+        <div v-if="showSkillsDropdown && filteredSkills.length" class="cities-dropdown">
+          <div v-for="skill in filteredSkills" :key="skill" class="city-option" @click="addSkill(skill)">
+            {{ skill }}
+          </div>
+        </div>
 
-  <div v-if="form.skills.length" class="skills-list">
-    <span
-      v-for="skill in form.skills"
-      :key="skill"
-      class="skill-chip"
-    >
-      {{ skill }}
-      <button
-        type="button"
-        class="remove-skill"
-        @click="removeSkill(skill)"
-      >
-        ×
-      </button>
-    </span>
-  </div>
-</div>
+        <div v-if="form.skills.length" class="skills-list">
+          <span v-for="skill in form.skills" :key="skill" class="skill-chip">
+            {{ skill }}
+            <button type="button" class="remove-skill" @click="removeSkill(skill)">
+              ×
+            </button>
+          </span>
+        </div>
+      </div>
 
 
       <div class="form-group certificates-group">
@@ -95,11 +67,7 @@
               ×
             </button>
           </div>
-          <div
-            v-for="(cert, index) in form.newCertificates"
-            :key="`new-${index}`"
-            class="certificate-item"
-          >
+          <div v-for="(cert, index) in form.newCertificates" :key="`new-${index}`" class="certificate-item">
             <span>{{ cert.name }}</span>
             <button type="button" class="remove-skill" @click="removeNewCertificate(index)">
               ×
@@ -508,15 +476,22 @@ button {
   border-radius: 8px;
   max-height: 220px;
   overflow: auto;
-  box-shadow: 0 8px 24px rgba(15,23,42,0.06);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
   z-index: 40;
 }
+
 .suggestion {
   padding: 10px 14px;
   cursor: pointer;
   border-bottom: 1px solid #f3efff;
 }
-.suggestion:hover { background: #f3efff }
-.no-suggestion { padding: 10px; color: #999 }
 
+.suggestion:hover {
+  background: #f3efff
+}
+
+.no-suggestion {
+  padding: 10px;
+  color: #999
+}
 </style>

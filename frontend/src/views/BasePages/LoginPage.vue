@@ -127,7 +127,7 @@ button {
 }
 
 button:hover {
-  background:linear-gradient(135deg, #5D3A9B, #7c3aed);
+  background: linear-gradient(135deg, #5D3A9B, #7c3aed);
 }
 
 .register-link {

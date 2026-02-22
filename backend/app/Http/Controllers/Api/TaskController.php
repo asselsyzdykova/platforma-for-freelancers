@@ -17,8 +17,8 @@ class TaskController extends Controller
         }
 
         $tasks = Task::where('manager_id', $managerId)
-                     ->orderBy('deadline', 'asc')
-                     ->paginate(5);
+            ->orderBy('deadline', 'asc')
+            ->paginate(5);
 
         return response()->json($tasks);
     }
@@ -30,7 +30,7 @@ class TaskController extends Controller
             'description' => 'nullable|string',
             'deadline' => 'required|date',
             'status' => 'nullable|string',
-            ]);
+        ]);
 
         $task = Task::create([
             'manager_id' => $data['manager_id'],
@@ -38,27 +38,26 @@ class TaskController extends Controller
             'description' => $data['description'] ?? null,
             'deadline' => $data['deadline'] ?? null,
             'status' => $data['status'] ?? null,
-            ]);
+        ]);
 
         return response()->json($task, 201);
     }
 
     public function update(Request $request, Task $task)
-{
-    $managerId = $request->user()->manager?->id;
+    {
+        $managerId = $request->user()->manager?->id;
 
-    if (!$managerId || $task->manager_id !== $managerId) {
-        return response()->json(['error' => 'Forbidden'], 403);
+        if (!$managerId || $task->manager_id !== $managerId) {
+            return response()->json(['error' => 'Forbidden'], 403);
+        }
+
+        $data = $request->validate([
+            'status' => 'required|string|in:Not set,Urgent,In-Progress,Done',
+        ]);
+
+        $task->status = $data['status'];
+        $task->save();
+
+        return response()->json($task);
     }
-
-    $data = $request->validate([
-        'status' => 'required|string|in:Not set,Urgent,In-Progress,Done',
-    ]);
-
-    $task->status = $data['status'];
-    $task->save();
-
-    return response()->json($task);
-}
-
 }

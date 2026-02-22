@@ -18,23 +18,17 @@
         <div v-if="form.role === 'freelancer'">
           <div class="form-group select-group">
             <select v-model="form.university" required>
-               <option value="" disabled selected hidden>Select your university</option>
-               <optgroup v-for="group in univerData.univery"
-               :key="group.mesto"
-               :label="group.mesto">
-               <option v-for="uni in group.univer"
-               :key="uni"
-               :label="uni">
-               {{ uni }}
-              </option>
+              <option value="" disabled selected hidden>Select your university</option>
+              <optgroup v-for="group in univerData.univery" :key="group.mesto" :label="group.mesto">
+                <option v-for="uni in group.univer" :key="uni" :label="uni">
+                  {{ uni }}
+                </option>
               </optgroup>
             </select>
 
             <select v-model="form.study_year" required>
               <option value="" disabled selected hidden>Select your study year</option>
-                <option v-for="rok in univerData.rok"
-                :key="rok"
-                :label="rok">
+              <option v-for="rok in univerData.rok" :key="rok" :label="rok">
                 {{ rok }}
               </option>
             </select>
@@ -54,19 +48,11 @@
         <div class="form-group">
           <label>Register as</label>
           <div class="role-selector">
-            <button
-              type="button"
-              :class="{ active: form.role === 'user' }"
-              @click="form.role = 'user'"
-            >
+            <button type="button" :class="{ active: form.role === 'user' }" @click="form.role = 'user'">
               👤 Client
             </button>
 
-            <button
-              type="button"
-              :class="{ active: form.role === 'freelancer' }"
-              @click="form.role = 'freelancer'"
-            >
+            <button type="button" :class="{ active: form.role === 'freelancer' }" @click="form.role = 'freelancer'">
               💼 Freelancer(Student)
             </button>
           </div>
@@ -116,7 +102,7 @@ const register = async () => {
   }
 
   try {
-     await api.post('/register', {
+    await api.post('/register', {
       name: form.name,
       email: form.email,
       password: form.password,
@@ -226,7 +212,7 @@ option.optgroup-separator {
   gap: 12px;
 }
 
-.select-group select + select {
+.select-group select+select {
   margin-top: 12px;
 }
 

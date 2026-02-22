@@ -1,10 +1,6 @@
 <template>
   <div class="card">
-    <img
-    :src="freelancer.avatar_url || '/default-avatar.png'"
-    class="avatar-img"
-    alt="Avatar"
-    />
+    <img :src="freelancer.avatar_url || '/default-avatar.png'" class="avatar-img" alt="Avatar" />
     <h3>{{ freelancer.name }}</h3>
     <p class="role">{{ freelancer.role }}</p>
 
@@ -17,12 +13,8 @@
       </span>
     </div>
 
-    <RouterLink
-      :to="{ name: 'PublicProfile', params: { id: freelancer.id } }"
-      class="view-btn"
-      target="_blank"
-      rel="noopener"
-    >
+    <RouterLink :to="{ name: 'PublicProfile', params: { id: freelancer.id } }" class="view-btn" target="_blank"
+      rel="noopener">
       View Profile
     </RouterLink>
   </div>

@@ -14,12 +14,12 @@ class ProjectController extends Controller
         $perPage = $perPage > 0 ? min($perPage, 50) : 8;
 
         $paginated = Project::with('client.clientProfile')
-        ->withCount([
-            'proposals as already_applied' => function ($q) {
-                $q->where('freelancer_id', Auth::id());
-            }
-        ])
-        ->latest()->paginate($perPage);
+            ->withCount([
+                'proposals as already_applied' => function ($q) {
+                    $q->where('freelancer_id', Auth::id());
+                }
+            ])
+            ->latest()->paginate($perPage);
 
         return response()->json([
             'data' => $paginated->items(),
@@ -34,15 +34,14 @@ class ProjectController extends Controller
 
     public function destroy($id)
     {
-    $project = Project::findOrFail($id);
+        $project = Project::findOrFail($id);
 
-    if ($project->client_id !== Auth::id()) {
-        return response()->json(['message' => 'Unauthorized'], 403);
+        if ($project->client_id !== Auth::id()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $project->delete();
+
+        return response()->json(['message' => 'Project deleted successfully']);
     }
-
-    $project->delete();
-
-    return response()->json(['message' => 'Project deleted successfully']);
-    }
-
 }

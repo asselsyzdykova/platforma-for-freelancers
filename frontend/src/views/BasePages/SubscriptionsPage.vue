@@ -36,19 +36,10 @@
         </ul>
 
         <div class="plan-actions">
-          <button
-            class="btn"
-            :class="proButton.class"
-            :disabled="proButton.disabled"
-            @click="proButton.onClick"
-          >
+          <button class="btn" :class="proButton.class" :disabled="proButton.disabled" @click="proButton.onClick">
             {{ proButton.label }}
           </button>
-          <button
-            class="btn paypal"
-            :disabled="proButton.disabled"
-            @click="subscribePayPal('pro')"
-          >
+          <button class="btn paypal" :disabled="proButton.disabled" @click="subscribePayPal('pro')">
             Pay with PayPal
           </button>
         </div>
@@ -67,19 +58,11 @@
         </ul>
 
         <div class="plan-actions">
-          <button
-            class="btn"
-            :class="premiumButton.class"
-            :disabled="premiumButton.disabled"
-            @click="premiumButton.onClick"
-          >
+          <button class="btn" :class="premiumButton.class" :disabled="premiumButton.disabled"
+            @click="premiumButton.onClick">
             {{ premiumButton.label }}
           </button>
-          <button
-            class="btn paypal"
-            :disabled="premiumButton.disabled"
-            @click="subscribePayPal('premium')"
-          >
+          <button class="btn paypal" :disabled="premiumButton.disabled" @click="subscribePayPal('premium')">
             Pay with PayPal
           </button>
         </div>
@@ -190,10 +173,10 @@ const freeButton = computed(() => {
 
 const proButton = computed(() => {
   if (currentPlan.value === 'pro') {
-    return { label: 'Current Plan', disabled: true, class: 'disabled', onClick: () => {} }
+    return { label: 'Current Plan', disabled: true, class: 'disabled', onClick: () => { } }
   }
   if (planRank(currentPlan.value) > planRank('pro')) {
-    return { label: 'Included in Premium', disabled: true, class: 'disabled', onClick: () => {} }
+    return { label: 'Included in Premium', disabled: true, class: 'disabled', onClick: () => { } }
   }
   return {
     label: 'Upgrade to Pro',
@@ -205,7 +188,7 @@ const proButton = computed(() => {
 
 const premiumButton = computed(() => {
   if (currentPlan.value === 'premium') {
-    return { label: 'Current Plan', disabled: true, class: 'disabled', onClick: () => {} }
+    return { label: 'Current Plan', disabled: true, class: 'disabled', onClick: () => { } }
   }
   return {
     label: 'Upgrade to Premium',

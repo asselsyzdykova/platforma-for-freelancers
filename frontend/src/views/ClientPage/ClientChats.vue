@@ -11,12 +11,7 @@
       <div v-else>
         <template v-if="conversations.length">
           <div class="list">
-            <div
-              class="conversation"
-              v-for="conv in conversations"
-              :key="conv.partner.id"
-              @click="openChat(conv)"
-            >
+            <div class="conversation" v-for="conv in conversations" :key="conv.partner.id" @click="openChat(conv)">
               <div class="left">
                 <div class="avatar-placeholder">{{ initials(conv.partner.name) }}</div>
               </div>
@@ -33,12 +28,8 @@
 
           <div class="pagination" v-if="totalPages > 1">
             <button :disabled="currentPage === 1" @click="currentPage--">Prev</button>
-            <button
-              v-for="page in totalPages"
-              :key="page"
-              :class="{ active: page === currentPage }"
-              @click="currentPage = page"
-            >
+            <button v-for="page in totalPages" :key="page" :class="{ active: page === currentPage }"
+              @click="currentPage = page">
               {{ page }}
             </button>
             <button :disabled="currentPage === totalPages" @click="currentPage++">Next</button>
@@ -132,20 +123,24 @@ export default {
   display: flex;
   min-height: 100vh;
 }
+
 .chats-page {
   width: 60%;
   padding: 30px;
   margin: 0 auto;
 }
+
 .subtitle {
   color: #666;
   margin-bottom: 30px;
 }
+
 .list {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
+
 .conversation {
   display: grid;
   grid-template-columns: 48px 1fr auto;
@@ -157,9 +152,11 @@ export default {
   cursor: pointer;
   transition: background 0.2s;
 }
+
 .conversation:hover {
   background: #f0f0f0;
 }
+
 .avatar-placeholder {
   width: 48px;
   height: 48px;
@@ -170,20 +167,24 @@ export default {
   justify-content: center;
   font-weight: 700;
 }
+
 .title {
   font-weight: 600;
   margin-bottom: 6px;
 }
+
 .body {
   font-size: 14px;
   color: #555;
 }
+
 .meta {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   gap: 6px;
 }
+
 .unread-count {
   background: #ff3b30;
   color: white;
@@ -191,11 +192,13 @@ export default {
   border-radius: 12px;
   font-size: 12px;
 }
+
 .time {
   font-size: 12px;
   color: #999;
   white-space: nowrap;
 }
+
 .empty {
   color: #777;
   text-align: center;
