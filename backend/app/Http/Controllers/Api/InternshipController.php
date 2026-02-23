@@ -193,8 +193,10 @@ class InternshipController extends Controller
      * Remove the specified resource from storage.
      */
 
-    public function applications($internshipId)
+    public function applications($internshipId, Request $request)
     {
+        $perPage = $request->query('per_page', 9);
+
         $internship = Internship::findOrFail($internshipId);
 
         if (Auth::id() !== $internship->client_id) {
@@ -212,12 +214,9 @@ class InternshipController extends Controller
                 'users.university',
             )
             ->latest('internship_applications.created_at')
-            ->get();
+            ->paginate($perPage);
 
-        return response()->json([
-            'data'  => $applications,
-            'meta'  => ['total' => $applications->count()]
-        ]);
+        return response()->json($applications);
     }
     public function destroy(string $id)
     {
