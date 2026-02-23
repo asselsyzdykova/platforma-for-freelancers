@@ -37,6 +37,7 @@ import VerifyEmail from '@/views/Email/EmailVerify.vue'
 import VerifySuccess from '@/views/Email/VerifySuccess.vue'
 import InternshipPage from '@/views/BasePages/InternshipPage.vue'
 import CreateIntern from '@/views/ClientPage/CreateIntern.vue'
+import InternshipProposals from '@/views/ClientPage/InternshipProposals.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -266,7 +267,17 @@ const router = createRouter({
       path: '/create-internship',
       name: 'CreateIntern',
       component: CreateIntern,
-    }
+    },
+    {
+      path: '/internships/:id/proposals',
+      name: 'InternshipProposals',
+      component: InternshipProposals,
+    },
+    {
+      path: '/internships/:id/applications',
+      name: 'InternshipApplications',
+      component: InternshipProposals,
+    },
   ],
 })
 

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\User;
 
 class Proposal extends Model
 {
@@ -22,7 +23,6 @@ class Proposal extends Model
     }
 
     public function freelancer() {
-        return $this->belongsTo(\App\Models\User::class, 'freelancer_id');
+        return $this->belongsTo(User::class, 'freelancer_id');
     }
-
 }

@@ -192,6 +192,33 @@ class InternshipController extends Controller
     /**
      * Remove the specified resource from storage.
      */
+
+    public function applications($internshipId)
+    {
+        $internship = Internship::findOrFail($internshipId);
+
+        if (Auth::id() !== $internship->client_id) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+
+        $applications = DB::table('internship_applications')
+            ->where('internship_id', $internshipId)
+            ->join('users', 'users.id', '=', 'internship_applications.user_id')
+            ->select(
+                'internship_applications.id',
+                'internship_applications.created_at',
+                'users.id as freelancer_id',
+                'users.name',
+                'users.university',
+            )
+            ->latest('internship_applications.created_at')
+            ->get();
+
+        return response()->json([
+            'data'  => $applications,
+            'meta'  => ['total' => $applications->count()]
+        ]);
+    }
     public function destroy(string $id)
     {
         $internship = Internship::findOrFail($id);

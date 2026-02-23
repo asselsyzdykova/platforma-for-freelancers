@@ -106,6 +106,8 @@ Route::post('/internships', [InternshipController::class, 'store'])
 Route::middleware('auth:sanctum')->post('/internships/{internship}/apply', [InternshipController::class, 'apply']);
 Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
 Route::middleware('auth:sanctum')->get('/internships/my', [InternshipController::class, 'my']);
+Route::middleware('auth:sanctum')->get('/internships/{internship}/applications',[InternshipController::class, 'applications']);
+
 // stripe paypal webhook
 Route::post('/stripe/webhook', [SubscriptionController::class, 'handleWebhook']);
 Route::post('/paypal/webhook', [SubscriptionController::class, 'handlePaypalWebhook']);
