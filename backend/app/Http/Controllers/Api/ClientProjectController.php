@@ -64,4 +64,30 @@ class ClientProjectController extends Controller
 
         return response()->json($project, 201);
     }
+
+    public function update(Request $request, $id)
+    {
+        $project = Project::findOrFail($id);
+
+        if ($project->client_id !== Auth::id()) {
+            return response()->json(['error' => 'Not your project'], 403);
+        }
+
+        $validated = $request->validate([
+            'title' => 'sometimes|string|max:255',
+            'description' => 'sometimes|string|max:255',
+            'budget' => 'sometimes|string|max:255',
+            'category' => 'sometimes|string|max:100',
+            'tags' => 'nullable|array',
+            'status' => 'sometimes|string'
+        ]);
+
+        $project->update($validated);
+
+        return response()->json($project);
+    }
+    public function show(Project $project)
+    {
+        return response()->json($project);
+    }
 }

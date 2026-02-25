@@ -47,7 +47,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/client/projects', [ClientProjectController::class, 'store']);
     Route::get('/client/projects', [ClientProjectController::class, 'index']);
     Route::get('/client/projects/{id}/proposals', [ProposalController::class, 'projectProposals']);
-
+    Route::patch('/client/projects/{id}', [ClientProjectController::class,'update']);
+    Route::get('/client/projects/{project}', [ClientProjectController::class, 'show']);
 
 
     Route::get('/freelancer/profile', [FreelancerProfileController::class, 'show']);

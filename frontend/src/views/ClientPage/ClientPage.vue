@@ -87,6 +87,9 @@
               <div class="actions">
                 <button class="secondary" @click="viewProposals(project.id)">View proposals</button>
                 <button class="danger" @click="deleteProject(project.id)">Delete project</button>
+                <RouterLink :to="{ name: 'CreateProject', query: { editId: project.id } }" class="secondary">
+                  Update
+                </RouterLink>
               </div>
             </div>
           </div>
@@ -153,8 +156,6 @@ export default {
     this.notificationTimer = setInterval(() => {
       this.loadNotifications()
     }, 15000)
-
-    window.addEventListener('projectCreated', this.loadClientProjects)
   },
 
   beforeUnmount() {
@@ -249,6 +250,30 @@ export default {
       }
     },
 
+
+    async updateProject(projectId) {
+      const project = this.projects.find(p => p.id === projectId)
+      if (!project) return
+
+      const payload = {
+        title: project.title,
+        description: project.description,
+        budget: project.budget,
+        category: project.category,
+        tags: JSON.stringify(project.tags || [])
+      }
+
+      try {
+        const res = await api.patch(`/client/projects/${projectId}`, payload)
+        const index = this.projects.findIndex(p => p.id === projectId)
+        if (index !== -1) this.projects[index] = res.data
+
+        this.openResultModal('Success', 'Project updated successfully!', 'success')
+      } catch (e) {
+        console.error('Failed to update project', e)
+        this.openResultModal('Failed', 'Failed to update project.', 'error')
+      }
+    },
     openResultModal(title, message, type) {
       this.resultTitle = title
       this.resultMessage = message
@@ -290,6 +315,13 @@ export default {
   },
 
   watch: {
+
+    $route(to) {
+      if (to.name === 'ClientProfile') {
+        this.loadClientProjects()
+      }
+    },
+
     currentPage() {
       this.loadClientProjects()
     },

@@ -1,9 +1,10 @@
 <template>
   <div class="create-project">
-    <h1>Create New Project</h1>
-    <p class="subtitle">Publish your project and find the right freelancer</p>
+    <h1>{{ isEdit ? 'Edit Project' : 'Create New Project' }}</h1>
+    <p class="subtitle">{{ isEdit ? 'Update your project details' : 'Publish your project and find the right freelancer'
+      }}</p>
 
-    <form class="card" @submit.prevent="createProject">
+    <form class="card" @submit.prevent="submitProject">
       <div class="field">
         <label>Project title</label>
         <input v-model="project.title" type="text" required />
@@ -45,7 +46,7 @@
       </div>
 
       <div class="actions">
-        <button type="submit" class="primary">Publish project</button>
+        <button type="submit" class="primary">{{ isEdit ? 'Update Project' : 'Publish Project' }}</button>
         <RouterLink :to="{ name: 'ClientProfile' }" exact-active-class="active" class="secondary">Cancel</RouterLink>
       </div>
     </form>
@@ -73,9 +74,19 @@ export default {
       tagInput: '',
       notifications: useNotificationStore(),
       categories,
+      isEdit: false,
+      editId: null,
     }
   },
 
+  mounted() {
+    const editId = this.$route.query.editId
+    if (editId) {
+      this.editId = editId
+      this.isEdit = true
+      this.loadProject(editId)
+    }
+  },
   methods: {
     addTag() {
       if (!this.tagInput.trim()) return
@@ -87,12 +98,30 @@ export default {
       this.project.tags.splice(index, 1)
     },
 
-    async createProject() {
+    async loadProject(id) {
+      try {
+        const res = await api.get(`/client/projects/${id}`)
+        const p = res.data
+
+        this.project.title = p.title || ''
+        this.project.description = p.description || ''
+        this.project.budget = p.budget || ''
+        this.project.category = categories.includes(p.category) ? p.category : 'Other'
+        this.project.otherCategory = categories.includes(p.category) ? '' : p.category
+        this.project.tags = Array.isArray(p.tags) ? p.tags : []
+      } catch (e) {
+        console.error('Failed to load project for edit', e)
+        this.notifications.error('Failed to load project data')
+      }
+    },
+
+    async submitProject() {
       try {
         if (this.project.category === 'Other' && !this.project.otherCategory.trim()) {
           this.notifications.error('Please specify the category.')
           return
         }
+
         const payload = {
           title: this.project.title,
           description: this.project.description,
@@ -100,16 +129,20 @@ export default {
           category: this.project.category === 'Other' ? this.project.otherCategory.trim() : this.project.category,
           tags: this.project.tags,
         }
-        await api.post('/client/projects', payload)
 
-        this.notifications.success('Project created successfully!')
+        if (this.isEdit && this.editId) {
+          await api.patch(`/client/projects/${this.editId}`, payload)
+          this.notifications.success('Project updated successfully!')
+        } else {
+          await api.post('/client/projects', payload)
+          this.notifications.success('Project created successfully!')
+        }
 
         window.dispatchEvent(new Event('projectCreated'))
-
         this.$router.push({ name: 'ClientProfile' })
       } catch (error) {
         console.error(error.response?.data || error)
-        this.notifications.error('Failed to create project. Check all fields.')
+        this.notifications.error(this.isEdit ? 'Failed to update project.' : 'Failed to create project.')
       }
     },
   },
@@ -192,6 +225,7 @@ select {
   border-radius: 14px;
   font-weight: 600;
   cursor: pointer;
+  pointer-events: auto;
 }
 
 .secondary {
