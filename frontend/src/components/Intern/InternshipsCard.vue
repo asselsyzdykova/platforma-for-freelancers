@@ -13,22 +13,53 @@
     <div class="btn2">
       <button class="btn" @click="goToProposals">View proposals</button>
     </div>
+    <div class="delete-btn">
+      <button class="button" @click="deleteInternship">Delete</button>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { useRouter } from 'vue-router'
-const router = useRouter()
+import api from '@/services/axios'
 
-const props =defineProps({
+const router = useRouter()
+const emit = defineEmits(['deleted'])
+const props = defineProps({
   intern: Object
 })
 const goToProposals = () => {
   router.push(`/internships/${props.intern.id}/applications`)
 }
+
+const deleteInternship = async () => {
+  try {
+    await api.delete(`/internships/${props.intern.id}`, {
+      withCredentials: true
+    })
+    emit('deleted', props.intern.id)
+  } catch (error) {
+    console.error(error)
+  }
+}
 </script>
 
 <style scoped>
+.button {
+  border-radius: 10px;
+  background: red;
+  color: white;
+  cursor: pointer;
+  border: none;
+  padding: 5px;
+}
+
+.delete-btn {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 5px;
+}
+
 .intern-card {
   background: #f3efff;
   padding: 20px;

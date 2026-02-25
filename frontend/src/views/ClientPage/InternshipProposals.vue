@@ -15,6 +15,9 @@
           <div class="proposal-card" v-for="proposal in proposals" :key="proposal.id">
             <h3>{{ proposal.name }}</h3>
             <p>{{ proposal.university }}</p>
+            <div class="delete-btn">
+              <button class="button">Delete</button>
+            </div>
           </div>
         </div>
       </div>
@@ -78,6 +81,18 @@ onMounted(loadProposals)
 </script>
 
 <style scoped>
+.button{
+  border-radius: 10px;
+  background: red;
+  color: white;
+  cursor: pointer;
+  border: none;
+  padding: 5px;
+}
+.delete-btn{
+  display: flex;
+  justify-content: flex-end;
+}
 .profile-layout {
   display: flex;
   min-height: 100vh;

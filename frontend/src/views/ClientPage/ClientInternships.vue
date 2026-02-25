@@ -10,8 +10,7 @@
           No internships yet
         </div>
         <div v-else class="internships-list">
-          <InternshipsCard v-for="intern in internships" :key="intern.id" :intern="intern" />
-
+          <InternshipsCard v-for="intern in internships" :key="intern.id" :intern="intern" @deleted="handleDeleted"/>
           <div class="pagination" v-if="totalPages > 1">
             <button :disabled="currentPage === 1" @click="currentPage--">Prev</button>
             <button v-for="page in totalPages" :key="page" :class="{ active: page === currentPage }"
@@ -62,6 +61,10 @@ const loadInternships = async () => {
   } finally {
     loading.value = false
   }
+}
+
+const handleDeleted = (id) => {
+  internships.value = internships.value.filter(item => item.id !== id)
 }
 
 loadInternships()

@@ -16,6 +16,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'stripe/webhook',
             'api/stripe/webhook',
         ]);
+
+        $middleware->append(\Illuminate\Http\Middleware\HandleCors::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
