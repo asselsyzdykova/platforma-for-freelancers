@@ -60,10 +60,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/freelancer/profile', [FreelancerProfileController::class, 'destroy']);
 
     //subscriptions
-    Route::middleware('auth:sanctum')->post('/create-checkout-session', [SubscriptionController::class, 'createCheckoutSession']);
-    Route::middleware('auth:sanctum')->post('/paypal/create-subscription', [SubscriptionController::class, 'createPaypalSubscription']);
-    Route::middleware('auth:sanctum')->post('/subscriptions/confirm', [SubscriptionController::class, 'confirmCheckout']);
-    Route::middleware('auth:sanctum')->post('/subscriptions/confirm-paypal', [SubscriptionController::class, 'confirmPaypalSubscription']);
+    Route::post('/create-checkout-session', [SubscriptionController::class, 'createCheckoutSession']);
+    Route::post('/paypal/create-subscription', [SubscriptionController::class, 'createPaypalSubscription']);
+    Route::post('/subscriptions/confirm', [SubscriptionController::class, 'confirmCheckout']);
+    Route::post('/subscriptions/confirm-paypal', [SubscriptionController::class, 'confirmPaypalSubscription']);
     Route::post('/subscriptions/checkout', [SubscriptionController::class, 'checkout']);
     Route::get('/billing/transactions', [SubscriptionController::class, 'transactions']);
     Route::post('/subscriptions/cancel', [SubscriptionController::class, 'cancel']);

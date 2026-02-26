@@ -90,6 +90,7 @@ export default {
   background: #5b4b8a;
   color: white;
   border: none;
+  cursor: pointer;
 }
 
 .notice {

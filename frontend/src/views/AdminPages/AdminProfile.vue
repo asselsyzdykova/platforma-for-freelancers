@@ -32,9 +32,13 @@
           {{ stats.projectGrowth < 0 ? '▼' : '▲' }} {{ Math.abs(stats.projectGrowth) }}% this month </span>
       </div>
       <div class="stat-card">
-        <p class="label">Pending reviews</p>
-        <h2>{{ stats.pendingReviews }}</h2>
-        <span class="trend">{{ stats.pendingNote }}</span>
+        <p class="label">Subscriptions</p>
+        <h2>{{ stats.subscriptionsCount }}</h2>
+        <span class="trend up">
+          Active: {{ stats.activeSubscriptions }} |
+          Canceled: {{ stats.canceledSubscriptions }} |
+          Free: {{ stats.freeSubscriptions }}
+        </span>
       </div>
     </section>
 
@@ -305,8 +309,10 @@ const stats = reactive({
   freelancerGrowth: 0,
   activeProjects: 0,
   projectGrowth: 0,
-  pendingReviews: 31,
-  pendingNote: '7 require manual check',
+  subscriptionsCount: 0,
+  activeSubscriptions: 0,
+  canceledSubscriptions: 0,
+  freeSubscriptions: 0,
   avgResponse: 1.8,
   tickets: 14,
 })
@@ -324,6 +330,15 @@ const loadAdminStats = async () => {
       }))
 
     }
+
+    if (data?.subscriptions) {
+      const subs = data.subscriptions
+      stats.subscriptionsCount = subs.subs_count
+      stats.activeSubscriptions = subs.subs_active
+      stats.canceledSubscriptions = subs.subs_canceled
+      stats.freeSubscriptions = subs.subs_free
+    }
+
     if (typeof data?.user_growth === 'number') {
       stats.userGrowth = data.user_growth
       stats.freelancerGrowth = data.freelancer_growth
@@ -635,8 +650,13 @@ const initDatePicker = () => {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideUp {
@@ -644,11 +664,13 @@ const initDatePicker = () => {
     opacity: 0;
     transform: translateY(15px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
+
 .date-input {
   border: 1px solid #e5e7eb;
   border-radius: 12px;

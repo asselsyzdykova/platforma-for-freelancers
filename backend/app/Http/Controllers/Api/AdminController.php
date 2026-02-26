@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Project;
 use App\Models\Manager;
 use Carbon\Carbon;
+use App\Models\Subscription;
 
 class AdminController extends Controller
 {
@@ -59,7 +60,6 @@ class AdminController extends Controller
             $projectGrowth = 100;
         }
 
-
         return response()->json([
             'total_freelancers' => (int) User::where(
                 'role',
@@ -77,6 +77,13 @@ class AdminController extends Controller
             //recent signups
 
             'recent_signups' => User::latest()->take(5)->get(['id', 'name', 'email', 'role', 'university', 'created_at']),
+
+            'subscriptions' => [
+                'subs_count' => (int) Subscription::count(),
+                'subs_active' => (int) Subscription::where('status', 'active')->count(),
+                'subs_canceled' => (int) Subscription::where('status', 'canceled')->count(),
+                'subs_free' => (int) Subscription::where('provider_id', 'free')->count(),
+            ],
         ]);
     }
 
