@@ -8,7 +8,7 @@
       <div class="actions">
         <RouterLink :to="{ name: 'AdminChats' }" class="btn ghost">My Chats</RouterLink>
         <button class="btn ghost">Export report</button>
-        <button class="btn primary">Create announcement</button>
+        <button class="btn primary" @click="openAnnouncementModal">Create announcement</button>
       </div>
     </header>
 
@@ -101,14 +101,39 @@
             <h4 class="status ok">Operational</h4>
           </div>
         </div>
-        <div class="announcements">
-          <h4>Announcements</h4>
-          <ul>
-            <li v-for="item in announcements" :key="item.id">
-              <strong>{{ item.title }}</strong>
-              <span>{{ item.meta }}</span>
-            </li>
-          </ul>
+        <div v-if="showAnnouncementModal" class="modal-overlay-task" @click.self="closeAnnouncementModal">
+          <div class="modal-task">
+            <div class="modal-header">
+              <h2>Create Announcement</h2>
+              <button @click="closeAnnouncementModal" class="close-btn">✖</button>
+            </div>
+
+            <div class="form-group">
+              <label>Title</label>
+              <input v-model="announcementTitle" placeholder="Enter title..." />
+            </div>
+
+            <div class="form-group">
+              <label>Content</label>
+              <textarea v-model="announcementContent" rows="4" placeholder="Write announcement..."></textarea>
+            </div>
+
+            <div class="form-group checkbox">
+              <label>
+                <input type="checkbox" v-model="announcementActive" />
+                Active
+              </label>
+            </div>
+
+            <div class="modal-actions">
+              <button class="btn primary" @click="createAnnouncement" :disabled="announcementLoading">
+                {{ announcementLoading ? 'Creating...' : 'Create' }}
+              </button>
+              <button class="btn ghost" @click="closeAnnouncementModal" :disabled="announcementLoading">
+                Cancel
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -232,6 +257,46 @@ import flatpickr from 'flatpickr'
 import 'flatpickr/dist/flatpickr.min.css'
 
 const filterRole = ref('all')
+const showAnnouncementModal = ref(false)
+const announcementTitle = ref('')
+const announcementContent = ref('')
+const announcementActive = ref(true)
+const announcementLoading = ref(false)
+
+const openAnnouncementModal = () => {
+  announcementTitle.value = ''
+  announcementContent.value = ''
+  announcementActive.value = true
+  showAnnouncementModal.value = true
+}
+
+const closeAnnouncementModal = () => {
+  showAnnouncementModal.value = false
+}
+
+const createAnnouncement = async () => {
+  if (!announcementTitle.value.trim()) {
+    showToast('Title is required', 'error')
+    return
+  }
+
+  announcementLoading.value = true
+
+  try {
+    await api.post('/admin/news', {
+      title: announcementTitle.value,
+      content: announcementContent.value,
+      is_active: announcementActive.value,
+    })
+
+    showToast('Announcement created successfully', 'success')
+    closeAnnouncementModal()
+  } catch {
+    showToast('Failed to create announcement', 'error')
+  } finally {
+    announcementLoading.value = false
+  }
+}
 
 const stats = reactive({
   totalUsers: 0,
@@ -284,12 +349,6 @@ onMounted(() => {
 })
 
 const recentUsers = ref([])
-
-const announcements = [
-  { id: 1, title: 'Spring internship fair', meta: 'Published 2 hours ago' },
-  { id: 2, title: 'New verification checklist', meta: 'Published yesterday' },
-  { id: 3, title: 'Payment update', meta: 'Scheduled for Friday' },
-]
 
 
 const managers = ref([])
@@ -481,6 +540,115 @@ const initDatePicker = () => {
 </script>
 
 <style scoped>
+.modal-overlay-task {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fadeIn 0.2s ease;
+}
+
+.modal-task {
+  width: 100%;
+  max-width: 500px;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 28px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.15);
+  animation: slideUp 0.25s ease;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.modal-header h2 {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: 0.2s;
+}
+
+.close-btn:hover {
+  opacity: 1;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 18px;
+}
+
+.form-group label {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 6px;
+  color: #334155;
+}
+
+.form-group input,
+.form-group textarea {
+  padding: 10px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: 0.2s;
+  resize: none;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  border-color: #6366f1;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.form-group.checkbox {
+  flex-direction: row;
+  align-items: center;
+}
+
+.form-group.checkbox input {
+  margin-right: 8px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 .date-input {
   border: 1px solid #e5e7eb;
   border-radius: 12px;

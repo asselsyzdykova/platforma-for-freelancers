@@ -1,5 +1,25 @@
 <template>
   <div class="home">
+
+    <div v-if="activeNews.length" class="news">
+      <div class="news-header">
+        <h2>Latest Announcements</h2>
+      </div>
+
+      <div class="news-list">
+        <div v-for="item in activeNews" :key="item.id" class="news-card">
+          <h3>{{ item.title }}</h3>
+          <p>{{ item.content }}</p>
+          <span class="news-date">
+            {{ formatDate(item.created_at) }}
+          </span>
+
+          <div class="dlt-btn" v-if="isAdmin">
+            <button class="delete" @click="deleteNews(item.id)">Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
     <section class="hero">
       <div class="hero-left">
         <span class="pill">Verified Slovak student talent</span>
@@ -120,13 +140,24 @@ import { ref, onMounted, computed } from 'vue'
 import api from '@/services/axios'
 import CategoryList from '@/components/HomePage/CategoryList.vue'
 import FreelancerCard from '@/components/HomePage/FreelancerCard.vue'
+import { useUserStore } from '@/stores/userStore'
+
+const UserStore = useUserStore()
+const isAdmin = computed(() => UserStore.user?.role === 'admin')
 
 const freelancers = ref([])
 const query = ref('')
 const activeCity = ref('Bratislava')
 const sliderRef = ref(null)
+const news = ref([])
 
-
+const formatDate = (date) => {
+  if (!date) return ''
+  return new Date(date).toLocaleDateString()
+}
+const activeNews = computed(() =>
+  news.value.filter(n => Number(n.is_active) === 1)
+)
 const cities = [
   { name: 'Bratislava' },
   { name: 'Košice' },
@@ -184,6 +215,9 @@ onMounted(async () => {
   try {
     const res = await api.get('/freelancers', { params: { per_page: 100 } })
     freelancers.value = res.data?.data || []
+
+    const newsRes = await api.get('/news')
+    news.value = newsRes.data?.data || newsRes.data || []
   } catch (e) {
     console.error(e)
   }
@@ -194,6 +228,19 @@ const scrollSlider = (direction) => {
   const cardWidth = sliderRef.value.querySelector('.freelancer-slide')?.offsetWidth || 300
   sliderRef.value.scrollBy({ left: direction * (cardWidth + 24), behavior: 'smooth' })
 }
+
+const deleteNews = async (id) => {
+  try {
+    await api.delete(`/news/${id}`, {
+      headers: {
+        Authorization: `Bearer ${UserStore.token}`,
+      },
+    })
+    news.value = news.value.filter(n => n.id !== id)
+  } catch (err) {
+    console.error(err)
+  }
+}
 </script>
 
 <style scoped>
@@ -202,6 +249,63 @@ const scrollSlider = (direction) => {
   padding: 48px 40px 96px;
   overflow: hidden;
   background: radial-gradient(circle at top, #f4f2ff 0%, #ffffff 60%);
+}
+
+.delete {
+  border-radius: 5px;
+  background: red;
+  padding: 5px;
+  border: none;
+  color: white;
+  cursor: pointer;
+}
+
+.dlt-btn {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.news {
+  background: linear-gradient(135deg, #5D3A9B, #7c3aed);
+  border-radius: 20px;
+  padding: 28px;
+  color: white;
+  box-shadow: 0 16px 30px rgba(15, 23, 42, 0.1);
+}
+
+.news-header {
+  margin-bottom: 18px;
+}
+
+.news-header h2 {
+  margin: 0;
+}
+
+.news-list {
+  display: grid;
+  gap: 16px;
+}
+
+.news-card {
+  background: rgba(255, 255, 255, 0.12);
+  padding: 16px;
+  border-radius: 14px;
+  backdrop-filter: blur(6px);
+}
+
+.news-card h3 {
+  margin-bottom: 6px;
+}
+
+.news-date {
+  display: block;
+  margin-top: 8px;
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.news-empty {
+  opacity: 0.8;
 }
 
 section {
@@ -231,7 +335,7 @@ section {
   padding: 6px 12px;
   border-radius: 999px;
   background: rgba(91, 61, 245, 0.1);
-  color: linear-gradient(135deg, #5D3A9B, #7c3aed);
+  color: #5D3A9B;
   font-weight: 600;
   font-size: 12px;
   letter-spacing: 0.02em;
@@ -312,13 +416,13 @@ section {
 
 .btn.primary {
   background: white;
-  color: linear-gradient(135deg, #5D3A9B, #7c3aed);
+  color: #5D3A9B;
   border: 1px solid #d7d3ff;
 }
 
 .btn.ghost {
   border: 1px solid #d7d3ff;
-  color: linear-gradient(135deg, #5D3A9B, #7c3aed);
+  color: #5D3A9B;
   background: white;
 }
 
@@ -337,7 +441,7 @@ section {
 .count {
   background: rgba(124, 93, 250, 0.14);
   border: 1px solid rgba(124, 93, 250, 0.2);
-  color: linear-gradient(135deg, #5D3A9B, #7c3aed);
+  color: #5D3A9B;
   padding: 8px 14px;
   border-radius: 999px;
   font-weight: 600;

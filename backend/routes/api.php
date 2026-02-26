@@ -20,6 +20,7 @@ use App\Http\Controllers\Api\AdminController;
 use App\Http\Controllers\Api\TaskController;
 use App\Http\Controllers\Api\EmailVerificationController;
 use App\Http\Controllers\Api\InternshipController;
+use App\Http\Controllers\Api\NewsController;
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/projects/{id}/apply', [ProposalController::class, 'apply']);
@@ -47,7 +48,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/client/projects', [ClientProjectController::class, 'store']);
     Route::get('/client/projects', [ClientProjectController::class, 'index']);
     Route::get('/client/projects/{id}/proposals', [ProposalController::class, 'projectProposals']);
-    Route::patch('/client/projects/{id}', [ClientProjectController::class,'update']);
+    Route::patch('/client/projects/{id}', [ClientProjectController::class, 'update']);
     Route::get('/client/projects/{project}', [ClientProjectController::class, 'show']);
 
 
@@ -73,6 +74,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/admin/managers', [ManagerController::class, 'store']);
     Route::delete('/admin/managers/{id}', [ManagerController::class, 'destroy']);
     Route::post('/admin/tasks', [TaskController::class, 'store']);
+    Route::get('/news', [NewsController::class, 'index']);
+    Route::post('/admin/news', [NewsController::class, 'store']);
+    Route::delete('/news/{id}', [NewsController::class, 'destroy']);
+
+
 
     //managers
     Route::get('/manager/dashboard', [ManagerController::class, 'dashboard']);
@@ -107,7 +113,7 @@ Route::post('/internships', [InternshipController::class, 'store'])
 Route::middleware('auth:sanctum')->post('/internships/{internship}/apply', [InternshipController::class, 'apply']);
 Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
 Route::middleware('auth:sanctum')->get('/internships/my', [InternshipController::class, 'my']);
-Route::middleware('auth:sanctum')->get('/internships/{internship}/applications',[InternshipController::class, 'applications']);
+Route::middleware('auth:sanctum')->get('/internships/{internship}/applications', [InternshipController::class, 'applications']);
 Route::middleware('auth:sanctum')
     ->delete('/internships/{internship}', [InternshipController::class, 'destroy']);
 // stripe paypal webhook

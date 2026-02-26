@@ -45,8 +45,6 @@ const login = async () => {
   }
 
   try {
-
-    await api.get('/sanctum/csrf-cookie')
     const response = await api.post('/login', {
       email: email.value,
       password: password.value,
