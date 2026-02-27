@@ -14,11 +14,11 @@
 
         <label>
           Message
-          <textarea v-model="message" rows="6" required></textarea>
+          <textarea v-model="description" rows="6" required></textarea>
         </label>
 
         <div class="actions">
-          <button class="primary-btn">Send</button>
+          <button class="primary-btn" @click="sendTicket">Send</button>
         </div>
 
         <p v-if="sent" class="notice">Thanks! We'll reply soon.</p>
@@ -36,15 +36,15 @@ export default {
   name: 'ClientSupport',
   components: { ClientSidebar },
   data() {
-    return { subject: '', message: '', sent: false, notifications: useNotificationStore() }
+    return { subject: '', description: '', sent: false, notifications: useNotificationStore() }
   },
   methods: {
-    async sendSupportMessage() {
+    async sendTicket() {
       try {
-        await api.post('/notifications', { title: this.subject, body: this.message })
+        await api.post('/tickets', { subject: this.subject, description: this.description })
         this.sent = true
         this.subject = ''
-        this.message = ''
+        this.description = ''
       } catch (e) {
         console.error('Failed to send support message', e)
         this.notifications.error('Failed to send message')

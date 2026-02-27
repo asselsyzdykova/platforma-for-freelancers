@@ -61,7 +61,6 @@ class ManagerController extends Controller
                 'responseDrop' => 12,
             ],
             'tasks' => Task::where('manager_id', $manager->id)->get(),
-            'activity' => Activity::latest()->take(5)->get(),
             'notes' => Note::where('manager_id', $manager->id)->get(),
         ]);
     }

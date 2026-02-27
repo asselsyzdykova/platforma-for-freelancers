@@ -98,9 +98,10 @@ Route::middleware('auth:sanctum')->group(function () {
     // manager support
     Route::get('/tickets', [SupportController::class, 'index']);
     Route::put('/tickets/{id}', [SupportController::class, 'update']);
+    Route::get('/manager/tickets/latest', [SupportController::class, 'latest']);
+    Route::get('/manager/tickets', [SupportController::class, 'allTickets']);
 
     //intern
-    Route::get('/internships', [InternshipController::class, 'index']);
     Route::post('/internships', [InternshipController::class, 'store']);
     Route::post('/internships/{internship}/apply', [InternshipController::class, 'apply']);
     Route::post('/logout', [AuthController::class, 'logout']);
@@ -113,10 +114,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/projects', [ProjectController::class, 'index']);
     Route::get('/freelancers', [FreelancerListController::class, 'index']);
     Route::get('/me', [UserController::class, 'me']);
-
-
 });
-
+Route::get('/internships', [InternshipController::class, 'index']);
 
 Route::get('/cities', [CityController::class, 'index']);
 Route::post('/register', [AuthController::class, 'register']);

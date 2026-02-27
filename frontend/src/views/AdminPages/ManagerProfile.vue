@@ -84,18 +84,23 @@
       <!--5 kvadrat-->
       <div class="panel">
         <div class="panel-head">
-          <h3>Recent activity</h3>
-          <button class="btn link">Audit log</button>
+          <h3>Tickets</h3>
         </div>
         <ul class="activity">
-          <li v-for="item in activity" :key="item.id">
+          <li v-for="ticket in latestTickets" :key="ticket.id">
             <span class="activity-dot"></span>
             <div>
-              <strong>{{ item.title }}</strong>
-              <p>{{ item.detail }}</p>
+              <strong>{{ ticket.subject }}</strong>
+              <p>{{ ticket.user.name }}</p>
             </div>
-            <span class="time">{{ item.time }}</span>
+            <span class="time">
+              {{ formatDate(ticket.created_at) }}
+            </span>
           </li>
+
+          <RouterLink :to="{ name: 'ManagerTickets' }" class="btn link">
+            View all
+          </RouterLink>
         </ul>
       </div>
     </section>
@@ -127,8 +132,13 @@ import api from '@/services/axios'
 const manager = ref(null)
 const stats = ref(null)
 const tasks = ref([])
-const activity = ref([])
 const notes = ref([])
+const latestTickets = ref([])
+
+const loadLatestTickets = async () => {
+  const res = await api.get('/manager/tickets/latest')
+  latestTickets.value = res.data
+}
 
 const pagination = ref({
   currentPage: 1,
@@ -156,7 +166,6 @@ const loadDashboard = async () => {
     const res = await api.get('/manager/dashboard')
     manager.value = res.data.manager
     stats.value = res.data.stats
-    activity.value = res.data.activity
     notes.value = res.data.notes
   } catch (err) {
     console.error('Failed to load manager data:', err)
@@ -179,6 +188,7 @@ const loadTasks = async (page = 1) => {
 onMounted(async () => {
   await loadDashboard()
   await loadTasks()
+  await loadLatestTickets()
 })
 
 const openedTaskId = ref(null)

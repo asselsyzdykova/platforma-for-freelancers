@@ -38,6 +38,7 @@ import VerifySuccess from '@/views/Email/VerifySuccess.vue'
 import InternshipPage from '@/views/BasePages/InternshipPage.vue'
 import CreateIntern from '@/views/ClientPage/CreateIntern.vue'
 import InternshipProposals from '@/views/ClientPage/InternshipProposals.vue'
+import ManagerTickets from '@/views/AdminPages/ManagerTickets.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -278,6 +279,11 @@ const router = createRouter({
       name: 'InternshipApplications',
       component: InternshipProposals,
     },
+    {
+      path: '/manager/tickets',
+      name: 'ManagerTickets',
+      component: ManagerTickets,
+    }
   ],
 })
 
