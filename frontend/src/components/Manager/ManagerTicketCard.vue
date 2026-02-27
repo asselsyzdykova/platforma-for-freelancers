@@ -15,12 +15,8 @@
     <p class="description">
       {{ ticket.description }}
     </p>
-
-    <div class="response-section">
-      <textarea
-        v-model="localResponse"
-        placeholder="Write your response..."
-      ></textarea>
+    <div v-if="!resolved" class="response-section">
+      <textarea v-model="localResponse" placeholder="Write your response..."></textarea>
 
       <div class="actions">
         <button @click="$emit('in-progress', ticket)">
@@ -32,11 +28,15 @@
         </button>
       </div>
     </div>
+    <div v-else class="resolved-response">
+      <h5>Response:</h5>
+      <p>{{ localResponse }}</p>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 
 const props = defineProps({
   ticket: Object
@@ -45,6 +45,15 @@ const props = defineProps({
 const emit = defineEmits(['resolve', 'in-progress'])
 
 const localResponse = ref('')
+const resolved = ref(false)
+
+onMounted(() => {
+  if (props.ticket.status === 'resolved') {
+    resolved.value = true
+    localResponse.value = props.ticket.response || ''
+  }
+})
+
 watch(
   () => props.ticket.response,
   (newVal) => {
@@ -57,6 +66,7 @@ const resolveTicket = () => {
     ...props.ticket,
     response: localResponse.value
   })
+  resolved.value = true
 }
 
 const formatDate = (date) => {
@@ -69,7 +79,7 @@ const formatDate = (date) => {
   padding: 20px;
   border-radius: 12px;
   margin-bottom: 20px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
   transition: transform 0.2s;
 }
 
@@ -153,5 +163,15 @@ const formatDate = (date) => {
 .actions button:not(.resolve) {
   background: #039be5;
   color: white;
+}
+.resolved-response h5 {
+  margin-bottom: 4px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.resolved-response p {
+  font-size: 14px;
+  color: #333;
 }
 </style>
