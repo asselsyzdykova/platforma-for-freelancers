@@ -21,27 +21,20 @@ use App\Http\Controllers\Api\TaskController;
 use App\Http\Controllers\Api\EmailVerificationController;
 use App\Http\Controllers\Api\InternshipController;
 use App\Http\Controllers\Api\NewsController;
+use App\Http\Controllers\Api\SupportController;
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/projects/{id}/apply', [ProposalController::class, 'apply']);
 
+    //client
     Route::get('/client/applications/{id}', [ProposalController::class, 'show']);
     Route::post('/client/applications/{id}/view', [ProposalController::class, 'view']);
     Route::post('/client/applications/{id}/review', [ProposalController::class, 'review']);
     Route::post('/client/applications/{id}/accept', [ProposalController::class, 'accept']);
     Route::post('/client/applications/{id}/reject', [ProposalController::class, 'reject']);
-
-    Route::get('/freelancer/proposals', [ProposalController::class, 'freelancerProposals']);
-
     Route::get('/client/notifications', [NotificationController::class, 'index']);
     Route::post('/client/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
     Route::post('/notifications', [NotificationController::class, 'store']);
-
-    Route::get('/freelancer/notifications', [FreelancerNotificationController::class, 'index']);
-    Route::post('/freelancer/notifications/{id}/read', [FreelancerNotificationController::class, 'markAsRead']);
-    Route::get('/freelancer/notifications-unread-count', [FreelancerNotificationController::class, 'unreadCount']);
-
-
     Route::get('/client/profile', [ClientProfileController::class, 'show']);
     Route::post('/client/profile', [ClientProfileController::class, 'update']);
     Route::post('/change-password', [AuthController::class, 'changePassword']);
@@ -50,14 +43,20 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/client/projects/{id}/proposals', [ProposalController::class, 'projectProposals']);
     Route::patch('/client/projects/{id}', [ClientProjectController::class, 'update']);
     Route::get('/client/projects/{project}', [ClientProjectController::class, 'show']);
+    Route::delete('/client/projects/{project}', [ProjectController::class, 'destroy']);
 
-
+    //freelancer
+    Route::get('/freelancer/proposals', [ProposalController::class, 'freelancerProposals']);
+    Route::get('/freelancer/notifications', [FreelancerNotificationController::class, 'index']);
+    Route::post('/freelancer/notifications/{id}/read', [FreelancerNotificationController::class, 'markAsRead']);
+    Route::get('/freelancer/notifications-unread-count', [FreelancerNotificationController::class, 'unreadCount']);
     Route::get('/freelancer/profile', [FreelancerProfileController::class, 'show']);
     Route::post('/freelancer/profile', [FreelancerProfileController::class, 'update']);
     Route::get('/skills', [FreelancerProfileController::class, 'allSkills']);
     Route::put('/freelancer/account', [FreelancerProfileController::class, 'update']);
     Route::put('/freelancer/account', [FreelancerProfileController::class, 'updateAccount']);
     Route::delete('/freelancer/profile', [FreelancerProfileController::class, 'destroy']);
+
 
     //subscriptions
     Route::post('/create-checkout-session', [SubscriptionController::class, 'createCheckoutSession']);
@@ -79,7 +78,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/news/{id}', [NewsController::class, 'destroy']);
 
 
-
     //managers
     Route::get('/manager/dashboard', [ManagerController::class, 'dashboard']);
     Route::get('/manager/tasks', [TaskController::class, 'getManagerTasks']);
@@ -91,31 +89,39 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/messages/{userId}', [ChatController::class, 'index']);
     Route::post('/messages', [ChatController::class, 'store']);
     Route::post('/messages/{userId}/read', [ChatController::class, 'markAsRead']);
+
+    //support
+    // users support
+    Route::post('/tickets', [SupportController::class, 'store']);
+    Route::get('/my-tickets', [SupportController::class, 'myTickets']);
+
+    // manager support
+    Route::get('/tickets', [SupportController::class, 'index']);
+    Route::put('/tickets/{id}', [SupportController::class, 'update']);
+
+    //intern
+    Route::get('/internships', [InternshipController::class, 'index']);
+    Route::post('/internships', [InternshipController::class, 'store']);
+    Route::post('/internships/{internship}/apply', [InternshipController::class, 'apply']);
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::get('/internships/my', [InternshipController::class, 'my']);
+    Route::get('/internships/{internship}/applications', [InternshipController::class, 'applications']);
+    Route::delete('/internships/{internship}', [InternshipController::class, 'destroy']);
+
+    //basepages
+
+    Route::get('/projects', [ProjectController::class, 'index']);
+    Route::get('/freelancers', [FreelancerListController::class, 'index']);
+    Route::get('/me', [UserController::class, 'me']);
+
+
 });
 
 
-Route::middleware('auth:sanctum')->get('/projects', [ProjectController::class, 'index']);
-Route::middleware('auth:sanctum')->delete('/client/projects/{project}', [ProjectController::class, 'destroy']);
-
-Route::get('/freelancers', [FreelancerListController::class, 'index']);
-
 Route::get('/cities', [CityController::class, 'index']);
-
-Route::middleware('auth:sanctum')->get('/me', [UserController::class, 'me']);
-
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
-//intern
-Route::get('/internships', [InternshipController::class, 'index']);
-Route::post('/internships', [InternshipController::class, 'store'])
-    ->middleware('auth:sanctum');
-Route::middleware('auth:sanctum')->post('/internships/{internship}/apply', [InternshipController::class, 'apply']);
-Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
-Route::middleware('auth:sanctum')->get('/internships/my', [InternshipController::class, 'my']);
-Route::middleware('auth:sanctum')->get('/internships/{internship}/applications', [InternshipController::class, 'applications']);
-Route::middleware('auth:sanctum')
-    ->delete('/internships/{internship}', [InternshipController::class, 'destroy']);
 // stripe paypal webhook
 Route::post('/stripe/webhook', [SubscriptionController::class, 'handleWebhook']);
 Route::post('/paypal/webhook', [SubscriptionController::class, 'handlePaypalWebhook']);
