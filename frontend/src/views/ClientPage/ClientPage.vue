@@ -290,7 +290,7 @@ export default {
 
     async loadNotifications() {
       try {
-        const res = await api.get('/client/notifications')
+        const res = await api.get('/notifications')
         const list = res.data?.data || res.data || []
         this.notifications = Array.isArray(list)
           ? list.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
@@ -303,7 +303,7 @@ export default {
     openNotification(note) {
       if (!note.is_read) {
         api
-          .post(`/client/notifications/${note.id}/read`)
+          .post(`/notifications/${note.id}/read`)
           .then(() => (note.is_read = true))
           .catch((e) => console.error(e))
       }

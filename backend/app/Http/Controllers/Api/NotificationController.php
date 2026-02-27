@@ -11,11 +11,10 @@ class NotificationController extends Controller
 {
     public function index(Request $request)
     {
-        $userId = Auth::id();
         $perPage = (int) $request->get('per_page', 10);
         $perPage = $perPage > 0 ? min($perPage, 50) : 10;
 
-        $paginated = Notification::where('user_id', $userId)
+        $paginated = Notification::where('user_id', Auth::id())
             ->orderBy('created_at', 'desc')
             ->paginate($perPage);
 
@@ -36,23 +35,34 @@ class NotificationController extends Controller
             ->where('id', $id)
             ->firstOrFail();
 
-        $notification->is_read = true;
-        $notification->save();
-
-        return response()->json(['success' => true]);
-    }
-
-    public function store(Request $request)
-    {
-        $data = $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'type' => 'required|string',
-            'title' => 'required|string',
-            'body' => 'required|string',
-            'link' => 'nullable|string',
+        $notification->update([
+            'is_read' => true
         ]);
 
-        $notification = Notification::create($data);
-        return response()->json($notification, 201);
+        return response()->json([
+            'success' => true
+        ]);
+    }
+
+    public function markAllAsRead()
+    {
+        Notification::where('user_id', Auth::id())
+            ->where('is_read', false)
+            ->update(['is_read' => true]);
+
+        return response()->json([
+            'success' => true
+        ]);
+    }
+
+    public function unreadCount()
+    {
+        $count = Notification::where('user_id', Auth::id())
+            ->where('is_read', false)
+            ->count();
+
+        return response()->json([
+            'count' => $count
+        ]);
     }
 }

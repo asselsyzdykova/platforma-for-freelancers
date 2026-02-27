@@ -4,6 +4,9 @@
     <div class="inbox-page">
       <h1>Inbox</h1>
       <p class="subtitle">Messages from clients and project updates</p>
+      <button v-if="notifications.some(n => !n.is_read)" @click="markAllAsRead" class="mark-read">
+        Mark all as read
+      </button>
 
       <div v-if="notifications.length" class="list">
         <div class="notification" v-for="note in notifications" :key="note.id" :class="{ unread: !note.is_read }">
@@ -80,7 +83,7 @@ export default {
 
     async loadNotifications() {
       try {
-        const res = await api.get('/freelancer/notifications', {
+        const res = await api.get('/notifications', {
           params: { page: this.currentPage, per_page: this.pageSize },
         })
         this.notifications = res.data?.data || []
@@ -92,10 +95,19 @@ export default {
 
     async markAsRead(note) {
       try {
-        await api.post(`/freelancer/notifications/${note.id}/read`)
+        await api.post(`/notifications/${note.id}/read`)
         note.is_read = true
       } catch (e) {
         console.error('Failed to mark notification as read', e)
+      }
+    },
+
+    async markAllAsRead() {
+      try {
+        await api.post('/notifications/read-all')
+        this.notifications.forEach(n => (n.is_read = true))
+      } catch (e) {
+        console.error('Failed to mark all notifications as read', e)
       }
     },
 

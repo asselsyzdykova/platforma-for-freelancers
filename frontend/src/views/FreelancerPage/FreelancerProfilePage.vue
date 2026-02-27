@@ -147,7 +147,7 @@ const loadProfile = async () => {
   }
 
   try {
-    const notifRes = await api.get('/freelancer/notifications', {
+    const notifRes = await api.get('/notifications', {
       headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` },
     })
     const list = notifRes.data?.data || notifRes.data || []

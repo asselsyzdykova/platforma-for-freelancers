@@ -62,7 +62,7 @@ export default {
   methods: {
     async loadNotifications() {
       try {
-        const res = await api.get('/client/notifications', {
+        const res = await api.get('/notifications', {
           params: { page: this.currentPage, per_page: this.pageSize },
         })
         this.notifications = res.data?.data || []
@@ -75,7 +75,7 @@ export default {
     async openNotification(note) {
       try {
         if (!note.is_read) {
-          await api.post(`/client/notifications/${note.id}/read`)
+          await api.post(`/notifications/${note.id}/read`)
           note.is_read = true
         }
 

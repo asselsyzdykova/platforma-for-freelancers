@@ -11,7 +11,6 @@ use App\Http\Controllers\Api\ClientProjectController;
 use App\Http\Controllers\Api\ProjectController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\ProposalController;
-use App\Http\Controllers\Api\FreelancerNotificationController;
 use App\Http\Controllers\Api\ChatController;
 use App\Http\Controllers\Api\SubscriptionController;
 use App\Http\Controllers\Api\CityController;
@@ -32,9 +31,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/client/applications/{id}/review', [ProposalController::class, 'review']);
     Route::post('/client/applications/{id}/accept', [ProposalController::class, 'accept']);
     Route::post('/client/applications/{id}/reject', [ProposalController::class, 'reject']);
-    Route::get('/client/notifications', [NotificationController::class, 'index']);
-    Route::post('/client/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
-    Route::post('/notifications', [NotificationController::class, 'store']);
     Route::get('/client/profile', [ClientProfileController::class, 'show']);
     Route::post('/client/profile', [ClientProfileController::class, 'update']);
     Route::post('/change-password', [AuthController::class, 'changePassword']);
@@ -47,9 +43,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     //freelancer
     Route::get('/freelancer/proposals', [ProposalController::class, 'freelancerProposals']);
-    Route::get('/freelancer/notifications', [FreelancerNotificationController::class, 'index']);
-    Route::post('/freelancer/notifications/{id}/read', [FreelancerNotificationController::class, 'markAsRead']);
-    Route::get('/freelancer/notifications-unread-count', [FreelancerNotificationController::class, 'unreadCount']);
     Route::get('/freelancer/profile', [FreelancerProfileController::class, 'show']);
     Route::post('/freelancer/profile', [FreelancerProfileController::class, 'update']);
     Route::get('/skills', [FreelancerProfileController::class, 'allSkills']);
@@ -57,6 +50,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/freelancer/account', [FreelancerProfileController::class, 'updateAccount']);
     Route::delete('/freelancer/profile', [FreelancerProfileController::class, 'destroy']);
 
+    //notif
+    Route::get('/notifications', [NotificationController::class, 'index']);
+    Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount']);
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
 
     //subscriptions
     Route::post('/create-checkout-session', [SubscriptionController::class, 'createCheckoutSession']);
