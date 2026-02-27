@@ -90,6 +90,12 @@ const setInProgress = async (ticket) => {
   }
 }
 
+const changePage = (page) => {
+  if (page < 1 || page > pagination.value.last_page) return
+  pagination.value.current_page = page
+  loadTickets(page)
+}
+
 onMounted(() => {
   loadTickets()
 })

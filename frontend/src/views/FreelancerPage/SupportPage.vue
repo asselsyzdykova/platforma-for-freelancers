@@ -9,25 +9,52 @@
         <p class="subtitle">
           If you have any issues or questions, contact our support team.
         </p>
+        <form @submit.prevent="sendSupportMessage" class="support-form">
+          <label>
+            Subject
+            <input v-model="subject" required />
+          </label>
 
-        <div class="support-item">
-          <label>Subject</label>
-          <input type="text" placeholder="Enter subject" />
-        </div>
+          <label>
+            Message
+            <textarea v-model="description" rows="6" required></textarea>
+          </label>
 
-        <div class="support-item">
-          <label>Message</label>
-          <textarea rows="5" placeholder="Describe your problem..."></textarea>
-        </div>
+          <div class="actions">
+            <button class="primary-btn" @click="sendTicket">Send</button>
+          </div>
 
-        <button class="send-btn">Send message</button>
+          <p v-if="sent" class="notice">Thanks! We'll reply soon.</p>
+        </form>
       </div>
     </div>
   </div>
 </template>
 
-<script setup>
+<script>
 import SidebarMenu from '@/components/FreelancerPageMenu/SidebarMenu.vue'
+import api from '@/services/axios'
+import { useNotificationStore } from '@/stores/notificationStore'
+export default {
+  name: 'FreelancerSupport',
+  components: { SidebarMenu },
+  data() {
+    return { subject: '', description: '', sent: false, notifications: useNotificationStore() }
+  },
+  methods: {
+    async sendTicket() {
+      try {
+        await api.post('/tickets', { subject: this.subject, description: this.description })
+        this.sent = true
+        this.subject = ''
+        this.description = ''
+      } catch (e) {
+        console.error('Failed to send support message', e)
+        this.notifications.error('Failed to send message')
+      }
+    },
+  },
+}
 </script>
 
 <style scoped>
@@ -60,30 +87,30 @@ h1 {
   max-width: 600px;
 }
 
-.support-item {
+.support-form {
   display: flex;
   flex-direction: column;
-  margin-bottom: 20px;
+  gap: 12px;
 }
 
-label {
-  font-size: 14px;
-  margin-bottom: 6px;
-}
-
-input,
-textarea {
+.support-form input,
+.support-form textarea {
   padding: 10px;
-  border-radius: 10px;
-  border: 1px solid #ccc;
+  border-radius: 8px;
+  border: 1px solid #ddd;
 }
 
-.send-btn {
-  padding: 12px 24px;
+.primary-btn {
+  padding: 10px 14px;
+  border-radius: 8px;
   background: #5b4b8a;
   color: white;
   border: none;
-  border-radius: 12px;
   cursor: pointer;
+}
+
+.notice {
+  color: #22c55e;
+  margin-top: 12px;
 }
 </style>

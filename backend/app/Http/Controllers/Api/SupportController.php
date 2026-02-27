@@ -7,9 +7,19 @@ use Illuminate\Http\Request;
 use App\Models\Ticket;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Manager;
+use App\Models\Notification;
 
 class SupportController extends Controller
 {
+    public function show($id)
+    {
+        $ticket = Ticket::with(['manager.user'])->findOrFail($id);
+        
+        if ($ticket->user_id !== Auth::id()) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+        return response()->json($ticket);
+    }
     public function store(Request $request)
     {
         $request->validate([
@@ -46,7 +56,17 @@ class SupportController extends Controller
             'manager_id' => $manager->id,
         ]);
 
-        return response()->json($ticket);
+        Notification::create([
+            'user_id' => $ticket->user_id,
+            'type' => 'support_response',
+            'title' => 'Support replied to your ticket',
+            'body' => 'Your ticket "' . $ticket->subject . '" has been answered.',
+            'link' => '/support-answer/' . $ticket->id,
+            'related_id' => $ticket->id,
+            'is_read' => false,
+        ]);
+
+        return response()->json($ticket, 201);
     }
 
     public function latest()

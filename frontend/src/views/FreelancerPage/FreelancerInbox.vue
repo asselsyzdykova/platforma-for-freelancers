@@ -4,12 +4,9 @@
     <div class="inbox-page">
       <h1>Inbox</h1>
       <p class="subtitle">Messages from clients and project updates</p>
-      <button v-if="notifications.some(n => !n.is_read)" @click="markAllAsRead" class="mark-read">
-        Mark all as read
-      </button>
-
       <div v-if="notifications.length" class="list">
-        <div class="notification" v-for="note in notifications" :key="note.id" :class="{ unread: !note.is_read }">
+        <div class="notification" v-for="note in notifications" :key="note.id" :class="{ unread: !note.is_read }"
+          @click="handleNotificationClick(note)">
           <div class="left">
             <span v-if="!note.is_read" class="dot"></span>
           </div>
@@ -108,6 +105,15 @@ export default {
         this.notifications.forEach(n => (n.is_read = true))
       } catch (e) {
         console.error('Failed to mark all notifications as read', e)
+      }
+    },
+
+    async handleNotificationClick(note) {
+      if (!note.is_read) {
+        await this.markAsRead(note)
+      }
+      if (note.type === 'support_response') {
+        this.$router.push(`/support-answer/${note.related_id}`)
       }
     },
 

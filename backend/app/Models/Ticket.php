@@ -22,6 +22,6 @@ class Ticket extends Model
 
     public function manager()
     {
-        return $this->belongsTo(User::class, 'manager_id');
+        return $this->belongsTo(Manager::class, 'manager_id');
     }
 }

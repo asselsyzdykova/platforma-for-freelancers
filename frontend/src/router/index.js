@@ -39,6 +39,7 @@ import InternshipPage from '@/views/BasePages/InternshipPage.vue'
 import CreateIntern from '@/views/ClientPage/CreateIntern.vue'
 import InternshipProposals from '@/views/ClientPage/InternshipProposals.vue'
 import ManagerTickets from '@/views/AdminPages/ManagerTickets.vue'
+import SupportAnswer from '@/views/ClientPage/SupportAnswer.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -283,6 +284,11 @@ const router = createRouter({
       path: '/manager/tickets',
       name: 'ManagerTickets',
       component: ManagerTickets,
+    },
+    {
+      path: '/support-answer/:id',
+      name: 'SupportAnswer',
+      component: SupportAnswer,
     }
   ],
 })

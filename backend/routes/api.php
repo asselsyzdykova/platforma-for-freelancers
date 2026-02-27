@@ -92,6 +92,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // users support
     Route::post('/tickets', [SupportController::class, 'store']);
     Route::get('/my-tickets', [SupportController::class, 'myTickets']);
+    Route::get('/tickets/{id}', [SupportController::class, 'show']);
 
     // manager support
     Route::get('/tickets', [SupportController::class, 'index']);

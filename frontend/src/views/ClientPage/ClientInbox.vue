@@ -1,6 +1,4 @@
 <template>
-
-
   <div class="inbox-page">
     <h1>Inbox</h1>
     <p class="subtitle">Messages and notifications from freelancers</p>
@@ -100,6 +98,13 @@ export default {
         if (note.type === 'project_application') {
           if (note.related_id) {
             this.$router.push({ name: 'ApplicationDetails', params: { id: note.related_id } })
+            return
+          }
+        }
+
+        if (note.type === 'support_response') {
+          if (note.related_id) {
+            this.$router.push({ name: 'SupportAnswer', params: { id: note.related_id }})
             return
           }
         }
