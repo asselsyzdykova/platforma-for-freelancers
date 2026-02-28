@@ -7,7 +7,9 @@
       </div>
       <div class="actions">
         <RouterLink :to="{ name: 'AdminChats' }" class="btn ghost">My Chats</RouterLink>
-        <button class="btn ghost">Export report</button>
+        <button class="btn ghost" @click="exportAdminReport" :disabled="exportingReport">
+          {{ exportingReport ? 'Downloading...' : 'Export report' }}
+        </button>
         <button class="btn primary" @click="openAnnouncementModal">Create announcement</button>
       </div>
     </header>
@@ -266,7 +268,32 @@ const announcementTitle = ref('')
 const announcementContent = ref('')
 const announcementActive = ref(true)
 const announcementLoading = ref(false)
+const exportingReport = ref(false)
 
+const exportAdminReport = async () => {
+  exportingReport.value = true
+  try {
+    const response = await api.get('/admin/export-report', {
+      responseType: 'blob'
+    })
+
+    const url = window.URL.createObjectURL(new Blob([response.data]))
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', 'admin_report.xlsx')
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+    window.URL.revokeObjectURL(url)
+
+    showToast('Report downloaded successfully', 'success')
+  } catch (err) {
+    console.error(err)
+    showToast('Failed to download report', 'error')
+  } finally {
+    exportingReport.value = false
+  }
+}
 const openAnnouncementModal = () => {
   announcementTitle.value = ''
   announcementContent.value = ''

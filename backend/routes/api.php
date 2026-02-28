@@ -74,6 +74,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/news', [NewsController::class, 'index']);
     Route::post('/admin/news', [NewsController::class, 'store']);
     Route::delete('/news/{id}', [NewsController::class, 'destroy']);
+    Route::get('/admin/export-report', [AdminController::class, 'exportReport']);
 
 
     //managers

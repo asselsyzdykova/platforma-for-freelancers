@@ -9,6 +9,8 @@ use App\Models\Project;
 use App\Models\Manager;
 use Carbon\Carbon;
 use App\Models\Subscription;
+use App\Exports\AdminReportExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class AdminController extends Controller
 {
@@ -60,6 +62,10 @@ class AdminController extends Controller
             $projectGrowth = 100;
         }
 
+        $userGrowth = min($userGrowth, 100);
+        $freelancerGrowth = min($freelancerGrowth, 100);
+        $projectGrowth = min($projectGrowth, 100);
+
         return response()->json([
             'total_freelancers' => (int) User::where(
                 'role',
@@ -104,5 +110,16 @@ class AdminController extends Controller
             ];
         });
         return response()->json($result);
+    }
+
+    //excel
+    public function exportReport(Request $request)
+    {
+        $user = $request->user();
+        if (!$user || $user->role !== 'admin') {
+            return response()->json(['error' => 'Forbidden'], 403);
+        }
+
+        return Excel::download(new AdminReportExport, 'admin_report.xlsx');
     }
 }
