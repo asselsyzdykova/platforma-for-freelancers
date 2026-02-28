@@ -170,6 +170,7 @@ const formatDate = (date) => {
   margin-bottom: 12px;
   color: #333;
   display: -webkit-box;
+  line-clamp: 3;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;

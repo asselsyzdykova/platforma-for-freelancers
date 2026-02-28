@@ -18,7 +18,7 @@
     <!--1 kvadrat-->
     <section class="summary-grid">
       <div class="summary-card">
-        <p>Active tickets</p>
+        <p>My active tickets</p>
         <h2>{{ stats.activeTickets }}</h2>
         <span class="trend up">▲ {{ stats.ticketGrowth }}% this week</span>
       </div>
