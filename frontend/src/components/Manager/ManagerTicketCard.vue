@@ -12,12 +12,11 @@
       | {{ formatDate(ticket.created_at) }}
     </p>
 
-    <p class="description">
+    <p class="description" @click="openModal">
       {{ ticket.description }}
     </p>
     <div v-if="!resolved" class="response-section">
       <textarea v-model="localResponse" placeholder="Write your response..."></textarea>
-
       <div class="actions">
         <button @click="$emit('in-progress', ticket)">
           Mark In Progress
@@ -33,11 +32,27 @@
       <p>{{ localResponse }}</p>
     </div>
   </div>
+  <div v-if="showModal" class="modal-overlay" @click="closeModal">
+    <div class="modal-content" @click.stop>
+      <h3>{{ ticket.subject }}</h3>
+      <p>{{ ticket.description }}</p>
+
+      <button class="btn-close" @click="closeModal">Close</button>
+    </div>
+  </div>
 </template>
 
 <script setup>
 import { ref, watch, onMounted } from 'vue'
 
+const showModal = ref(false)
+
+function openModal() {
+  showModal.value = true
+}
+function closeModal() {
+  showModal.value = false
+}
 const props = defineProps({
   ticket: Object
 })
@@ -74,6 +89,35 @@ const formatDate = (date) => {
 }
 </script>
 <style scoped>
+.btn-close{
+  background: red;
+  color: white;
+  cursor: pointer;
+  border-radius: 10px;
+  padding: 5px;
+  border: none;
+}
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 500px;
+  max-width: 90%;
+
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
 .ticket-card {
   background: #fff;
   padding: 20px;
@@ -125,6 +169,11 @@ const formatDate = (date) => {
   font-size: 14px;
   margin-bottom: 12px;
   color: #333;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  cursor: pointer;
 }
 
 .response-section textarea {
@@ -164,6 +213,7 @@ const formatDate = (date) => {
   background: #039be5;
   color: white;
 }
+
 .resolved-response h5 {
   margin-bottom: 4px;
   font-size: 14px;
