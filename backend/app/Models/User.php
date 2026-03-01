@@ -10,6 +10,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Testing\Fluent\Concerns\Has;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Models\Report;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -79,13 +80,21 @@ class User extends Authenticatable implements MustVerifyEmail
     }
     public function clientProfile()
     {
-    return $this->hasOne(ClientProfile::class);
+        return $this->hasOne(ClientProfile::class);
     }
 
     public function manager()
     {
-    return $this->hasOne(Manager::class);
+        return $this->hasOne(Manager::class);
     }
 
+    public function reportsMade()
+    {
+        return $this->hasMany(Report::class, 'reporter_id');
+    }
 
+    public function reportsReceived()
+    {
+        return $this->hasMany(Report::class, 'reported_user_id');
+    }
 }

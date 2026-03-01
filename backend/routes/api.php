@@ -112,7 +112,6 @@ Route::middleware('auth:sanctum')->group(function () {
     //basepages
 
     Route::get('/projects', [ProjectController::class, 'index']);
-    Route::get('/freelancers', [FreelancerListController::class, 'index']);
     Route::get('/me', [UserController::class, 'me']);
 });
 Route::get('/internships', [InternshipController::class, 'index']);
@@ -120,6 +119,7 @@ Route::get('/internships', [InternshipController::class, 'index']);
 Route::get('/cities', [CityController::class, 'index']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::get('/freelancers', [FreelancerListController::class, 'index']);
 
 // stripe paypal webhook
 Route::post('/stripe/webhook', [SubscriptionController::class, 'handleWebhook']);
