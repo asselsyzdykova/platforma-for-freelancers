@@ -4,48 +4,24 @@
     <ClientSidebar v-if="user.role === 'user'" />
 
     <div class="chat-page">
-      <h1>Chat with {{ partner?.name || '...' }}</h1>
+      <div class="header-chat">
+        <h1>Chat with {{ partner?.name || '...' }}</h1>
+        <button class="report" @click="showReportModal = true">Report</button>
+      </div>
+
+      <ReportModal v-model="showReportModal" :reportedUserId="route.params.id" />
 
       <div class="messages">
         <button v-if="hasMore" class="load-more" @click="loadMore" :disabled="isLoadingMore">
           {{ isLoadingMore ? 'Loading...' : 'Load older messages' }}
         </button>
-        <div v-for="m in messages" :key="m.id" :class="['message', m.sender_id === user.id ? 'out' : 'in']">
-          <div class="meta">{{ m.sender.name }} • {{ new Date(m.created_at).toLocaleString() }}</div>
-          <div class="body" v-if="m.body">{{ m.body }}</div>
-          <div class="attachment" v-if="m.attachment_url">
-            <button v-if="isImage(m.attachment_url)" class="attachment-image-button"
-              @click="openAttachment(m.attachment_url)">
-              <img :src="m.attachment_url" alt="Attachment" />
-            </button>
-            <div v-else class="attachment-file" @click="downloadAttachment(m)">
-              <span class="attachment-icon">📄</span>
-              <span class="attachment-filename">{{ m.attachment_name || 'File' }}</span>
-            </div>
-            <a class="attachment-download" :href="m.attachment_url" :download="m.attachment_name || ''">
-              Download
-            </a>
-          </div>
-        </div>
+
+        <MessageItem v-for="m in messages" :key="m.id" :message="m" :user-id="user.id" @open-attachment="openAttachment"
+          @download="downloadAttachment" />
       </div>
 
-      <div v-if="selectedAttachment" class="attachment-modal" @click.self="closeAttachment">
-        <button class="attachment-modal-close" @click="closeAttachment">×</button>
-        <img :src="selectedAttachment" alt="Attachment preview" />
-        <a class="attachment-modal-download" :href="selectedAttachment" download>Download</a>
-      </div>
-
-      <form @submit.prevent="sendMessage" class="composer">
-        <textarea v-model="body" placeholder="Write a message..." rows="1" @keydown.enter.exact.prevent="addNewLine"
-          @keydown.ctrl.enter.prevent="sendMessage" @keydown.meta.enter.prevent="sendMessage"></textarea>
-
-        <label class="file-button">
-          <input type="file" @change="onFileChange" />
-          📎
-        </label>
-        <span v-if="attachmentName" class="file-name">{{ attachmentName }}</span>
-        <button type="submit">Send</button>
-      </form>
+      <AttachmentModal :url="selectedAttachment" :visible="!!selectedAttachment" @close="closeAttachment" />
+      <ChatComposer @send="handleSendMessage" />
     </div>
   </div>
 </template>
@@ -56,12 +32,15 @@ import { useRoute } from 'vue-router'
 import api from '@/services/axios'
 import SidebarMenu from '@/components/FreelancerPageMenu/SidebarMenu.vue'
 import ClientSidebar from '@/components/ClientPageMenu/SidebarMenu.vue'
+import ReportModal from '@/components/chat/ReportModal.vue'
+import AttachmentModal from '@/components/chat/AttachmentModal.vue'
+import MessageItem from '@/components/chat/MessageItem.vue'
+import ChatComposer from '@/components/chat/ChatComposer.vue'
+import { useNotificationStore } from '@/stores/notificationStore'
 
+const notifications = useNotificationStore()
 const route = useRoute()
 const messages = ref([])
-const body = ref('')
-const attachmentFile = ref(null)
-const attachmentName = ref('')
 const selectedAttachment = ref(null)
 const currentPage = ref(1)
 const hasMore = ref(false)
@@ -69,6 +48,27 @@ const isLoadingMore = ref(false)
 const user = ref({})
 const partner = ref(null)
 let channel = null
+const showReportModal = ref(false)
+
+const handleSendMessage = async ({ body, file }) => {
+  if (!body.trim() && !file) return
+
+  try {
+    const formData = new FormData()
+    formData.append('receiver_id', route.params.id)
+    if (body.trim()) formData.append('body', body)
+    if (file) formData.append('attachment', file)
+
+    const res = await api.post('/messages', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+
+    messages.value.push(res.data)
+  } catch (e) {
+    console.error(e)
+    notifications.error('Failed to send message')
+  }
+}
 
 const markConversationRead = async (partnerId) => {
   try {
@@ -77,12 +77,6 @@ const markConversationRead = async (partnerId) => {
     console.error('Failed to mark messages as read', e)
   }
 }
-
-
-const addNewLine = () => {
-  body.value += '\n'
-}
-
 
 const fetchMessages = async (page = 1, append = true) => {
   const partnerId = route.params.id
@@ -145,30 +139,6 @@ onBeforeUnmount(() => {
   }
 })
 
-const sendMessage = async () => {
-  if (!body.value.trim() && !attachmentFile.value) return
-  try {
-    const formData = new FormData()
-    formData.append('receiver_id', route.params.id)
-    if (body.value.trim()) {
-      formData.append('body', body.value)
-    }
-    if (attachmentFile.value) {
-      formData.append('attachment', attachmentFile.value)
-    }
-
-    const res = await api.post('/messages', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    })
-    messages.value.push(res.data)
-    body.value = ''
-    attachmentFile.value = null
-    attachmentName.value = ''
-  } catch (e) {
-    console.error(e)
-  }
-}
-
 const loadMore = async () => {
   if (!hasMore.value || isLoadingMore.value) return
   isLoadingMore.value = true
@@ -181,36 +151,22 @@ const loadMore = async () => {
     isLoadingMore.value = false
   }
 }
-
-const onFileChange = (event) => {
-  const file = event.target.files?.[0]
-  if (!file) return
-  attachmentFile.value = file
-  attachmentName.value = file.name
-}
-
-const isImage = (url) => {
-  return /\.(png|jpe?g|gif|webp)$/i.test(String(url))
-}
-
-const openAttachment = (url) => {
-  selectedAttachment.value = url
-}
-
 const closeAttachment = () => {
   selectedAttachment.value = null
-}
-
-const downloadAttachment = (message) => {
-  if (!message?.attachment_url) return
-  const link = document.createElement('a')
-  link.href = message.attachment_url
-  link.download = message.attachment_name || ''
-  link.click()
 }
 </script>
 
 <style scoped>
+.report {
+  background: red;
+  color: white;
+  padding: 5px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+
 .chat-page {
   max-width: 1200px;
   margin: 32px auto;
@@ -240,41 +196,6 @@ const downloadAttachment = (message) => {
   flex-direction: column;
   gap: 10px;
   box-shadow: inset 0 0 0 1px rgba(91, 61, 245, 0.08);
-}
-
-.message {
-  padding: 12px 14px;
-  border-radius: 14px;
-  max-width: 70%;
-  display: inline-block;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
-  word-break: break-word;
-  overflow-wrap: anywhere;
-}
-
-.message.in {
-  background: #ffffff;
-  align-self: flex-start;
-  border: 1px solid rgba(0, 0, 0, 0.04);
-}
-
-.message.out {
-  background: #ece6ff;
-  margin-left: auto;
-  border: 1px solid rgba(91, 61, 245, 0.12);
-}
-
-.meta {
-  font-size: 12px;
-  color: #6b7280;
-  margin-bottom: 8px;
-}
-
-.body {
-  font-size: 15px;
-  color: #2f2f2f;
-  word-break: break-word;
-  overflow-wrap: anywhere;
 }
 
 .composer {
@@ -351,58 +272,6 @@ const downloadAttachment = (message) => {
   background: #fff;
   cursor: pointer;
   font-size: 13px;
-}
-
-.attachment {
-  margin-top: 6px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.attachment img {
-  max-width: 220px;
-  max-height: 160px;
-  border-radius: 10px;
-  display: block;
-}
-
-.attachment-image-button {
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-}
-
-.attachment-file {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  border-radius: 10px;
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  cursor: pointer;
-  max-width: 240px;
-}
-
-.attachment-icon {
-  font-size: 18px;
-}
-
-.attachment-filename {
-  font-size: 13px;
-  color: #4f46e5;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.attachment-download {
-  font-size: 12px;
-  color: #4f46e5;
-  text-decoration: underline;
 }
 
 .attachment-modal {

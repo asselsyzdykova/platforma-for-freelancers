@@ -21,6 +21,8 @@ use App\Http\Controllers\Api\EmailVerificationController;
 use App\Http\Controllers\Api\InternshipController;
 use App\Http\Controllers\Api\NewsController;
 use App\Http\Controllers\Api\SupportController;
+use App\Http\Controllers\Api\ReportController;
+
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/projects/{id}/apply', [ProposalController::class, 'apply']);
@@ -108,6 +110,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/internships/my', [InternshipController::class, 'my']);
     Route::get('/internships/{internship}/applications', [InternshipController::class, 'applications']);
     Route::delete('/internships/{internship}', [InternshipController::class, 'destroy']);
+
+    //reports
+
+    Route::post('/reports', [ReportController::class, 'store']);
 
     //basepages
 
