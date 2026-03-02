@@ -215,14 +215,10 @@
           <h4>Verify student account</h4>
           <p>Approve or reject new freelancer signups.</p>
         </button>
-        <button class="action-card">
-          <h4>Feature a freelancer</h4>
-          <p>Promote top student talent for the week.</p>
-        </button>
-        <button class="action-card">
+        <RouterLink :to="{ name: 'ReportAdmin' }" class="action-card">
           <h4>Audit messages</h4>
           <p>Review reported chats and apply actions.</p>
-        </button>
+        </RouterLink>
       </div>
     </section>
 
@@ -1282,6 +1278,9 @@ const initDatePicker = () => {
 
 .action-card p {
   color: #6b7280;
+}
+.action-card h4 {
+  color: black;
 }
 
 @media (max-width: 900px) {

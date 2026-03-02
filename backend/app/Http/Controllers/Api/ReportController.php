@@ -29,4 +29,43 @@ class ReportController extends Controller
         ]);
         return response()->json($report, 201);
     }
+
+    public function index(Request $request)
+    {
+        $user = Auth::user();
+
+        if (!$user || $user->role !== 'admin') {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+
+        $query = Report::with(['reporter', 'reportedUser', 'ticket'])->latest();
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $reports = $query->paginate(9);
+
+        return response()->json($reports);
+    }
+
+    public function update(Request $request, $id)
+    {
+        if (Auth::user()->role !== 'admin') {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+
+        $request->validate([
+            'status' => 'required|in:pending,in_progress,resolved'
+        ]);
+
+        $report = Report::findOrFail($id);
+        $report->status = $request->status;
+        $report->save();
+
+        return response()->json([
+            'message' => 'Report updated successfully',
+            'report' => $report
+        ]);
+    }
 }

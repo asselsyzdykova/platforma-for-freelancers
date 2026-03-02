@@ -114,6 +114,9 @@ Route::middleware('auth:sanctum')->group(function () {
     //reports
 
     Route::post('/reports', [ReportController::class, 'store']);
+    Route::get('/admin/reports', [ReportController::class, 'index']);
+    Route::patch('/admin/reports/{id}', [ReportController::class, 'update']);
+
 
     //basepages
 

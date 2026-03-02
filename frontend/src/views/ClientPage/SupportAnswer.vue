@@ -12,14 +12,31 @@
         <h4>Support Response:</h4>
         <p>{{ ticket.response }}</p>
         <small class="time">Answered at: {{ formatDate(ticket.updated_at) }}</small>
-        <small v-if="ticket.manager&& ticket.manager.user" class="manager">
+        <small v-if="ticket.manager && ticket.manager.user" class="manager">
           Answered by: {{ ticket.manager.user.name }}
         </small>
-        <small class="manager">email: {{ ticket.manager.user.email }}</small>
+        <small v-if="ticket.manager && ticket.manager.user" class="manager">
+          Email: {{ ticket.manager.user.email }}
+        </small>
       </div>
 
       <div v-else class="no-response">
         <p>This ticket has not been answered yet.</p>
+      </div>
+
+      <div v-if="ticket.manager" class="report-button">
+        <button @click="showModal = true">Report Manager</button>
+      </div>
+
+      <div v-if="showModal" class="modal-overlay" @click.self="showModal = false">
+        <div class="modal">
+          <h3>Report Manager</h3>
+          <textarea v-model="reportDescription" placeholder="Describe the issue..." rows="4"></textarea>
+          <div class="modal-actions">
+            <button @click="submitReport">Submit</button>
+            <button @click="showModal = false" class="cancel">Cancel</button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -31,12 +48,16 @@
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import api from '@/services/axios'
+import { useNotificationStore } from '@/stores/notificationStore'
 
 const route = useRoute()
 const ticketId = route.params.id
+const notifications = useNotificationStore()
 
 const ticket = ref(null)
 const loading = ref(true)
+const showModal = ref(false)
+const reportDescription = ref('')
 
 const loadTicket = async () => {
   try {
@@ -50,6 +71,25 @@ const loadTicket = async () => {
 }
 
 const formatDate = (date) => new Date(date).toLocaleString()
+
+const submitReport = async () => {
+  if (!ticket.value?.manager) return
+
+  try {
+    await api.post('/reports', {
+      reported_user_id: ticket.value.manager.user.id,
+      ticket_id: ticket.value.id,
+      reason: 'Issue with manager',
+      description: reportDescription.value
+    })
+    notifications.success('Report submitted successfully!')
+    reportDescription.value = ''
+    showModal.value = false
+  } catch (err) {
+    console.error('Failed to submit report:', err)
+    notifications.error('Failed to submit report')
+  }
+}
 
 onMounted(() => {
   loadTicket()
@@ -118,5 +158,80 @@ onMounted(() => {
   color: #777;
   font-size: 16px;
   margin-top: 40px;
+}
+
+.report-button {
+  margin-top: 20px;
+  text-align: right;
+}
+
+.report-button button {
+  background: #ff4d4f;
+  color: #fff;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.report-button button:hover {
+  background: #d9363e;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: #fff;
+  padding: 24px;
+  border-radius: 12px;
+  max-width: 400px;
+  width: 100%;
+}
+
+.modal textarea {
+  width: 100%;
+  padding: 10px;
+  margin: 12px 0;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  resize: none;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.modal-actions button {
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: none;
+}
+
+.modal-actions button.cancel {
+  background: #ccc;
+}
+
+.modal-actions button:not(.cancel) {
+  background: #ff4d4f;
+  color: #fff;
+}
+
+.modal-actions button:not(.cancel):hover {
+  background: #d9363e;
 }
 </style>
