@@ -1,4 +1,4 @@
-@import './assets/base.css';
+@import '@/assets/base.css';
 #app {
   margin: 0;
   padding: 0;
