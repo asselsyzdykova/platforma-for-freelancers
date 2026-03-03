@@ -148,7 +148,7 @@ const confirmDelete = async () => {
 .delete-btn {
   background-color: red;
   color: white;
-  border-radius: 12px;
+  border-radius: 13px;
   border: none;
   cursor: pointer;
   padding: 12px 24px;
