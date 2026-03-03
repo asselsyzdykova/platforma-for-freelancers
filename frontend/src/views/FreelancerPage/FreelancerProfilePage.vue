@@ -66,7 +66,7 @@
                   </button>
                   <a v-else :href="cert" target="_blank" rel="noopener">{{
                     certificateLabel(cert, index)
-                    }}</a>
+                  }}</a>
                 </div>
               </div>
             </div>
@@ -134,6 +134,12 @@ const loadProfile = async () => {
       headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` },
     })
     user.value = userRes.data
+
+    if (user.value.blocked) {
+      toast.error('Your account is blocked.')
+      router.push('/blocked')
+      return
+    }
 
     const profileRes = await api.get('/freelancer/profile', {
       headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` },

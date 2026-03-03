@@ -39,6 +39,9 @@
       <button class="resolve-btn" @click="resolveReport">
         Resolve
       </button>
+      <button class="action-menu-btn" @click="openActionMenu">
+        Actions
+      </button>
     </div>
   </div>
 
@@ -72,6 +75,25 @@
       </button>
     </div>
   </div>
+  <div v-if="showActionMenu" class="modal-overlay" @click="closeActionMenu">
+    <div class="modal-content" @click.stop>
+      <h3>Choose Action</h3>
+      <div class="action-buttons">
+        <button @click="blockUser" class="block-btn">Block</button>
+        <button @click="showWarnInput = true" class="warn-btn">
+          Send Warn
+        </button>
+      </div>
+      <div v-if="showWarnInput" class="warn-box">
+        <textarea v-model="warnMessage" placeholder="Write warning message..."></textarea>
+
+        <button @click="sendWarn" class="send-warn-btn">
+          Send Warning
+        </button>
+      </div>
+      <button class="btn-close" @click="closeActionMenu">Close</button>
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -84,7 +106,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['resolve', 'in-progress'])
+const emit = defineEmits(['resolve', 'in-progress', 'block', 'ignore', 'warn'])
 
 const showModal = ref(false)
 
@@ -107,9 +129,115 @@ const resolveReport = () => {
 const formatDate = (date) => {
   return new Date(date).toLocaleString()
 }
+const showActionMenu = ref(false)
+
+const openActionMenu = () => {
+  showActionMenu.value = true
+}
+
+const closeActionMenu = () => {
+  showActionMenu.value = false
+}
+
+const blockUser = () => {
+  emit('block', props.report.reported_user?.id)
+  closeActionMenu()
+}
+
+const showWarnInput = ref(false)
+const warnMessage = ref('')
+
+const sendWarn = () => {
+  if (!warnMessage.value.trim()) return
+
+  emit('warn', {
+    userId: props.report.reported_user?.id,
+    message: warnMessage.value
+  })
+
+  warnMessage.value = ''
+  showWarnInput.value = false
+  closeActionMenu()
+}
 </script>
 
 <style scoped>
+.warn-box {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.warn-box textarea {
+  width: 100%;
+  min-height: 80px;
+  padding: 10px;
+  font-size: 14px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.send-warn-btn {
+  align-self: flex-end;
+  background: #f59e0b;
+  color: white;
+  font-weight: 500;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.send-warn-btn:hover {
+  opacity: 0.9;
+}
+.action-menu-btn {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: none;
+  background: #f59e0b;
+  color: white;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.action-menu-btn:hover {
+  opacity: 0.9;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+  justify-content: center;
+}
+
+.block-btn {
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.warn-btn {
+  background: #facc15;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.action-buttons button:hover {
+  opacity: 0.85;
+}
+
 .report-card {
   background: #ffffff;
   padding: 20px;

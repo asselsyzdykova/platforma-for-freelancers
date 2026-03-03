@@ -11,6 +11,8 @@ use Carbon\Carbon;
 use App\Models\Subscription;
 use App\Exports\AdminReportExport;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Models\Notification;
+use App\Models\Report;
 
 class AdminController extends Controller
 {
@@ -121,5 +123,62 @@ class AdminController extends Controller
         }
 
         return Excel::download(new AdminReportExport, 'admin_report.xlsx');
+    }
+
+    //block
+    public function blockUser($id)
+    {
+        $user = User::findOrFail($id);
+
+        $user->blocked = true;
+        $user->save();
+
+        return response()->json([
+            'message' => 'User blocked successfully'
+        ]);
+    }
+
+    //warn
+    public function warnUser(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'message' => 'required|string'
+        ]);
+        $user = User::findOrFail($request->user_id);
+        $report = Report::create([
+            'reporter_id' => $request->user()->id,
+            'reported_user_id' => $user->id,
+            'ticket_id' => null,
+            'reason' => 'admin_warning',
+            'description' => $request->message,
+            'status' => 'new',
+        ]);
+        $user = User::findOrFail($request->user_id);
+
+        Notification::create([
+            'user_id' => $user->id,
+            'type' => 'admin_warning',
+            'title' => 'Warning from Admin',
+            'body' => $request->message,
+            'link' => '/report-answer/' . $report->id,
+            'related_id' => $report->id,
+            'is_read' => false,
+        ]);
+
+        return response()->json([
+            'message' => 'Warning sent successfully'
+        ]);
+    }
+
+    public function getReport($id)
+    {
+        $report = Report::with('reporter', 'reportedUser')->find($id);
+
+        if (!$report) {
+            return response()->json(['error' => 'Report not found'], 404);
+        }
+
+        return response()->json($report);
     }
 }

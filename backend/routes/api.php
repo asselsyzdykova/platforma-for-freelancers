@@ -24,7 +24,7 @@ use App\Http\Controllers\Api\SupportController;
 use App\Http\Controllers\Api\ReportController;
 
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['auth:sanctum', 'blocked'])->group(function () {
     Route::post('/projects/{id}/apply', [ProposalController::class, 'apply']);
     Route::get('/users/{id}', [UserController::class, 'show']);
     //client
@@ -77,7 +77,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/admin/news', [NewsController::class, 'store']);
     Route::delete('/news/{id}', [NewsController::class, 'destroy']);
     Route::get('/admin/export-report', [AdminController::class, 'exportReport']);
-
+    Route::post('/admin/block-user/{id}', [AdminController::class, 'blockUser']);
+    Route::post('/admin/warn-user', [AdminController::class, 'warnUser']);
+    Route::get('/reports/{id}', [AdminController::class, 'getReport']);
 
     //managers
     Route::get('/manager/dashboard', [ManagerController::class, 'dashboard']);

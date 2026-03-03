@@ -41,6 +41,8 @@ import InternshipProposals from '@/views/ClientPage/InternshipProposals.vue'
 import ManagerTickets from '@/views/AdminPages/ManagerTickets.vue'
 import SupportAnswer from '@/views/ClientPage/SupportAnswer.vue'
 import ReportAdmin from '@/views/AdminPages/ReportAdmin.vue'
+import BlockedPage from '@/views/block/BlockedPage.vue'
+import ReportAnswer from '@/views/answers/ReportAnswer.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -295,18 +297,33 @@ const router = createRouter({
       path: '/admin/reports',
       name: 'ReportAdmin',
       component: ReportAdmin,
+    },
+    {
+      path: '/blocked',
+      name: 'Blocked',
+      component: BlockedPage,
+    },
+    {
+      path: '/report-answer/:id',
+      name: 'ReportAnswer',
+      component: ReportAnswer,
     }
   ],
 })
 
 router.beforeEach(async (to) => {
-  if (!to.meta?.requiresAuth) return true
   const store = useUserStore()
   if (!store.user && store.token) {
     await store.loadUser()
   }
-  if (!store.user) {
+  if (to.meta?.requiresAuth && !store.user) {
     return { name: 'login' }
+  }
+  if (store.user?.blocked && to.name !== 'Blocked') {
+    return { name: 'Blocked' }
+  }
+  if (!store.user?.blocked && to.name === 'Blocked') {
+    return { name: 'home' }
   }
   return true
 })

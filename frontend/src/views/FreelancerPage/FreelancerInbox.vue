@@ -115,6 +115,8 @@ export default {
       }
       if (note.type === 'support_response') {
         this.$router.push(`/support-answer/${note.related_id}`)
+      } else if (note.type === 'admin_warning') {
+        this.$router.push(`/report-answer/${note.related_id}`)
       }
     },
 
@@ -217,6 +219,7 @@ export default {
 .pagination .page-info {
   font-weight: 500;
 }
+
 .pagination button {
   padding: 8px 12px;
   border-radius: 8px;

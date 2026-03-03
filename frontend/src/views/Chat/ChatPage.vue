@@ -6,7 +6,7 @@
     <div class="chat-page">
       <div class="header-chat">
         <h1>Chat with {{ partner?.name || '...' }}</h1>
-        <button class="report" @click="showReportModal = true">Report</button>
+        <button v-if="user.role != 'admin'" class="report" @click="showReportModal = true">Report</button>
       </div>
 
       <ReportModal v-model="showReportModal" :reportedUserId="route.params.id" />

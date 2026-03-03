@@ -12,25 +12,14 @@
     </div>
 
     <div v-if="reports.length" class="report-grid">
-      <ReportCard
-        v-for="report in reports"
-        :key="report.id"
-        :report="report"
-        @resolve="resolveReport"
-        @in-progress="markInProgress"
-      />
+      <ReportCard v-for="report in reports" :key="report.id" :report="report" @resolve="resolveReport"
+        @in-progress="markInProgress" @block="blockUser" @warn="warnUser"/>
     </div>
 
     <p v-else class="empty">No reports found.</p>
 
-    <div
-      class="pagination"
-      v-if="pagination.last_page > 1"
-    >
-      <button
-        :disabled="pagination.current_page === 1"
-        @click="changePage(pagination.current_page - 1)"
-      >
+    <div class="pagination" v-if="pagination.last_page > 1">
+      <button :disabled="pagination.current_page === 1" @click="changePage(pagination.current_page - 1)">
         Prev
       </button>
 
@@ -39,10 +28,8 @@
         of {{ pagination.last_page }}
       </span>
 
-      <button
-        :disabled="pagination.current_page === pagination.last_page"
-        @click="changePage(pagination.current_page + 1)"
-      >
+      <button :disabled="pagination.current_page === pagination.last_page"
+        @click="changePage(pagination.current_page + 1)">
         Next
       </button>
     </div>
@@ -99,6 +86,20 @@ const resolveReport = async (id) => {
   }
 }
 
+const warnUser = async ({ userId, message }) => {
+  try {
+    await api.post('/admin/warn-user', {
+      user_id: userId,
+      message: message
+    })
+
+    notifications.success('Warning sent successfully')
+  } catch (error) {
+    notifications.error('Failed to send warning')
+    console.error(error)
+  }
+}
+
 const markInProgress = async (id) => {
   try {
     await api.patch(`/admin/reports/${id}`, {
@@ -111,6 +112,17 @@ const markInProgress = async (id) => {
   } catch (err) {
     console.error(err)
     notifications.error('Failed to update report')
+  }
+}
+
+const blockUser = async (userId) => {
+  try {
+    await api.post(`/admin/block-user/${userId}`)
+
+    notifications.success('User successfully blocked')
+  } catch (error) {
+    notifications.error('Failed to block user')
+    console.error(error)
   }
 }
 
