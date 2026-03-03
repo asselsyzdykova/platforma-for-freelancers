@@ -25,7 +25,7 @@
       </div>
 
       <div v-if="ticket.manager" class="report-button">
-        <button @click="showModal = true">Report Manager</button>
+        <button v-if="user.role!=='admin'" @click="showModal = true">Report Manager</button>
       </div>
 
       <div v-if="showModal" class="modal-overlay" @click.self="showModal = false">

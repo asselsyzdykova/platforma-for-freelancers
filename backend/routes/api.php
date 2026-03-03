@@ -26,7 +26,7 @@ use App\Http\Controllers\Api\ReportController;
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/projects/{id}/apply', [ProposalController::class, 'apply']);
-
+    Route::get('/users/{id}', [UserController::class, 'show']);
     //client
     Route::get('/client/applications/{id}', [ProposalController::class, 'show']);
     Route::post('/client/applications/{id}/view', [ProposalController::class, 'view']);

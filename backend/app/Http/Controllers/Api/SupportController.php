@@ -14,8 +14,8 @@ class SupportController extends Controller
     public function show($id)
     {
         $ticket = Ticket::with(['manager.user'])->findOrFail($id);
-        
-        if ($ticket->user_id !== Auth::id()) {
+        $user = Auth::user();
+        if ($user->role !== 'admin' && $ticket->user_id !== $user->id) {
             return response()->json(['message' => 'Forbidden'], 403);
         }
         return response()->json($ticket);

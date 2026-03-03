@@ -47,4 +47,22 @@ class UserController extends Controller
             'created_at' => $user->created_at,
         ]);
     }
+
+    public function show($id)
+    {
+        $user = \App\Models\User::find($id);
+        if (!$user) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+
+        return response()->json([
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'role' => $user->role ?? 'freelancer',
+            'university' => $user->university,
+            'study_year' => $user->study_year,
+            'created_at' => $user->created_at,
+        ]);
+    }
 }

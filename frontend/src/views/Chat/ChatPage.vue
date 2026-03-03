@@ -11,13 +11,12 @@
 
       <ReportModal v-model="showReportModal" :reportedUserId="route.params.id" />
 
-      <div class="messages">
+      <div class="messages" ref="messagesContainer">
         <button v-if="hasMore" class="load-more" @click="loadMore" :disabled="isLoadingMore">
           {{ isLoadingMore ? 'Loading...' : 'Load older messages' }}
         </button>
-
-        <MessageItem v-for="m in messages" :key="m.id" :message="m" :user-id="user.id" @open-attachment="openAttachment"
-          @download="downloadAttachment" />
+        <MessageItem v-for="m in messages" :key="m.id" :message="m" :user-id="user.id"
+          @open-attachment="selectedAttachment = $event" />
       </div>
 
       <AttachmentModal :url="selectedAttachment" :visible="!!selectedAttachment" @close="closeAttachment" />
@@ -27,7 +26,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import api from '@/services/axios'
 import SidebarMenu from '@/components/FreelancerPageMenu/SidebarMenu.vue'
@@ -49,6 +48,24 @@ const user = ref({})
 const partner = ref(null)
 let channel = null
 const showReportModal = ref(false)
+const messagesContainer = ref(null)
+const shouldScrollToBottom = ref(true)
+
+//scroll
+const scrollToBottom = async (smooth = true) => {
+  await nextTick()
+  if (!messagesContainer.value) return
+
+  const container = messagesContainer.value
+  const distanceToBottom = container.scrollHeight - container.scrollTop - container.clientHeight
+
+  if (shouldScrollToBottom.value || distanceToBottom < 200) {
+    container.scrollTo({
+      top: container.scrollHeight,
+      behavior: smooth ? 'smooth' : 'auto'
+    })
+  }
+}
 
 const handleSendMessage = async ({ body, file }) => {
   if (!body.trim() && !file) return
@@ -62,8 +79,8 @@ const handleSendMessage = async ({ body, file }) => {
     const res = await api.post('/messages', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     })
-
     messages.value.push(res.data)
+    nextTick(() => scrollToBottom(true))
   } catch (e) {
     console.error(e)
     notifications.error('Failed to send message')
@@ -100,18 +117,14 @@ onMounted(async () => {
     const meRes = await api.get('/me')
     user.value = meRes.data
 
-    const partnerId = route.params.id
+    const partnerRes = await api.get(`/users/${route.params.id}`)
+    partner.value = partnerRes.data
 
     currentPage.value = 1
     await fetchMessages(currentPage.value, false)
-
-    await markConversationRead(partnerId)
-
-    if (messages.value.length > 0) {
-      const firstMsg = messages.value[0]
-      partner.value = firstMsg.sender_id === user.value.id ? firstMsg.receiver : firstMsg.sender
-    }
-
+    await markConversationRead(route.params.id)
+    shouldScrollToBottom.value = true
+    await scrollToBottom(false)
     try {
       const echoModule = await import('@/services/echo')
       const echo = echoModule.initEcho ? echoModule.initEcho() : echoModule.default?.initEcho
@@ -120,9 +133,10 @@ onMounted(async () => {
         channel = echo.private(`user.${user.value.id}`)
         channel.listen('MessageSent', async (payload) => {
           messages.value.push(payload)
-          if (payload.sender_id === Number(partnerId)) {
-            await markConversationRead(partnerId)
+          if (payload.sender_id === Number(route.params.id)) {
+            await markConversationRead(route.params.id)
           }
+          scrollToBottom(true)
         })
       }
     } catch (err) {
@@ -131,13 +145,26 @@ onMounted(async () => {
   } catch (e) {
     console.error(e)
   }
+  messagesContainer.value?.addEventListener('scroll', () => {
+    if (!messagesContainer.value) return
+    const container = messagesContainer.value
+    const atBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 100
+    shouldScrollToBottom.value = atBottom
+  })
+
+  scrollToBottom()
 })
 
-onBeforeUnmount(() => {
-  if (channel) {
-    channel.stopListening('MessageSent')
+channel?.listen('MessageSent', async (payload) => {
+  messages.value.push(payload)
+  if (payload.sender_id === Number(route.params.id)) {
+    await markConversationRead(route.params.id)
   }
+  scrollToBottom(true)
 })
+
+watch(messages, () => {
+}, { deep: true })
 
 const loadMore = async () => {
   if (!hasMore.value || isLoadingMore.value) return
@@ -151,9 +178,16 @@ const loadMore = async () => {
     isLoadingMore.value = false
   }
 }
+
 const closeAttachment = () => {
   selectedAttachment.value = null
 }
+
+onBeforeUnmount(() => {
+  if (channel) {
+    channel.stopListening('MessageSent')
+  }
+})
 </script>
 
 <style scoped>

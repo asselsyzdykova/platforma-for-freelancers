@@ -20,7 +20,10 @@
     <p class="meta">
       {{ formatDate(report.created_at) }}
       <span v-if="report.ticket_id">
-        | Ticket #{{ report.ticket_id }}
+        |
+        <router-link :to="`/support-answer/${report.ticket_id}`">
+          View Ticket #{{ report.ticket_id }}
+        </router-link>
       </span>
     </p>
 
@@ -29,10 +32,7 @@
     </p>
 
     <div v-if="report.status !== 'resolved'" class="actions">
-      <button
-        v-if="report.status === 'pending'"
-        @click="markInProgress"
-      >
+      <button v-if="report.status === 'pending'" @click="markInProgress">
         Mark In Progress
       </button>
 
@@ -58,6 +58,13 @@
 
       <p class="modal-description">
         {{ report.description }}
+      </p>
+
+      <p v-if="report.ticket_id">
+        <strong>Ticket:</strong>
+        <router-link :to="`/tickets/${report.ticket_id}`">
+          View Ticket #{{ report.ticket_id }}
+        </router-link>
       </p>
 
       <button class="btn-close" @click="closeModal">
@@ -162,6 +169,11 @@ const formatDate = (date) => {
   margin-bottom: 10px;
 }
 
+.ticket-link {
+  color: #3b82f6;
+  text-decoration: underline;
+}
+
 .description {
   font-size: 14px;
   color: #333;
@@ -199,7 +211,6 @@ const formatDate = (date) => {
   background: #22c55e;
 }
 
-/* MODAL */
 .modal-overlay {
   position: fixed;
   inset: 0;

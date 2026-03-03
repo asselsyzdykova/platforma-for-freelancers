@@ -10,13 +10,14 @@
           No internships yet
         </div>
         <div v-else class="internships-list">
-          <InternshipsCard v-for="intern in internships" :key="intern.id" :intern="intern" @deleted="handleDeleted"/>
+          <InternshipsCard v-for="intern in internships" :key="intern.id" :intern="intern" @deleted="handleDeleted" />
           <div class="pagination" v-if="totalPages > 1">
             <button :disabled="currentPage === 1" @click="currentPage--">Prev</button>
-            <button v-for="page in totalPages" :key="page" :class="{ active: page === currentPage }"
-              @click="currentPage = page">
-              {{ page }}
-            </button>
+
+            <span class="page-info">
+              Page {{ currentPage }} of {{ totalPages }}
+            </span>
+
             <button :disabled="currentPage === totalPages" @click="currentPage++">Next</button>
           </div>
         </div>
@@ -112,11 +113,14 @@ watch(
 .pagination {
   margin-top: 32px;
   display: flex;
-  gap: 8px;
+  gap: 16px;
   justify-content: center;
   align-items: center;
 }
 
+.pagination .page-info {
+  font-weight: 500;
+}
 .pagination button {
   padding: 8px 12px;
   border-radius: 8px;

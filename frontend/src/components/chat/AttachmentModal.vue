@@ -8,7 +8,7 @@
 
 <script setup>
 const { url, visible } = defineProps({
-  url: { type: String, required: true },
+  url: { type: String, default: ''},
   visible: { type: Boolean, default: false }
 })
 </script>
