@@ -8,11 +8,12 @@ return [
     |--------------------------------------------------------------------------    |
     */
 
-    'paths' => ['api/*', 'sanctum/csrf-cookie'],
+    'paths' => ['api/*', 'sanctum/csrf-cookie','freelancers', 'register'],
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['https://platforma-for-freelancers.vercel.app'],
+    'allowed_origins' => ['https://platforma-for-freelancers.vercel.app',
+    'http://localhost:5173'],
 
     'allowed_origins_patterns' => [],
 
