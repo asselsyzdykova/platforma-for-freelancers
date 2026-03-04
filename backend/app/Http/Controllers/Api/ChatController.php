@@ -6,6 +6,7 @@ use App\Events\MessageSent;
 use App\Http\Controllers\Controller;
 use App\Models\Message;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ChatController extends Controller
 {
@@ -27,8 +28,13 @@ class ChatController extends Controller
                 $q->where('sender_id', $userId)->where('receiver_id', $authId);
             })->with('sender')->orderBy('created_at', 'desc')->paginate($perPage);
 
-            $messages = collect($paginated->items())->reverse()->values();
+            $messages = collect($paginated->items())->reverse()->values()->map(function ($message) {
+                $message->attachment_url = $message->attachment_path
+                    ? Storage::url($message->attachment_path)
+                    : null;
 
+                return $message;
+            });
             return response()->json([
                 'data' => $messages,
                 'meta' => [
@@ -137,8 +143,8 @@ class ChatController extends Controller
             if ($request->hasFile('attachment')) {
                 $file = $request->file('attachment');
                 $filename = time() . '_' . uniqid() . '_' . $file->getClientOriginalName();
-                $file->storeAs('chat-attachments', $filename, 'public');
-                $attachmentPath = $filename;
+                $file->storeAs('chat-attachments', $filename, 's3');
+                $attachmentPath = 'chat-attachments/' . $filename;
                 $attachmentName = $file->getClientOriginalName();
                 $attachmentMime = $file->getClientMimeType();
                 $attachmentSize = $file->getSize();
@@ -155,6 +161,10 @@ class ChatController extends Controller
             ]);
 
             broadcast(new MessageSent($message))->toOthers();
+            $message->load('sender');
+            $message->attachment_url = $message->attachment_path
+                ? Storage::url($message->attachment_path)
+                : null;
 
             return response()->json($message->load('sender'));
         } catch (\Illuminate\Database\QueryException $e) {

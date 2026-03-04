@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Rules\SlovakUniversityEmail;
 use \App\Models\FreelancerProfile;
+use Illuminate\Support\Facades\Storage;
 
 
 class FreelancerProfileController extends Controller
@@ -22,13 +23,13 @@ class FreelancerProfileController extends Controller
         }
 
         $profile->avatar_url = $profile->avatar
-            ? asset('storage/avatars/' . $profile->avatar)
+            ? Storage::url($profile->avatar)
             : null;
 
         $certificates = is_array($profile->certificates) ? $profile->certificates : [];
 
         $profile->certificate_urls = array_values(array_map(function ($certificate) {
-            return asset('storage/certificates/' . $certificate);
+            return Storage::url($certificate);
         }, $certificates));
 
         $profile->proposals = Proposal::where(
@@ -80,9 +81,9 @@ class FreelancerProfileController extends Controller
         if ($request->hasFile('avatar')) {
             $file = $request->file('avatar');
             $filename = time() . '_' . $file->getClientOriginalName();
-            $file->storeAs('avatars', $filename, 'public');
+            $file->storeAs('avatars', $filename, 's3');
 
-            $profile->avatar = $filename;
+            $profile->avatar = 'avatars/' . $filename;
             $profile->save();
         }
 
@@ -101,8 +102,8 @@ class FreelancerProfileController extends Controller
         if ($request->hasFile('certificates')) {
             foreach ($request->file('certificates') as $file) {
                 $filename = time() . '_' . uniqid() . '_' . $file->getClientOriginalName();
-                $file->storeAs('certificates', $filename, 'public');
-                $existing[] = $filename;
+                $file->storeAs('certificates', $filename, 's3');
+                $existing[] = 'certificates/' . $filename;
             }
         }
 
@@ -111,11 +112,11 @@ class FreelancerProfileController extends Controller
 
 
         $profile->avatar_url = $profile->avatar
-            ? asset('storage/avatars/' . $profile->avatar)
+            ? Storage::url($profile->avatar)
             : null;
 
         $profile->certificate_urls = array_values(array_map(function ($certificate) {
-            return asset('storage/certificates/' . $certificate);
+            return Storage::url($certificate);
         }, $existing));
 
         $profile->proposals = Proposal::where(

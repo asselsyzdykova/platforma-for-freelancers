@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ClientProfileController extends Controller
 {
@@ -12,7 +13,11 @@ class ClientProfileController extends Controller
         $profile = $request->user()
             ->clientProfile()
             ->with('user')
-            ->first();
+            ->firstOrFail();
+
+        $profile->avatar_url = $profile->avatar
+            ? Storage::url($profile->avatar)
+            : null;
 
         return response()->json($profile);
     }
@@ -34,10 +39,14 @@ class ClientProfileController extends Controller
             );
 
         if ($request->hasFile('avatar')) {
-            $filename = time() . '_' . $request->avatar->getClientOriginalName();
-            $request->avatar->storeAs('avatars', $filename, 'public');
+            $file = $request->file('avatar');
+            $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
 
-            $profile->avatar = $filename;
+            if ($profile->avatar) {
+                Storage::disk('s3')->delete($profile->avatar);
+            }
+            $path = $file->storeAs('avatars', $filename, 's3');
+            $profile->avatar = $path;
             $profile->save();
         }
 
@@ -47,6 +56,9 @@ class ClientProfileController extends Controller
             $user->save();
         }
 
+        $profile->avatar_url = $profile->avatar
+            ? Storage::url($profile->avatar)
+            : null;
         return response()->json($profile->load('user'));
     }
 }

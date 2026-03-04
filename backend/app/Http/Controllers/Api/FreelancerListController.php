@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Illuminate\Support\Facades\Storage;
 
 class FreelancerListController extends Controller
 {
@@ -34,11 +35,13 @@ class FreelancerListController extends Controller
         $paginated = $query->orderBy('name')->paginate($perPage);
 
         $freelancers = $paginated->getCollection()->map(function ($user) {
+            $profile = $user->freelancerProfile;
             $certificates = $user->freelancerProfile->certificates ?? [];
             if (!is_array($certificates)) {
                 $certificates = [];
             }
 
+            $avatarPath = $profile->avatar ? 'avatars/' . $profile->avatar : null;
             return [
                 'id' => $user->id,
                 'name' => $user->name,
@@ -49,10 +52,10 @@ class FreelancerListController extends Controller
                 'location' => $user->freelancerProfile->location ?? '',
                 'skills' => $user->freelancerProfile->skills ?? [],
                 'avatar_url' => $user->freelancerProfile && $user->freelancerProfile->avatar
-                    ? asset('storage/avatars/' . $user->freelancerProfile->avatar)
+                    ? Storage::url($avatarPath)
                     : null,
                 'certificate_urls' => array_values(array_map(function ($certificate) {
-                    return asset('storage/certificates/' . $certificate);
+                    return Storage::url($certificate);
                 }, $certificates)),
             ];
         });
