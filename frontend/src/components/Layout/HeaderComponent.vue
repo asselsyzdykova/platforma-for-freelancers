@@ -39,18 +39,33 @@ const planSuffix = computed(() => {
 
       <nav :class="['nav', { 'mobile-open': mobileMenuOpen }]">
         <RouterLink :to="{ name: 'home' }" exact-active-class="active">Home</RouterLink>
-        <RouterLink v-if="userStore.isLoggedIn" :to="{ name: 'freelancers' }" exact-active-class="active">Freelancers</RouterLink>
+        <RouterLink v-if="userStore.isLoggedIn" :to="{ name: 'freelancers' }" exact-active-class="active">Freelancers
+        </RouterLink>
         <RouterLink :to="{ name: 'InternshipPage' }" exact-active-class="active">Internship</RouterLink>
-        <RouterLink v-if="userStore.isLoggedIn" :to="{ name: 'projects' }" exact-active-class="active">Projects</RouterLink>
+        <RouterLink v-if="userStore.isLoggedIn" :to="{ name: 'projects' }" exact-active-class="active">Projects
+        </RouterLink>
         <RouterLink :to="{ name: 'Subscriptions' }" exact-active-class="active">Subscriptions</RouterLink>
 
         <RouterLink v-if="!userStore.isLoggedIn" :to="{ name: 'login' }" exact-active-class="active">Log In</RouterLink>
-        <RouterLink v-if="!userStore.isLoggedIn" :to="{ name: 'register' }" exact-active-class="active">Sign Up</RouterLink>
+        <RouterLink v-if="!userStore.isLoggedIn" :to="{ name: 'register' }" exact-active-class="active">Sign Up
+        </RouterLink>
 
-        <RouterLink v-if="userStore.isLoggedIn && userStore.user.role === 'freelancer'" :to="{ name: 'FreelancerProfile' }" exact-active-class="active">
+        <RouterLink v-if="userStore.isLoggedIn && userStore.user.role === 'freelancer'"
+          :to="{ name: 'FreelancerProfile' }" exact-active-class="active">
           Profile ({{ userStore.user.name }}{{ planSuffix }})
         </RouterLink>
-        <RouterLink v-if="userStore.isLoggedIn && userStore.user.role !== 'freelancer'" :to="{ name: `${userStore.user.role}Profile` }" exact-active-class="active">
+        <RouterLink v-if="userStore.isLoggedIn && userStore.user.role === 'user'" :to="{ name: 'ClientProfile' }"
+          exact-active-class="active">
+          Profile ({{ userStore.user.name }})
+        </RouterLink>
+
+        <RouterLink v-if="userStore.isLoggedIn && userStore.user.role === 'admin'" :to="{ name: 'AdminProfile' }"
+          exact-active-class="active">
+          Profile ({{ userStore.user.name }})
+        </RouterLink>
+
+        <RouterLink v-if="userStore.isLoggedIn && userStore.user.role === 'manager'" :to="{ name: 'ManagerProfile' }"
+          exact-active-class="active">
           Profile ({{ userStore.user.name }})
         </RouterLink>
 
@@ -66,7 +81,7 @@ const planSuffix = computed(() => {
   opacity: 0.9;
   backdrop-filter: blur(10px);
   padding: 16px 32px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   position: sticky;
   top: 0;
   z-index: 1000;
@@ -81,8 +96,14 @@ const planSuffix = computed(() => {
   gap: 20px;
 }
 
-.logo { height: 40px; transition: transform 0.3s ease; }
-.logo:hover { transform: scale(1.05); }
+.logo {
+  height: 40px;
+  transition: transform 0.3s ease;
+}
+
+.logo:hover {
+  transform: scale(1.05);
+}
 
 .nav {
   display: flex;
@@ -99,8 +120,15 @@ const planSuffix = computed(() => {
   border-radius: 20px;
   transition: all 0.3s ease;
 }
-.nav a:hover { background-color: rgba(255,255,255,0.2); }
-.nav .active { font-weight: bold; background-color: rgba(255,255,255,0.3); }
+
+.nav a:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.nav .active {
+  font-weight: bold;
+  background-color: rgba(255, 255, 255, 0.3);
+}
 
 .nav button {
   padding: 8px 16px;
@@ -111,6 +139,7 @@ const planSuffix = computed(() => {
   cursor: pointer;
   font-weight: 500;
 }
+
 .hamburger {
   display: none;
   flex-direction: column;
@@ -119,6 +148,7 @@ const planSuffix = computed(() => {
   border: none;
   cursor: pointer;
 }
+
 .hamburger span {
   display: block;
   width: 25px;
@@ -127,12 +157,24 @@ const planSuffix = computed(() => {
   border-radius: 3px;
   transition: all 0.3s ease;
 }
-.hamburger span.open:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
-.hamburger span.open:nth-child(2) { opacity: 0; }
-.hamburger span.open:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+
+.hamburger span.open:nth-child(1) {
+  transform: rotate(45deg) translate(5px, 5px);
+}
+
+.hamburger span.open:nth-child(2) {
+  opacity: 0;
+}
+
+.hamburger span.open:nth-child(3) {
+  transform: rotate(-45deg) translate(5px, -5px);
+}
 
 @media (max-width: 768px) {
-  .hamburger { display: flex; }
+  .hamburger {
+    display: flex;
+  }
+
   .nav {
     position: absolute;
     top: 72px;
@@ -146,6 +188,9 @@ const planSuffix = computed(() => {
     min-width: 180px;
     backdrop-filter: blur(10px);
   }
-  .nav.mobile-open { display: flex; }
+
+  .nav.mobile-open {
+    display: flex;
+  }
 }
 </style>
