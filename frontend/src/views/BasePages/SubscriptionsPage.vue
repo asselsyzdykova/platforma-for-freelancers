@@ -72,7 +72,7 @@
 </template>
 
 <script setup>
-import axios from 'axios'
+import api from '@/services/axios'
 import { computed, onMounted } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 import { useNotificationStore } from '@/stores/notificationStore'
@@ -86,21 +86,7 @@ onMounted(() => {
 
 const subscribe = async (plan) => {
   try {
-    const token = localStorage.getItem('access_token')
-
-    const base =
-      (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '') || window.location.origin
-    const url = `${base}/api/create-checkout-session`
-
-    const { data } = await axios.post(
-      url,
-      { plan },
-      {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-        withCredentials: true,
-      },
-    )
-
+    const { data } = await api.post('/create-checkout-session', { plan })
     if (data?.url) {
       window.location.href = data.url
       return
@@ -122,21 +108,8 @@ const subscribe = async (plan) => {
 
 const subscribePayPal = async (plan) => {
   try {
-    const token = localStorage.getItem('access_token')
-
-    const base =
-      (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '') || window.location.origin
-    const url = `${base}/api/paypal/create-subscription`
-
-    const { data } = await axios.post(
-      url,
-      { plan },
-      {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-        withCredentials: true,
-      },
-    )
-
+    const { data } = await api.post('/paypal/create-subscription', { plan })
+    
     if (data?.url) {
       window.location.href = data.url
       return
