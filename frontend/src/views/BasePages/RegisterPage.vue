@@ -102,7 +102,7 @@ const register = async () => {
   }
 
   try {
-    await api.post('/register', {
+    const response = await api.post('/register', {
       name: form.name,
       email: form.email,
       password: form.password,
@@ -111,15 +111,19 @@ const register = async () => {
       university: form.university,
       study_year: form.study_year,
     })
+    localStorage.setItem('access_token', response.data.access_token);
 
     router.push('/verify-email?email=' + encodeURIComponent(form.email))
   } catch (error) {
-    if (error.response?.data?.errors) {
-      notifications.error(Object.values(error.response.data.errors).flat().join('\n'))
-    } else if (error.response?.data?.message) {
-      notifications.error(error.response.data.message)
+    if (error.response?.status === 422) {
+      const errors = error.response.data.errors || {};
+      const messages = Object.values(errors).flat().join('\n');
+      notifications.error(messages || 'Validation failed');
+    } else if (error.response?.status === 500) {
+      notifications.error('Server error. Please try again later.');
+      console.error(error.response.data);
     } else {
-      notifications.error('Registration failed')
+      notifications.error('Registration failed. Check connection.');
     }
   }
 }
