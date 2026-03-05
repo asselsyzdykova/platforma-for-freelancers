@@ -258,7 +258,7 @@ const router = createRouter({
       component: VerifyEmail,
     },
     {
-      path: '/verified',
+      path: '/verify-success',
       name: 'VerifySuccess',
       component: VerifySuccess,
     },
