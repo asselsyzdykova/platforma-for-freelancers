@@ -213,7 +213,7 @@ const filteredFreelancers = computed(() => {
 
 onMounted(async () => {
   try {
-    const res = await api.get('/freelancers', { params: { per_page: 100 } })
+    const res = await api.get('/freelancers', { params: { per_page: 5 } })
     freelancers.value = res.data?.data || []
 
     const newsRes = await api.get('/news')
