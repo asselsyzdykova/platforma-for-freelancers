@@ -1,8 +1,10 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class ClientProfile extends Model
 {
@@ -28,7 +30,7 @@ class ClientProfile extends Model
     public function getAvatarUrlAttribute()
     {
         return $this->avatar
-            ? asset('storage/avatars/' . $this->avatar)
+            ? Storage::url($this->avatar)
             : null;
     }
 }
