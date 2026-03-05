@@ -260,7 +260,7 @@ const router = createRouter({
     {
       path: '/verify-success',
       name: 'VerifySuccess',
-      component: VerifySuccess,
+      component: () => import('@/views/Email/VerifySuccess.vue'),
     },
 
     {
