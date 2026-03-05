@@ -26,7 +26,7 @@ class EmailVerificationController extends Controller
 
         if ($user->markEmailAsVerified()) {
             event(new Verified($user));
-            return redirect()->away(env('FRONTEND_URL', 'http://localhost:5173') . '/verified');
+            return redirect()->away(env('FRONTEND_URL', 'https://platforma-for-freelancers.vercel.app') . '/verify-success');
         }
 
         return response()->json(['message' => 'Invalid verification link'], 400);
