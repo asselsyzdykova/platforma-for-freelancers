@@ -323,4 +323,29 @@ th {
   letter-spacing: 0.5px;
   color: #4f46e5;
 }
+@media (max-width: 768px) {
+  .page-layout {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 600px) {
+  h1 {
+    font-size: 24px;
+  }
+
+  .billing-card {
+    padding: 16px;
+    border-radius: 18px;
+  }
+
+  .filters {
+    padding: 16px;
+    gap: 12px;
+  }
+
+  .filter select {
+    padding: 6px 10px;
+  }
+}
 </style>

@@ -361,4 +361,31 @@ const closeCertificate = () => {
 .message-modal-actions button:not(.secondary):hover:not(:disabled) {
   transform: translateY(-1px);
 }
+@media (max-width: 768px) {
+  .public-card {
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px;
+  }
+
+  .public-left {
+    width: 100%;
+    text-align: center;
+  }
+
+  .public-right {
+    width: 100%;
+  }
+
+  .cert-grid {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+  }
+
+  .avatar-img {
+    width: 120px;
+    height: 120px;
+    margin-bottom: 10px;
+  }
+}
 </style>

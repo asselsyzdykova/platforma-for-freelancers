@@ -46,6 +46,6 @@ export default {
 .links a {
   text-decoration: none;
   font-size: 14px;
-  color: #5b3df5;
+  color: #5D3A9B;
 }
 </style>

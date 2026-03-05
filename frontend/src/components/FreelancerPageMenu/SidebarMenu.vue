@@ -110,4 +110,44 @@ onMounted(loadUnread)
   background: #ef4444;
   box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.7);
 }
+
+@media (max-width: 900px) {
+  .sidebar {
+    width: 200px;
+    padding: 24px 16px;
+  }
+
+  .menu-item {
+    font-size: 14px;
+    padding: 10px 16px;
+  }
+}
+
+
+@media (max-width: 600px) {
+  .sidebar {
+    width: 100%;
+    min-height: auto;
+    padding: 10px;
+    flex-direction: row;
+    overflow-x: auto;
+  }
+
+  .menu {
+    flex-direction: row;
+    gap: 8px;
+    width: max-content;
+  }
+
+  .menu-item {
+    white-space: nowrap;
+    font-size: 13px;
+    padding: 8px 14px;
+    border-radius: 10px;
+  }
+
+  .chat-badge {
+    margin-left: 6px;
+  }
+}
 </style>

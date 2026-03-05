@@ -247,10 +247,82 @@ export default {
   color: #fff;
   cursor: pointer;
   font-size: 12px;
-  white-space: nowrap;
+  white-space: normal;
+  text-align: center;
 }
 
 .mark-read:hover {
   opacity: 0.9;
+}
+
+@media (max-width: 768px) {
+    .profile-layout {
+    flex-direction: column;
+  }
+  .inbox-page {
+    padding: 20px 16px;
+  }
+
+  .notification {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 12px 16px;
+  }
+
+  .notification .left,
+  .notification .time,
+  .notification .mark-read {
+    align-self: flex-end;
+  }
+
+  .content {
+    width: 100%;
+    flex: none;
+  }
+
+  .title {
+    font-size: 14px;
+    margin-bottom: 2px;
+  }
+
+  .body {
+    font-size: 13px;
+    color: #555;
+  }
+
+  .time {
+    font-size: 11px;
+    color: #888;
+    margin-top: 4px;
+  }
+
+  .mark-read {
+    font-size: 11px;
+    padding: 6px 12px;
+    min-width: auto;
+    align-self: flex-end;
+    margin-top: 4px;
+  }
+
+  .pagination {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .pagination button {
+    width: 100%;
+  }
+
+  .subtitle {
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+
+  .empty {
+    font-size: 14px;
+    margin-top: 40px;
+  }
 }
 </style>

@@ -142,4 +142,35 @@ h1 {
   background: #2cff00;
   transition: 0.3s;
 }
+
+@media (max-width: 768px) {
+  .page-layout {
+    flex-direction: column;
+  }
+
+  .content {
+    padding: 20px;
+  }
+
+  .projects-card {
+    padding: 20px;
+    border-radius: 20px;
+  }
+}
+
+@media (max-width: 600px) {
+  h1 {
+    font-size: 24px;
+  }
+
+  .project-item {
+    padding: 16px;
+  }
+
+  .project-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+}
 </style>

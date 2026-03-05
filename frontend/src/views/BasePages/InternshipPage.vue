@@ -70,12 +70,12 @@ watch(
 <style scoped>
 .first-block {
   border-radius: 10px;
-  margin: 30px;
+  margin: 30px auto;
   box-shadow: 0 2px 6px rgba(93, 58, 155, 0.9);
   background: rgba(255, 255, 255, 0.5);
   backdrop-filter: blur(10px);
-  margin-left: 500px;
-  margin-right: 500px;
+  max-width: 600px;
+  padding: 20px;
 }
 
 .first-block h2 {
@@ -96,10 +96,34 @@ watch(
   gap: 28px 24px;
 }
 
-@media (max-width: 500px) {
+
+@media (max-width: 900px) {
+  .internships-grid {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  }
+
+  .first-block h2 {
+    font-size: 28px;
+  }
+}
+
+@media (max-width: 600px) {
   .internships-grid {
     grid-template-columns: 1fr;
-    padding: 0 12px;
+    gap: 20px;
+  }
+
+  .internships-container {
+    padding: 0 14px 40px;
+  }
+
+  .first-block {
+    margin: 20px 14px;
+    padding: 16px;
+  }
+
+  .first-block h2 {
+    font-size: 24px;
   }
 }
 
@@ -109,23 +133,15 @@ watch(
   gap: 16px;
   justify-content: center;
   align-items: center;
+  flex-wrap: wrap;
 }
 
-.pagination .page-info {
-  font-weight: 500;
-}
 .pagination button {
-  padding: 8px 12px;
+  padding: 8px 14px;
   border-radius: 8px;
   border: 1px solid #ddd;
   background: #fff;
   cursor: pointer;
-}
-
-.pagination button.active {
-  background: #5b3df5;
-  color: #fff;
-  border-color: #5b3df5;
 }
 
 .pagination button:disabled {
@@ -134,7 +150,7 @@ watch(
 }
 
 .page-info {
-  font-size: 1.1rem;
+  font-size: 1rem;
   color: #555;
 }
 </style>

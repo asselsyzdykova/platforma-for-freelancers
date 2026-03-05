@@ -213,4 +213,36 @@ h1 {
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+@media (max-width: 768px) {
+  .content {
+    padding: 20px;
+  }
+  .proposals-card {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 600px) {
+  .page-layout {
+    flex-direction: column;
+  }
+  .steps {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .project-name {
+    font-size: 16px;
+  }
+
+  .progress {
+    height: 8px;
+  }
+
+  .pagination {
+    flex-direction: column;
+    gap: 8px;
+  }
+}
 </style>

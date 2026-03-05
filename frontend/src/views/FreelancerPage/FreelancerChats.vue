@@ -251,4 +251,35 @@ export default {
   opacity: 0.5;
   cursor: not-allowed;
 }
+@media (max-width: 768px) {
+  .profile-layout {
+    flex-direction: column;
+  }
+
+  .chats-page {
+    max-width: 100%;
+    padding: 20px;
+  }
+}
+
+@media (max-width: 600px) {
+  .conversation {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .meta {
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .avatar-placeholder {
+    width: 40px;
+    height: 40px;
+    font-size: 14px;
+  }
+}
 </style>

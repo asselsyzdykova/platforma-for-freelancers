@@ -133,7 +133,7 @@ const planSuffix = computed(() => {
 .nav button {
   padding: 8px 16px;
   background: linear-gradient(135deg, #ff6b6b, #ee5a24);
-  color: #5D3A9B;
+  color: white;
   border: none;
   border-radius: 20px;
   cursor: pointer;

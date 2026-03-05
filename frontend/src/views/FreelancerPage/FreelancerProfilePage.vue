@@ -554,4 +554,92 @@ h2 {
   font-size: 14px;
   margin-bottom: 4px;
 }
+
+@media (max-width: 900px) {
+  .profile-content {
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .profile-card {
+    padding: 24px;
+  }
+
+  .profile-page {
+    padding: 24px 16px;
+  }
+}
+
+
+@media (max-width: 600px) {
+  .profile-layout {
+    flex-direction: column;
+  }
+
+  .profile-page {
+    padding: 16px 12px;
+    align-items: flex-start;
+  }
+
+  .profile-card {
+    border-radius: 16px;
+    padding: 20px;
+  }
+
+  h1 {
+    font-size: 22px;
+    text-align: center;
+  }
+
+  .name-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  h2 {
+    font-size: 18px;
+  }
+
+  .right p {
+    font-size: 14px;
+  }
+
+  .about {
+    font-size: 13px;
+  }
+
+  .skills span {
+    font-size: 12px;
+    padding: 5px 10px;
+  }
+
+  .cert-window {
+    width: 100%;
+  }
+
+  .cert-card {
+    min-width: 180px;
+    height: 120px;
+  }
+
+
+  .reviews-box {
+    max-height: 200px;
+  }
+
+  .review-item {
+    padding: 12px;
+  }
+
+  .review-content p {
+    font-size: 13px;
+  }
+
+  .edit-btn,
+  .inbox-btn {
+    width: 100%;
+    margin-left: 0;
+  }
+}
 </style>
