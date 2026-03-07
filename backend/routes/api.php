@@ -18,6 +18,7 @@ use App\Http\Controllers\Api\ManagerController;
 use App\Http\Controllers\Api\AdminController;
 use App\Http\Controllers\Api\TaskController;
 use App\Http\Controllers\Api\EmailVerificationController;
+use App\Http\Controllers\Api\FreelancerProjectController;
 use App\Http\Controllers\Api\InternshipController;
 use App\Http\Controllers\Api\NewsController;
 use App\Http\Controllers\Api\SupportController;
@@ -52,6 +53,8 @@ Route::middleware(['auth:sanctum', 'blocked'])->group(function () {
     Route::put('/freelancer/account', [FreelancerProfileController::class, 'updateAccount']);
     Route::delete('/freelancer/profile', [FreelancerProfileController::class, 'destroy']);
 
+    //freelancer projects
+    Route::post('/freelancer-projects', [FreelancerProjectController::class, 'store']);
     //notif
     Route::get('/notifications', [NotificationController::class, 'index']);
     Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount']);

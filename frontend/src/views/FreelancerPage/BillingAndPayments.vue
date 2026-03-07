@@ -44,8 +44,6 @@
 
             </select>
           </div>
-
-          <div class="balance">Balance: <strong>0.00 $</strong></div>
         </div>
 
         <!-- TABLE -->
@@ -243,14 +241,6 @@ h1 {
   padding: 8px 12px;
   border-radius: 8px;
   border: 1px solid #ccc;
-}
-
-.balance {
-  background: white;
-  padding: 12px 20px;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  font-size: 14px;
 }
 
 .table-wrapper {

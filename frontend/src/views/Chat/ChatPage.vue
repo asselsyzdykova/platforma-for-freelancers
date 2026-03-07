@@ -7,8 +7,8 @@
       <div class="header-chat">
         <h1>Chat with {{ partner?.name || '...' }}</h1>
         <button v-if="user.role != 'admin'" class="report" @click="showReportModal = true">Report</button>
+        <button v-if="user.role === 'freelancer'" @click="openModal = true" class="create-btn">Create Project</button>
       </div>
-
       <ReportModal v-model="showReportModal" :reportedUserId="route.params.id" />
 
       <div class="messages" ref="messagesContainer">
@@ -21,6 +21,51 @@
 
       <AttachmentModal :url="selectedAttachment" :visible="!!selectedAttachment" @close="closeAttachment" />
       <ChatComposer @send="handleSendMessage" />
+    </div>
+    <div v-if="openModal" class="modal">
+      <div class="modal-cont">
+
+        <h2>Create Project</h2>
+
+        <input v-model="name" class="proj-name" placeholder="Project Name" />
+
+        <textarea v-model="description" class="proj-descrip" placeholder="Description"></textarea>
+
+        <div class="form-group">
+          <label>Deadline</label>
+          <input ref="deadlineInput" placeholder="Select deadline" class="date-input" />
+        </div>
+
+        <h3>Milestones</h3>
+
+        <div v-for="(milestone, index) in milestones" :key="index" class="milestone-row">
+          <input v-model="milestone.title" class="miles-name" placeholder="Milestone name" />
+
+          <input v-model="milestone.price" type="number" class="miles-cena" placeholder="Price €" />
+
+          <button v-if="milestones.length > 1" @click="removeMilestone(index)">
+            ✕
+          </button>
+        </div>
+
+        <button class="add-milestone" @click="addMilestone">
+          + Add milestone
+        </button>
+
+        <p class="total">
+          Total: {{milestones.reduce((t, m) => t + Number(m.price || 0), 0)}} €
+        </p>
+        <div class="modal-actions">
+          <button class="cancel" @click="openModal = false">
+            Cancel
+          </button>
+
+          <button class="create" @click="createProject">
+            Create Project
+          </button>
+        </div>
+
+      </div>
     </div>
   </div>
 </template>
@@ -36,6 +81,8 @@ import AttachmentModal from '@/components/chat/AttachmentModal.vue'
 import MessageItem from '@/components/chat/MessageItem.vue'
 import ChatComposer from '@/components/chat/ChatComposer.vue'
 import { useNotificationStore } from '@/stores/notificationStore'
+import flatpickr from 'flatpickr'
+import 'flatpickr/dist/flatpickr.min.css'
 
 const notifications = useNotificationStore()
 const route = useRoute()
@@ -50,7 +97,47 @@ let channel = null
 const showReportModal = ref(false)
 const messagesContainer = ref(null)
 const shouldScrollToBottom = ref(true)
+const openModal = ref(false)
+const name = ref('')
+const description = ref('')
+const deadlineInput = ref(null)
+const deadline = ref('')
+const createProject = async () => {
+  try {
 
+    const payload = {
+      name: name.value,
+      description: description.value,
+      deadline: deadline.value,
+      client_id: route.params.id,
+      milestones: milestones.value
+    }
+
+    await api.post('/freelancer-projects', payload)
+
+    notifications.success('Project created')
+
+    openModal.value = false
+
+  } catch (e) {
+    console.error(e)
+    notifications.error('Failed to create project')
+  }
+}
+const milestones = ref([
+  { title: '', price: '' }
+])
+
+const addMilestone = () => {
+  milestones.value.push({
+    title: '',
+    price: ''
+  })
+}
+
+const removeMilestone = (index) => {
+  milestones.value.splice(index, 1)
+}
 //scroll
 const scrollToBottom = async (smooth = true) => {
   await nextTick()
@@ -151,7 +238,6 @@ onMounted(async () => {
     const atBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 100
     shouldScrollToBottom.value = atBottom
   })
-
   scrollToBottom()
 })
 
@@ -161,6 +247,19 @@ channel?.listen('MessageSent', async (payload) => {
     await markConversationRead(route.params.id)
   }
   scrollToBottom(true)
+})
+watch(openModal, (val) => {
+  if (val) {
+    nextTick(() => {
+      flatpickr(deadlineInput.value, {
+        minDate: "today",
+        dateFormat: "Y-m-d",
+        onChange: (selectedDates, dateStr) => {
+          deadline.value = dateStr
+        }
+      })
+    })
+  }
 })
 
 watch(messages, () => {
@@ -191,6 +290,98 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.modal-cont {
+  background: white;
+  padding: 28px;
+  border-radius: 16px;
+  width: 500px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.proj-name {
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.proj-descrip {
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.date-input {
+  border-radius: 10px;
+  padding: 5px;
+  margin-left: 5px;
+}
+
+.miles-name {
+  border-radius: 10px;
+  padding: 5px;
+}
+
+.miles-cena {
+  border-radius: 10px;
+  padding: 5px;
+}
+
+.cancel {
+  border-radius: 10px;
+  padding: 5px;
+  background: #ddd;
+  border: none;
+  cursor: pointer;
+}
+
+.create {
+  border-radius: 10px;
+  padding: 5px;
+  background: #5b3df5;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.milestone-row {
+  display: flex;
+  gap: 8px;
+}
+
+.add-milestone {
+  background: #eee;
+  border: none;
+  padding: 6px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.create-btn {
+  background: #5b3df5;
+  color: white;
+  padding: 7px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  margin-left: 5px;
+}
+
 .report {
   background: red;
   color: white;
