@@ -6,24 +6,21 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('milestones', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('project_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('freelancer_project_id')
+                  ->constrained('freelancer_projects')
+                  ->onDelete('cascade');
             $table->string('title');
             $table->decimal('price', 10, 2);
-            $table->string('status')->default('pending');
+            $table->enum('status', ['pending', 'in_progress', 'completed', 'rejected'])
+                  ->default('pending');
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('milestones');
