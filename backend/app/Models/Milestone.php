@@ -16,6 +16,10 @@ class Milestone extends Model
         'price'
     ];
 
+    protected $casts = [
+        'price' => 'float',
+    ];
+
     public function project()
     {
         return $this->belongsTo(FreelancerProject::class, 'project_id');
