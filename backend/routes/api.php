@@ -52,7 +52,7 @@ Route::middleware(['auth:sanctum', 'blocked'])->group(function () {
     Route::put('/freelancer/account', [FreelancerProfileController::class, 'update']);
     Route::put('/freelancer/account', [FreelancerProfileController::class, 'updateAccount']);
     Route::delete('/freelancer/profile', [FreelancerProfileController::class, 'destroy']);
-
+    Route::get('/freelancers/{id}', [FreelancerListController::class, 'show']);
     //freelancer projects
     Route::post('/freelancer-projects', [FreelancerProjectController::class, 'store']);
     Route::get('/freelancer/projects',[FreelancerProjectController::class, 'freelancerProjects']);

@@ -12,20 +12,11 @@
 
       <CitySelector :cities="cities" v-model:selectedCity="form.location" />
 
-      <SkillsInput
-        :skills="form.skills"
-        :allSkills="allSkills"
-        @addSkill="addSkill"
-        @removeSkill="removeSkill"
-      />
+      <SkillsInput :skills="form.skills" :allSkills="allSkills" @addSkill="addSkill" @removeSkill="removeSkill" />
 
-      <CertificatesUpload
-        :certificates="form.certificates"
-        :newCertificates="form.newCertificates"
-        @addCertificate="onCertificatesChange"
-        @removeExistingCertificate="removeExistingCertificate"
-        @removeNewCertificate="removeNewCertificate"
-      />
+      <CertificatesUpload :certificates="form.certificates" :new-certificates="form.newCertificates"
+        @add-certificate="handleAddCertificates" @remove-existing-certificate="removeExistingCertificate"
+        @remove-new-certificate="removeNewCertificate" />
 
       <button type="submit">Save</button>
     </form>
@@ -46,10 +37,7 @@ const router = useRouter()
 const notifications = useNotificationStore()
 
 const cities = ref([])
-const citySearch = ref('')
-const skillsInput = ref('')
 const allSkills = ref([])
-const showSkillsDropdown = ref(false)
 
 const form = ref({
   about: '',
@@ -61,87 +49,32 @@ const form = ref({
   newCertificates: [],
 })
 
-const maxCertificateSizeBytes = 4 * 1024 * 1024
-
 const addSkill = (skillFromDropdown = null) => {
-  const value = skillFromDropdown || skillsInput.value.trim()
-  if (!value) return
+  const value = skillFromDropdown || ''
+  if (!value.trim()) return
 
-  if (!form.value.skills.includes(value)) {
-    form.value.skills.push(value)
+  const trimmed = value.trim()
+  if (!form.value.skills.includes(trimmed)) {
+    form.value.skills.push(trimmed)
   }
-
-  skillsInput.value = ''
-  showSkillsDropdown.value = false
 }
 
 const removeSkill = (skill) => {
-  form.value.skills = form.value.skills.filter(
-    (item) => item !== skill
-  )
+  form.value.skills = form.value.skills.filter(item => item !== skill)
 }
 
-onMounted(async () => {
-  try {
-    const [profileResponse, citiesResponse, skillsResponse] =
-      await Promise.all([
-        api.get('/freelancer/profile', {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('access_token')}`,
-          },
-        }),
-        api.get('/cities'),
-        api.get('/skills'),
-      ])
-
-    if (Array.isArray(citiesResponse.data)) {
-      cities.value = citiesResponse.data
+const handleAddCertificates = (files) => {
+  const maxSize = 4 * 1024 * 1024
+  const valid = files.filter(file => {
+    if (file.size > maxSize) {
+      notifications.error(`File "${file.name}" is too large (max 4 MB)`)
+      return false
     }
-
-    if (Array.isArray(skillsResponse.data)) {
-      allSkills.value = skillsResponse.data
-    }
-
-    if (profileResponse.data) {
-      form.value = {
-        ...form.value,
-        about: profileResponse.data.about || '',
-        location: profileResponse.data.location || '',
-        skills: profileResponse.data.skills || [],
-        avatarPreview: profileResponse.data.avatar_url || null,
-        certificates: profileResponse.data.certificates || [],
-        newCertificates: [],
-      }
-
-      citySearch.value = profileResponse.data.location || ''
-    }
-  } catch (error) {
-    console.error(error)
-    notifications.error('Failed to load profile data')
-  }
-})
-
-const onCertificatesChange = (event) => {
-  const files = Array.from(event.target.files || [])
-  if (!files.length) return
-
-  const accepted = []
-
-  files.forEach((file) => {
-    if (file.size > maxCertificateSizeBytes) {
-      notifications.error(
-        'Certificate is too large. Maximum size is 4096 KB.'
-      )
-      return
-    }
-    accepted.push(file)
+    return true
   })
 
-  if (accepted.length) {
-    form.value.newCertificates = [
-      ...form.value.newCertificates,
-      ...accepted,
-    ]
+  if (valid.length) {
+    form.value.newCertificates.push(...valid)
   }
 }
 
@@ -152,7 +85,6 @@ const removeExistingCertificate = (index) => {
 const removeNewCertificate = (index) => {
   form.value.newCertificates.splice(index, 1)
 }
-
 
 const saveProfile = async () => {
   try {
@@ -165,17 +97,10 @@ const saveProfile = async () => {
     if (form.value.avatar) {
       formData.append('avatar', form.value.avatar)
     }
-
-    formData.append(
-      'certificates_existing',
-      JSON.stringify(form.value.certificates)
-    )
-
-    if (form.value.newCertificates.length) {
-      form.value.newCertificates.forEach((file) => {
-        formData.append('certificates[]', file)
-      })
-    }
+    formData.append('certificates_existing', JSON.stringify(form.value.certificates))
+    form.value.newCertificates.forEach(file => {
+      formData.append('certificates[]', file)
+    })
 
     const res = await api.post('/freelancer/profile', formData, {
       headers: {
@@ -184,7 +109,7 @@ const saveProfile = async () => {
       },
     })
 
-    if (res.data.avatar_url) {
+    if (res.data?.avatar_url) {
       form.value.avatarPreview = res.data.avatar_url
     }
 
@@ -194,15 +119,39 @@ const saveProfile = async () => {
     console.error(error.response?.data)
 
     const errors = error.response?.data?.errors || {}
-    const errorMessage =
-      Object.entries(errors)
-        .map(([key, msgs]) => `${key}: ${msgs.join(', ')}`)
-        .join('\n') ||
-      'Failed to save profile. Check all fields.'
+    const msg = Object.entries(errors)
+      .map(([k, v]) => `${k}: ${v.join(', ')}`)
+      .join('\n') || 'Failed to save profile'
 
-    notifications.error(errorMessage)
+    notifications.error(msg)
   }
 }
+
+onMounted(async () => {
+  try {
+    const [profileRes, citiesRes, skillsRes] = await Promise.all([
+      api.get('/freelancer/profile', {
+        headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` },
+      }),
+      api.get('/cities'),
+      api.get('/skills'),
+    ])
+
+    cities.value = Array.isArray(citiesRes.data) ? citiesRes.data : []
+    allSkills.value = Array.isArray(skillsRes.data) ? skillsRes.data : []
+
+    const data = profileRes.data || {}
+    form.value.about = data.about || ''
+    form.value.location = data.location || ''
+    form.value.skills = Array.isArray(data.skills) ? data.skills : []
+    form.value.certificates = Array.isArray(data.certificate_urls) ? data.certificate_urls : data.certificates || []
+    form.value.avatarPreview = data.avatar_url || null
+
+  } catch (error) {
+    console.error(error)
+    notifications.error('Failed to load profile data')
+  }
+})
 </script>
 
 

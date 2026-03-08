@@ -70,4 +70,15 @@ class FreelancerListController extends Controller
             ],
         ]);
     }
+
+    public function show($id)
+{
+    $freelancer = User::where('role', 'freelancer')->find($id);
+
+    if (!$freelancer) {
+        return response()->json(['message' => 'Freelancer not found'], 404);
+    }
+
+    return response()->json($freelancer);
+}
 }

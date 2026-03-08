@@ -1,15 +1,43 @@
 <template>
   <div class="form-group certificates-group">
     <label>Certificates</label>
-    <input type="file" multiple @change="onFilesChange" accept="image/*" />
-    <div class="certificates-list">
-      <div v-for="(cert, index) in certificates" :key="index" class="certificate-item">
-        <span>{{ cert }}</span>
-        <button type="button" class="remove-skill" @click="$emit('removeExistingCertificate', index)">×</button>
+    <input
+      type="file"
+      multiple
+      accept="image/*,.pdf,.jpeg,.jpg,.png,.gif"
+      @change="onFilesChange"
+    />
+    <small class="hint">Max size: 4 MB. Images and PDF only</small>
+
+    <div class="certificates-list" v-if="certificates.length || newCertificates.length">
+      <div
+        v-for="(cert, index) in certificates"
+        :key="`existing-${index}`"
+        class="certificate-item"
+      >
+        <span>{{ getFileName(cert) }}</span>
+        <button
+          type="button"
+          class="remove-btn"
+          @click="$emit('remove-existing-certificate', index)"
+        >
+          ×
+        </button>
       </div>
-      <div v-for="(cert, index) in newCertificates" :key="`new-${index}`" class="certificate-item">
+
+      <div
+        v-for="(cert, index) in newCertificates"
+        :key="`new-${index}`"
+        class="certificate-item"
+      >
         <span>{{ cert.name }}</span>
-        <button type="button" class="remove-skill" @click="$emit('removeNewCertificate', index)">×</button>
+        <button
+          type="button"
+          class="remove-btn"
+          @click="$emit('remove-new-certificate', index)"
+        >
+          ×
+        </button>
       </div>
     </div>
   </div>
@@ -18,43 +46,99 @@
 <script setup>
 import { defineProps, defineEmits } from 'vue'
 
-const { certificates, newCertificates } = defineProps({
-  certificates: { type: Array, default: () => [] },
-  newCertificates: { type: Array, default: () => [] },
+const {
+  certificates = [],
+  newCertificates = [],
+} = defineProps({
+  certificates: {
+    type: Array,
+    default: () => [],
+  },
+  newCertificates: {
+    type: Array,
+    default: () => [],
+  },
 })
 
-const emits = defineEmits(['addCertificate', 'removeExistingCertificate', 'removeNewCertificate'])
-const maxSizeBytes = 4 * 1024 * 1024
+const emit = defineEmits([
+  'add-certificate',
+  'remove-existing-certificate',
+  'remove-new-certificate',
+])
+
+const MAX_SIZE_BYTES = 4 * 1024 * 1024
 
 const onFilesChange = (event) => {
-  const files = Array.from(event.target.files || [])
-  const accepted = files.filter(f => f.size <= maxSizeBytes)
-  if (accepted.length) emits('addCertificate', accepted)
+  if (!event?.target?.files) return
+
+  const files = Array.from(event.target.files)
+  const validFiles = files.filter((file) => {
+    if (file.size > MAX_SIZE_BYTES) {
+      alert(`File "${file.name}" is too large (max 4 MB)`)
+      return false
+    }
+    return true
+  })
+
+  if (validFiles.length) {
+    emit('add-certificate', validFiles)
+  }
+
+  event.target.value = ''
+}
+
+const getFileName = (cert) => {
+  if (typeof cert === 'string') {
+    return cert.split('/').pop() || 'Certificate'
+  }
+  return 'Unknown file'
 }
 </script>
 
 <style scoped>
+.form-group {
+  margin-bottom: 20px;
+}
+
+.hint {
+  font-size: 12px;
+  color: #666;
+  display: block;
+  margin-top: 4px;
+}
+
 .certificates-list {
-  margin-top: 8px;
+  margin-top: 12px;
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 10px;
 }
+
 .certificate-item {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   background: #f3efff;
-  padding: 4px 8px;
-  border-radius: 8px;
+  padding: 6px 12px;
+  border-radius: 10px;
+  font-size: 14px;
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-.remove-skill {
+
+.remove-btn {
   background: transparent;
   border: none;
-  color: #3d2db3;
+  color: #ff4d4f;
+  font-size: 16px;
   cursor: pointer;
-  font-size: 14px;
+  padding: 0 4px;
   line-height: 1;
-  padding: 0;
+}
+
+.remove-btn:hover {
+  color: #d9363e;
 }
 </style>

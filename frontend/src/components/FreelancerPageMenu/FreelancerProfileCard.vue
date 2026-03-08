@@ -74,7 +74,6 @@
 </template>
 
 <script setup>
-console.log('freelancer данные:', freelancer)
 const { freelancer } = defineProps({
   freelancer: Object
 })
