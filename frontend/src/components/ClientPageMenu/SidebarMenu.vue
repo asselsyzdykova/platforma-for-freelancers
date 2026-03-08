@@ -97,4 +97,45 @@ onMounted(loadUnread)
   background: #ef4444;
   box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.7);
 }
+
+@media (max-width: 768px) {
+  .sidebar {
+    width: 100%;
+    min-height: auto;
+    height: auto;
+    padding: 10px 5px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    flex-direction: row;
+    align-items: center;
+    overflow-x: auto;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    background: #e6e0ff;
+  }
+
+  .menu {
+    flex-direction: row;
+    gap: 8px;
+    width: 100%;
+    justify-content: flex-start;
+    padding: 0 10px;
+    white-space: nowrap;
+  }
+
+  .menu-item {
+    padding: 8px 15px;
+    font-size: 13px;
+    flex-shrink: 0;
+    border-radius: 10px;
+  }
+
+  .sidebar::-webkit-scrollbar {
+    display: none;
+  }
+  .sidebar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
 </style>

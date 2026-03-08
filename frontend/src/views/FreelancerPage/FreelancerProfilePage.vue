@@ -111,38 +111,41 @@ const planLabel = computed(() => {
 })
 
 const loadProfile = async () => {
-  try {
-    const userRes = await api.get('/me', {
-      headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` },
-    })
-    user.value = userRes.data
+  const token = localStorage.getItem('access_token')
+  if (!token) {
+    router.push('/login')
+    return
+  }
 
+  const config = {
+    headers: { Authorization: `Bearer ${token}` }
+  }
+
+  try {
+    const [userRes, profileRes, notifRes] = await Promise.all([
+      api.get('/me', config),
+      api.get('/freelancer/profile', config),
+      api.get('/notifications', config)
+    ])
+    user.value = userRes.data
     if (user.value.blocked) {
       toast.error('Your account is blocked.')
       router.push('/blocked')
       return
     }
-
-    const profileRes = await api.get('/freelancer/profile', {
-      headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` },
-    })
     profile.value = profileRes.data || {}
-  } catch (error) {
-    console.error(error)
-    toast.error('Failed to load profile')
-    router.push('/login')
-    return
-  }
-
-  try {
-    const notifRes = await api.get('/notifications', {
-      headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` },
-    })
     const list = notifRes.data?.data || notifRes.data || []
     notifications.value = Array.isArray(list) ? list : []
     hasUnread.value = notifications.value.some((n) => !n.is_read)
+
   } catch (error) {
-    console.error(error)
+    console.error('Data loading error:', error)
+    if (error.response?.status === 401) {
+      toast.error('Session expired. Please login again.')
+      router.push('/login')
+    } else {
+      toast.error('Failed to load profile data')
+    }
   }
 }
 
@@ -287,6 +290,19 @@ const editProfile = () => router.push('/edit-profile')
   padding: 32px;
   border-radius: 24px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 h1 {

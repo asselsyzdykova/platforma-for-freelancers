@@ -365,7 +365,8 @@ export default {
 }
 
 .client-content {
-  width: 60%;
+  flex: 1;
+  max-width: 1200px;
   padding: 30px;
   margin: 0 auto;
   min-height: 100vh;
@@ -634,5 +635,111 @@ export default {
 .intern-header .primary-btn {
   white-space: nowrap;
   flex-shrink: 0;
+}
+
+@media (max-width: 1024px) {
+  .client-content {
+    width: 90%;
+    padding: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .profile-layout {
+    flex-direction: column;
+  }
+
+  .client-content {
+    width: 100%;
+    padding: 15px;
+    box-sizing: border-box;
+    padding-top: 40px;
+  }
+
+  .client-card {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 20px;
+  }
+
+  .right {
+    gap: 12px;
+    width: 100%;
+    padding: 0 10px;
+  }
+
+  .top-bar {
+    justify-content: center;
+    margin-bottom: 30px;
+    position: absolute;
+  }
+
+  .left,
+  .right {
+    text-align: center;
+    align-items: center;
+    width: 100%;
+  }
+
+  .avatar img {
+    width: 100px;
+    height: 100px;
+  }
+
+  .intern-header {
+    flex-direction: column;
+    text-align: center;
+    gap: 15px;
+  }
+
+  .intern-header h3 {
+    font-size: 18px;
+  }
+
+  .project-card {
+    padding: 15px;
+  }
+
+  .meta {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .actions button,
+  .actions a {
+    width: 100%;
+    text-align: center;
+  }
+
+  .modal-card {
+    width: 90%;
+    margin: 0 10px;
+  }
+
+  h1 {
+    font-size: 24px;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .top-bar {
+    margin-bottom: 10px;
+  }
+
+  .primary-btn,
+  .edit-btn {
+    width: 100%;
+  }
+
+  .pagination {
+    flex-wrap: wrap;
+  }
 }
 </style>
