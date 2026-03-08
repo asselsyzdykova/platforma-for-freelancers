@@ -11,6 +11,7 @@ use Illuminate\Testing\Fluent\Concerns\Has;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Models\Report;
+use Illuminate\Support\Facades\Storage;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -58,7 +59,13 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function getAvatarUrlAttribute()
     {
-        return $this->clientProfile?->avatar_url ?? null;
+        $profile = $this->freelancerProfile ?: $this->clientProfile;
+
+        if (!$profile || !$profile->avatar) {
+            return null;
+        }
+
+        return Storage::url($profile->avatar);
     }
 
     public function getUniversityAttribute()

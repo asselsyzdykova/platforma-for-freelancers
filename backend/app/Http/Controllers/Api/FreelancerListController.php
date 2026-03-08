@@ -41,7 +41,6 @@ class FreelancerListController extends Controller
                 $certificates = [];
             }
 
-            $avatarPath = $profile->avatar ? 'avatars/' . $profile->avatar : null;
             return [
                 'id' => $user->id,
                 'name' => $user->name,
@@ -51,9 +50,7 @@ class FreelancerListController extends Controller
                 'reviews' => $user->freelancerProfile->reviews ?? 0,
                 'location' => $user->freelancerProfile->location ?? '',
                 'skills' => $user->freelancerProfile->skills ?? [],
-                'avatar_url' => $user->freelancerProfile && $user->freelancerProfile->avatar
-                    ? Storage::url($avatarPath)
-                    : null,
+                'avatar_url' => ($profile && $profile->avatar) ? Storage::url($profile->avatar) : null,
                 'certificate_urls' => array_values(array_map(function ($certificate) {
                     return Storage::url($certificate);
                 }, $certificates)),
@@ -82,8 +79,6 @@ class FreelancerListController extends Controller
         }
 
         $profile = $user->freelancerProfile;
-
-        $avatarPath = $profile->avatar ? 'avatars/' . $profile->avatar : null;
         $certificates = $profile->certificates ?? [];
         if (!is_array($certificates)) $certificates = [];
 
@@ -96,7 +91,7 @@ class FreelancerListController extends Controller
             'reviews'          => $profile->reviews ?? 0,
             'location'         => $profile->location ?? '',
             'skills'           => $profile->skills ?? [],
-            'avatar_url'       => $avatarPath ? Storage::url($avatarPath) : null,
+            'avatar_url' => ($profile && $profile->avatar)? Storage::url($profile->avatar) : null,
             'certificate_urls' => array_map(fn($c) => Storage::url($c), $certificates),
             'university'       => $user->university,
             'study_year'       => $user->study_year,
