@@ -10,10 +10,8 @@ class ClientProfileController extends Controller
 {
     public function show(Request $request)
     {
-        $profile = $request->user()
-            ->clientProfile()
-            ->with('user')
-            ->firstOrFail();
+        $profile = $request->user()->clientProfile()->firstOrCreate([]);
+        $profile->load('user');
 
         $profile->avatar_url = $profile->avatar
             ? Storage::url($profile->avatar)
