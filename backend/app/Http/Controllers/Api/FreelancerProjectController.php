@@ -74,9 +74,10 @@ class FreelancerProjectController extends Controller
 
     public function freelancerProjects(Request $request)
     {
+        $perPage = $request->get('per_page', 5);
         $projects = FreelancerProject::with('milestones', 'client')
             ->where('freelancer_id', $request->user()->id)
-            ->get();
+            ->paginate($perPage);;
 
         return response()->json($projects);
     }
