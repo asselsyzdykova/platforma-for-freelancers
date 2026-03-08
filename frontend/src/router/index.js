@@ -218,6 +218,7 @@ const router = createRouter({
       path: '/public-profile/:id',
       name: 'PublicProfile',
       component: PublicProfile,
+      props: true,
     },
 
     {

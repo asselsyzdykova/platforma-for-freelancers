@@ -31,13 +31,19 @@ const isLoading = ref(true)
 const selectedCertificate = ref(null)
 const showMessageModal = ref(false)
 
+
 const fetchFreelancer = async (id) => {
   try {
-    const res = await api.get(`/freelancers/${id}`)
-    freelancer.value = res.data?.data || res.data
-
+    const res = await api.get('/freelancers', { params: { per_page: 100 } })
+    const list = res.data?.data || []
+    const found = list.find((f) => String(f.id) === String(id))
+    if (found) {
+      freelancer.value = found
+    } else {
+      router.push('/freelancers')
+    }
   } catch (e) {
-    console.error('Failed to load freelancer:', e)
+    console.error(e)
     router.push('/freelancers')
   } finally {
     isLoading.value = false

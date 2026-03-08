@@ -72,13 +72,34 @@ class FreelancerListController extends Controller
     }
 
     public function show($id)
-{
-    $freelancer = User::where('role', 'freelancer')->find($id);
+    {
+        $user = User::where('role', 'freelancer')
+            ->with('freelancerProfile')
+            ->find($id);
 
-    if (!$freelancer) {
-        return response()->json(['message' => 'Freelancer not found'], 404);
+        if (!$user) {
+            return response()->json(['message' => 'Freelancer not found'], 404);
+        }
+
+        $profile = $user->freelancerProfile;
+
+        $avatarPath = $profile->avatar ? 'avatars/' . $profile->avatar : null;
+        $certificates = $profile->certificates ?? [];
+        if (!is_array($certificates)) $certificates = [];
+
+        return response()->json([
+            'id'               => $user->id,
+            'name'             => $user->name,
+            'role'             => $user->role,
+            'about'            => $profile->about ?? '',
+            'rating'           => $profile->rating ?? 0,
+            'reviews'          => $profile->reviews ?? 0,
+            'location'         => $profile->location ?? '',
+            'skills'           => $profile->skills ?? [],
+            'avatar_url'       => $avatarPath ? Storage::url($avatarPath) : null,
+            'certificate_urls' => array_map(fn($c) => Storage::url($c), $certificates),
+            'university'       => $user->university,
+            'study_year'       => $user->study_year,
+        ]);
     }
-
-    return response()->json($freelancer);
-}
 }

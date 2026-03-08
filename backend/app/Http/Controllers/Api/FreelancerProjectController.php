@@ -44,7 +44,7 @@ class FreelancerProjectController extends Controller
 
                 $project->milestones()->create([
                     'title' => $milestone['title'],
-                    'price' => (float) $milestone['price'],  // принудительно float
+                    'price' => (float) $milestone['price'],
                 ]);
             }
 

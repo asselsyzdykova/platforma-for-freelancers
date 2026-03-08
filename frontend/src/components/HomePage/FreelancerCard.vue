@@ -13,8 +13,7 @@
       </span>
     </div>
 
-    <RouterLink :to="{ name: 'PublicProfile', params: { id: freelancer.id } }" class="view-btn" target="_blank"
-      rel="noopener">
+    <RouterLink :to="{ name: 'PublicProfile', params: { id: freelancer.id } }" class="view-btn">
       View Profile
     </RouterLink>
   </div>
