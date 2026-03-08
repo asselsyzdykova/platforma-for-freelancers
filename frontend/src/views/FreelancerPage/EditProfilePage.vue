@@ -2,13 +2,7 @@
   <div class="edit-profile-page">
     <h1>Edit Profile</h1>
 
-    <div class="form-group avatar-group">
-      <label>Avatar</label>
-      <div class="avatar-preview" v-if="form.avatarPreview">
-        <img :src="form.avatarPreview" alt="Avatar Preview" />
-      </div>
-      <input type="file" @change="onAvatarChange" accept="image/*" />
-    </div>
+    <AvatarUpload :avatarPreview="form.avatarPreview" @update:avatar="form.avatar = $event" />
 
     <form @submit.prevent="saveProfile">
       <div class="form-group">
@@ -16,65 +10,22 @@
         <textarea v-model="form.about"></textarea>
       </div>
 
-      <div class="form-group">
-        <label>Location</label>
-        <div class="city-selector">
-          <input v-model="citySearch" type="text" placeholder="Search city..." @focus="showCitiesList = true"
-            @input="filterCities" />
-          <div v-if="showCitiesList" class="cities-dropdown">
-            <div v-for="city in filteredCities" :key="city" class="city-option" @click="selectCity(city)">
-              {{ city }}
-            </div>
-            <div v-if="filteredCities.length === 0" class="no-results">No cities found</div>
-          </div>
-        </div>
-        <div v-if="form.location" class="selected-city">Selected: {{ form.location }}</div>
-      </div>
+      <CitySelector :cities="cities" v-model:selectedCity="form.location" />
 
-      <div class="form-group">
-        <label>Skills</label>
+      <SkillsInput
+        :skills="form.skills"
+        :allSkills="allSkills"
+        @addSkill="addSkill"
+        @removeSkill="removeSkill"
+      />
 
-        <div class="skills-input">
-          <input v-model="skillsInput" type="text" placeholder="Add a skill" @input="onSkillInput"
-            @keydown.enter.prevent="addSkill()" />
-          <button type="button" @click="addSkill()">Add</button>
-        </div>
-
-        <div v-if="showSkillsDropdown && filteredSkills.length" class="cities-dropdown">
-          <div v-for="skill in filteredSkills" :key="skill" class="city-option" @click="addSkill(skill)">
-            {{ skill }}
-          </div>
-        </div>
-
-        <div v-if="form.skills.length" class="skills-list">
-          <span v-for="skill in form.skills" :key="skill" class="skill-chip">
-            {{ skill }}
-            <button type="button" class="remove-skill" @click="removeSkill(skill)">
-              ×
-            </button>
-          </span>
-        </div>
-      </div>
-
-
-      <div class="form-group certificates-group">
-        <label>Certificates</label>
-        <input type="file" multiple @change="onCertificatesChange" accept="image/*" />
-        <div class="certificates-list">
-          <div v-for="(cert, index) in form.certificates" :key="index" class="certificate-item">
-            <span>{{ cert }}</span>
-            <button type="button" class="remove-skill" @click="removeExistingCertificate(index)">
-              ×
-            </button>
-          </div>
-          <div v-for="(cert, index) in form.newCertificates" :key="`new-${index}`" class="certificate-item">
-            <span>{{ cert.name }}</span>
-            <button type="button" class="remove-skill" @click="removeNewCertificate(index)">
-              ×
-            </button>
-          </div>
-        </div>
-      </div>
+      <CertificatesUpload
+        :certificates="form.certificates"
+        :newCertificates="form.newCertificates"
+        @addCertificate="onCertificatesChange"
+        @removeExistingCertificate="removeExistingCertificate"
+        @removeNewCertificate="removeNewCertificate"
+      />
 
       <button type="submit">Save</button>
     </form>
@@ -82,41 +33,23 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted } from 'vue'
 import api from '../../services/axios'
 import { useRouter } from 'vue-router'
 import { useNotificationStore } from '@/stores/notificationStore'
+import AvatarUpload from '@/components/FreelancerPageMenu/AvatarUpload.vue'
+import CitySelector from '@/components/FreelancerPageMenu/CitySelector.vue'
+import SkillsInput from '@/components/FreelancerPageMenu/SkillsInput.vue'
+import CertificatesUpload from '@/components/FreelancerPageMenu/CertificatesUpload.vue'
 
 const router = useRouter()
 const notifications = useNotificationStore()
 
 const cities = ref([])
 const citySearch = ref('')
-const showCitiesList = ref(false)
-
 const skillsInput = ref('')
 const allSkills = ref([])
 const showSkillsDropdown = ref(false)
-
-const filteredCities = computed(() => {
-  if (!citySearch.value) return cities.value.slice(0, 10)
-  return cities.value
-    .filter((city) =>
-      city.toLowerCase().includes(citySearch.value.toLowerCase())
-    )
-    .slice(0, 20)
-})
-
-const filteredSkills = computed(() => {
-  if (!skillsInput.value) return []
-
-  return allSkills.value
-    .filter((skill) =>
-      skill.toLowerCase().includes(skillsInput.value.toLowerCase())
-    )
-    .filter((skill) => !form.value.skills.includes(skill))
-    .slice(0, 10)
-})
 
 const form = ref({
   about: '',
@@ -129,17 +62,6 @@ const form = ref({
 })
 
 const maxCertificateSizeBytes = 4 * 1024 * 1024
-
-const selectCity = (city) => {
-  form.value.location = city
-  citySearch.value = city
-  showCitiesList.value = false
-}
-
-const filterCities = () => {
-  showCitiesList.value = true
-}
-
 
 const addSkill = (skillFromDropdown = null) => {
   const value = skillFromDropdown || skillsInput.value.trim()
@@ -158,11 +80,6 @@ const removeSkill = (skill) => {
     (item) => item !== skill
   )
 }
-
-const onSkillInput = () => {
-  showSkillsDropdown.value = true
-}
-
 
 onMounted(async () => {
   try {
@@ -203,15 +120,6 @@ onMounted(async () => {
     notifications.error('Failed to load profile data')
   }
 })
-
-
-const onAvatarChange = (event) => {
-  const file = event.target.files[0]
-  if (file) {
-    form.value.avatar = file
-    form.value.avatarPreview = URL.createObjectURL(file)
-  }
-}
 
 const onCertificatesChange = (event) => {
   const files = Array.from(event.target.files || [])
