@@ -55,6 +55,7 @@ Route::middleware(['auth:sanctum', 'blocked'])->group(function () {
 
     //freelancer projects
     Route::post('/freelancer-projects', [FreelancerProjectController::class, 'store']);
+    Route::get('/freelancer/projects',[FreelancerProjectController::class, 'freelancerProjects']);
     //notif
     Route::get('/notifications', [NotificationController::class, 'index']);
     Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount']);

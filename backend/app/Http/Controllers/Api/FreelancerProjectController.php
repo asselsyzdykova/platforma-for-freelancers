@@ -71,4 +71,13 @@ class FreelancerProjectController extends Controller
             ], 500);
         }
     }
+
+    public function freelancerProjects(Request $request)
+    {
+        $projects = FreelancerProject::with('milestones', 'client')
+            ->where('freelancer_id', $request->user()->id)
+            ->get();
+
+        return response()->json($projects);
+    }
 }

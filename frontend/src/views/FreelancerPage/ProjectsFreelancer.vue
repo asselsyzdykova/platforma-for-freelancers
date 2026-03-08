@@ -6,60 +6,78 @@
       <h1>Projects</h1>
 
       <div class="projects-card">
-        <div class="project-item" v-for="(project, index) in projects" :key="index">
+
+        <div class="project-item" v-for="project in projects" :key="project.id">
+
           <div class="project-header">
             <h3>{{ project.name }}</h3>
+
             <span class="status" :class="project.status">
               {{ project.status }}
             </span>
           </div>
 
-          <p class="client"><strong>Client:</strong> {{ project.client }}</p>
-
-          <p class="description">
-            {{ project.description }}
+          <p class="client">
+            <strong>Client:</strong>
+            {{ project.client?.name || 'Unknown' }}
           </p>
-
+          <p class="description">
+            {{ getActiveMilestone(project) }}
+          </p>
           <div class="progress">
-            <div class="progress-fill" :style="{ width: project.progress + '%' }"></div>
+            <div class="progress-fill" :style="{ width: getProgress(project) + '%' }"></div>
           </div>
 
-          <p class="deadline"><strong>Deadline:</strong> {{ project.deadline }}</p>
+          <p class="deadline">
+            <strong>Deadline:</strong>
+            {{ project.deadline || 'Not set' }}
+          </p>
+
         </div>
+
       </div>
     </div>
   </div>
 </template>
-
 <script setup>
 import SidebarMenu from '@/components/FreelancerPageMenu/SidebarMenu.vue'
+import { ref, onMounted } from 'vue'
+import api from '@/services/axios'
+const projects = ref([])
 
-const projects = [
-  {
-    name: 'Web platform for freelancers',
-    client: 'David',
-    description: 'Development of frontend part using Vue.js',
-    progress: 30,
-    deadline: '30 Jul 2026',
-    status: 'in-progress',
-  },
-  {
-    name: 'Landing page',
-    client: 'Anna',
-    description: 'Responsive landing page for startup',
-    progress: 70,
-    deadline: '15 Jul 2026',
-    status: 'in-progress',
-  },
-  {
-    name: 'Dashboard UI',
-    client: 'Company XYZ',
-    description: 'UI design and implementation',
-    progress: 100,
-    deadline: 'Completed',
-    status: 'completed',
-  },
-]
+const loadProjects = async () => {
+  const res = await api.get('/freelancer/projects')
+  projects.value = res.data
+}
+onMounted(loadProjects)
+
+const getActiveMilestone = (project) => {
+
+  if (!project.milestones || project.milestones.length === 0) {
+    return 'No milestones'
+  }
+
+  const active = project.milestones.find(
+    m => m.status !== 'completed'
+  )
+
+  return active ? active.title : 'Project completed'
+}
+
+const getProgress = (project) => {
+
+  if (!project.milestones || project.milestones.length === 0) {
+    return 0
+  }
+
+  const total = project.milestones.length
+
+  const completed = project.milestones.filter(
+    m => m.status === 'completed'
+  ).length
+
+  return Math.round((completed / total) * 100)
+}
 </script>
 <style scoped>
 .page-layout {
