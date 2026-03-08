@@ -4,7 +4,7 @@
     <div class="cert-window">
       <div class="cert-track" :style="{ transform: `translateX(-${current * 240}px)` }">
         <div class="cert-card" v-for="cert in certificates" :key="cert">
-          <button v-if="isImage(cert)" class="cert-image-button" @click="openCert">
+          <button v-if="isImage(cert)" class="cert-image-button" @click="openCert(cert)">
             <img :src="cert" alt="Certificate" />
           </button>
           <a v-else :href="cert" target="_blank" class="cert-link">View Document</a>
@@ -86,37 +86,6 @@ const isImage = (url) => /\.(png|jpe?g|gif|webp)$/i.test(String(url))
   padding: 0;
   width: 100%;
   height: 100%;
-  cursor: pointer;
-}
-
-.cert-modal {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.7);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-}
-
-.cert-modal img {
-  max-width: 90vw;
-  max-height: 90vh;
-  border-radius: 16px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
-}
-
-.cert-modal-close {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: none;
-  background: rgba(255, 255, 255, 0.9);
-  color: #2b2b2b;
-  font-size: 24px;
   cursor: pointer;
 }
 

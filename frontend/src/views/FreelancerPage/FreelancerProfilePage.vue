@@ -80,6 +80,10 @@
 
       <div v-else class="loading">Loading profile...</div>
     </div>
+    <div v-if="selectedCertificate" class="cert-modal" @click.self="selectedCertificate = null">
+      <button class="cert-modal-close" @click="selectedCertificate = null">×</button>
+      <img :src="selectedCertificate" alt="Certificate preview" />
+    </div>
   </div>
 </template>
 
@@ -348,6 +352,37 @@ h2 {
   margin: 4px 4px 0 0;
   display: inline-block;
   font-size: 14px;
+}
+
+.cert-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.cert-modal img {
+  max-width: 90vw;
+  max-height: 90vh;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+}
+
+.cert-modal-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.9);
+  color: #2b2b2b;
+  font-size: 24px;
+  cursor: pointer;
 }
 
 .right p {
