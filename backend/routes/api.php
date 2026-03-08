@@ -135,7 +135,7 @@ Route::get('/cities', [CityController::class, 'index']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/freelancers', [FreelancerListController::class, 'index']);
-
+Route::get('/freelancers/skills', [FreelancerListController::class, 'skills']);
 // stripe paypal webhook
 Route::post('/stripe/webhook', [SubscriptionController::class, 'handleWebhook']);
 Route::post('/paypal/webhook', [SubscriptionController::class, 'handlePaypalWebhook']);

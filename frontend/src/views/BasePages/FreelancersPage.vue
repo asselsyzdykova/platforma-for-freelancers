@@ -33,7 +33,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import api from '@/services/axios'
 import FreelancerCard from '@/components/HomePage/FreelancerCard.vue'
@@ -49,12 +49,17 @@ const pageSize = 8
 const totalPages = ref(1)
 
 const currentPage = ref(Number(route.query.page) || 1)
+const categories = ref([])
 
-
-const categories = computed(() => {
-  const allSkills = freelancers.value.flatMap((f) => f.skills || [])
-  return [...new Set(allSkills)]
-})
+const loadCategories = async() => {
+  try {
+    const res = await api.get('/freelancers/skills')
+    categories.value = res.data || []
+  } catch(e) {
+    console.error('failed to load categories', e)
+  }
+}
+let debounceTimeout = null
 
 const loadFreelancers = async () => {
   try {
@@ -76,26 +81,36 @@ const loadFreelancers = async () => {
   }
 }
 
-loadFreelancers()
+const updateRouteAndFetch = () => {
+  router.replace({
+    query: {
+      ...route.query,
+      page: currentPage.value > 1 ? currentPage.value : undefined,
+      search: search.value || undefined,
+      category: category.value || undefined
+    }
+  })
+  loadFreelancers()
+}
 
+onMounted(() => {
+  loadFreelancers()
+  loadCategories()
+})
 watch([search, category], () => {
   currentPage.value = 1
-  loadFreelancers()
+
+  clearTimeout(debounceTimeout)
+  debounceTimeout = setTimeout(() => {
+    updateRouteAndFetch()
+  }, 500)
 })
 
-watch(currentPage, (newPage) => {
-  router.push({
-    query: { ...route.query, page: newPage }
-  })
-})
-
-watch(
-  () => route.query.page,
-  (newPage) => {
-    currentPage.value = Number(newPage) || 1
-    loadFreelancers()
+watch(currentPage, (newPage, oldPage) => {
+  if (newPage !== oldPage) {
+    updateRouteAndFetch()
   }
-)
+})
 </script>
 
 <style scoped>

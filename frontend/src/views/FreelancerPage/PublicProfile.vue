@@ -34,11 +34,10 @@ const showMessageModal = ref(false)
 
 const fetchFreelancer = async (id) => {
   try {
-    const res = await api.get('/freelancers', { params: { per_page: 100 } })
-    const list = res.data?.data || []
-    const found = list.find((f) => String(f.id) === String(id))
-    if (found) {
-      freelancer.value = found
+    isLoading.value = true
+    const res = await api.get(`/freelancers/${id}`)
+    if(res.data){
+      freelancer.value = res.data
     } else {
       router.push('/freelancers')
     }
@@ -52,7 +51,9 @@ const fetchFreelancer = async (id) => {
 
 onMounted(() => {
   const id = route.params.id
-  if (id) fetchFreelancer(id)
+  if (id) {
+    fetchFreelancer(id)
+  }
 })
 </script>
 

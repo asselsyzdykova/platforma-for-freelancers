@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\FreelancerProfile;
 use App\Models\User;
 use Illuminate\Support\Facades\Storage;
 
@@ -96,5 +97,14 @@ class FreelancerListController extends Controller
             'university'       => $user->university,
             'study_year'       => $user->study_year,
         ]);
+    }
+
+    public function skills(){
+        $skills = FreelancerProfile::pluck('skills')
+        ->flatten()
+        ->unique()
+        ->filter()
+        ->values();
+        return response()->json($skills);
     }
 }

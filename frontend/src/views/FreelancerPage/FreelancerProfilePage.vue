@@ -54,31 +54,8 @@
         <!-- CERTIFICATES -->
         <section class="certificates" v-if="certificateUrls.length">
           <h2>CERTIFICATES</h2>
-
-          <div class="cert-wrapper">
-            <button v-if="showCertArrows" class="arrow" @click="prevCert">◀</button>
-
-            <div class="cert-window">
-              <div class="cert-track" :style="{ transform: `translateX(-${currentCert * 240}px)` }">
-                <div class="cert-card" v-for="(cert, index) in certificateUrls" :key="cert">
-                  <button v-if="isImage(cert)" class="cert-image-button" @click="openCertificate(cert)">
-                    <img :src="cert" :alt="certificateLabel(cert, index)" />
-                  </button>
-                  <a v-else :href="cert" target="_blank" rel="noopener">{{
-                    certificateLabel(cert, index)
-                  }}</a>
-                </div>
-              </div>
-            </div>
-
-            <button v-if="showCertArrows" class="arrow" @click="nextCert">▶</button>
-          </div>
+          <CertificateSlider :certificates="certificateUrls" @open="selectedCertificate = $event" />
         </section>
-
-        <div v-if="selectedCertificate" class="cert-modal" @click.self="closeCertificate">
-          <button class="cert-modal-close" @click="closeCertificate">×</button>
-          <img :src="selectedCertificate" alt="Certificate preview" />
-        </div>
 
         <!-- REVIEWS -->
         <section class="reviews">
@@ -112,6 +89,7 @@ import api from '../../services/axios'
 import { useRouter } from 'vue-router'
 import SidebarMenu from '@/components/FreelancerPageMenu/SidebarMenu.vue'
 import { useNotificationStore } from '@/stores/notificationStore'
+import CertificateSlider from '@/components/FreelancerPageMenu/CertificateSlider.vue'
 
 const user = ref(null)
 const profile = ref({})
@@ -195,34 +173,7 @@ onBeforeUnmount(() => {
 
 const certificateUrls = computed(() => profile.value?.certificate_urls || [])
 
-const certificateLabel = (url, index) => {
-  const name = String(url).split('/').pop()
-  return name ? name : `Certificate ${index + 1}`
-}
-
-const isImage = (url) => {
-  return /\.(png|jpe?g|gif|webp)$/i.test(String(url))
-}
-
 const selectedCertificate = ref(null)
-
-const openCertificate = (url) => {
-  selectedCertificate.value = url
-}
-
-const closeCertificate = () => {
-  selectedCertificate.value = null
-}
-
-const currentCert = ref(0)
-const visibleCerts = 3
-const showCertArrows = computed(() => certificateUrls.value.length > visibleCerts)
-const nextCert = () => {
-  if (currentCert.value < certificateUrls.value.length - visibleCerts) currentCert.value++
-}
-const prevCert = () => {
-  if (currentCert.value > 0) currentCert.value--
-}
 
 const reviews = [
   {
@@ -408,112 +359,6 @@ h2 {
   font-size: 16px;
   color: #777;
   text-align: center;
-}
-
-.cert-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  padding: 12px 0;
-}
-
-.cert-window {
-  width: min(760px, 72vw);
-  overflow: hidden;
-}
-
-.cert-track {
-  display: flex;
-  gap: 18px;
-  transition: transform 0.35s ease;
-}
-
-.cert-card {
-  min-width: 220px;
-  height: 140px;
-  background: linear-gradient(135deg, #ffffff, #f6f3ff);
-  border-radius: 22px;
-  box-shadow: 0 10px 24px rgba(91, 61, 245, 0.12);
-  border: 1px solid rgba(91, 61, 245, 0.08);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  font-size: 14px;
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
-}
-
-.cert-card img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 16px;
-}
-
-.cert-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 16px 28px rgba(91, 61, 245, 0.18);
-}
-
-.cert-image-button {
-  background: none;
-  border: none;
-  padding: 0;
-  width: 100%;
-  height: 100%;
-  cursor: pointer;
-}
-
-.cert-modal {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.7);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-}
-
-.cert-modal img {
-  max-width: 90vw;
-  max-height: 90vh;
-  border-radius: 16px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
-}
-
-.cert-modal-close {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: none;
-  background: rgba(255, 255, 255, 0.9);
-  color: #2b2b2b;
-  font-size: 24px;
-  cursor: pointer;
-}
-
-.arrow {
-  background: #ffffff;
-  border: 1px solid rgba(91, 61, 245, 0.2);
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  font-size: 18px;
-  cursor: pointer;
-  box-shadow: 0 8px 16px rgba(91, 61, 245, 0.15);
-  transition:
-    transform 0.15s ease,
-    box-shadow 0.15s ease;
-}
-
-.arrow:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 12px 20px rgba(91, 61, 245, 0.2);
 }
 
 .reviews {
