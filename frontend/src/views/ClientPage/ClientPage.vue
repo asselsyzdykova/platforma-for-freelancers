@@ -74,24 +74,8 @@
 
         <template v-if="projects.length">
           <div class="projects-list">
-            <div class="project-card" v-for="project in projects" :key="project.id">
-              <h3>{{ project.title }}</h3>
-              <p class="desc">{{ project.description }}</p>
-
-              <div class="meta">
-                <span>💰 {{ project.budget }} €</span>
-                <span>📅 {{ project.deadline }}</span>
-                <span>📌 {{ project.status }}</span>
-              </div>
-
-              <div class="actions">
-                <button class="secondary" @click="viewProposals(project.id)">View proposals</button>
-                <button class="danger" @click="deleteProject(project.id)">Delete project</button>
-                <RouterLink :to="{ name: 'CreateProject', query: { editId: project.id } }" class="secondary">
-                  Update
-                </RouterLink>
-              </div>
-            </div>
+            <ActiveProjectCard v-for="project in projects" :key="project.id" :project="project" @delete="deleteProject"
+              @view="viewProposals" />
           </div>
 
           <div class="pagination" v-if="totalPages > 1">
@@ -114,12 +98,14 @@
 import api from '@/services/axios'
 import { useNotificationStore } from '@/stores/notificationStore'
 import ClientSidebar from '@/components/ClientPageMenu/SidebarMenu.vue'
+import ActiveProjectCard from '@/components/ClientPageMenu/ActiveProjectCard.vue';
 
 export default {
   name: 'ClientProfile',
 
   components: {
     ClientSidebar,
+    ActiveProjectCard
   },
 
   data() {
@@ -247,31 +233,6 @@ export default {
         this.openResultModal('Failed', 'Failed to delete project.', 'error')
       } finally {
         this.closeDeleteModal()
-      }
-    },
-
-
-    async updateProject(projectId) {
-      const project = this.projects.find(p => p.id === projectId)
-      if (!project) return
-
-      const payload = {
-        title: project.title,
-        description: project.description,
-        budget: project.budget,
-        category: project.category,
-        tags: JSON.stringify(project.tags || [])
-      }
-
-      try {
-        const res = await api.patch(`/client/projects/${projectId}`, payload)
-        const index = this.projects.findIndex(p => p.id === projectId)
-        if (index !== -1) this.projects[index] = res.data
-
-        this.openResultModal('Success', 'Project updated successfully!', 'success')
-      } catch (e) {
-        console.error('Failed to update project', e)
-        this.openResultModal('Failed', 'Failed to update project.', 'error')
       }
     },
     openResultModal(title, message, type) {
@@ -431,51 +392,6 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 20px;
-}
-
-.project-card {
-  background: #fff;
-  border-radius: 14px;
-  padding: 20px;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
-}
-
-.project-card h3 {
-  margin-bottom: 6px;
-}
-
-.desc {
-  color: #555;
-  margin-bottom: 12px;
-}
-
-.meta {
-  display: flex;
-  gap: 20px;
-  font-size: 14px;
-  margin-bottom: 14px;
-}
-
-.actions {
-  display: flex;
-  gap: 12px;
-}
-
-.secondary {
-  background: #eee;
-  border: none;
-  padding: 8px 14px;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-.danger {
-  background: #ff4d4f;
-  color: white;
-  border: none;
-  padding: 8px 14px;
-  border-radius: 8px;
-  cursor: pointer;
 }
 
 .empty {
