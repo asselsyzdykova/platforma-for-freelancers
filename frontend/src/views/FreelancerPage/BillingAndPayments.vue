@@ -82,15 +82,7 @@
 
         <p v-if="!transactions.length" class="empty">No transactions yet</p>
 
-        <div class="pagination" v-if="totalPages > 1">
-          <button :disabled="currentPage === 1" @click="currentPage--">Prev</button>
-
-          <span class="page-info">
-            Page {{ currentPage }} of {{ totalPages }}
-          </span>
-
-          <button :disabled="currentPage === totalPages" @click="currentPage++">Next</button>
-        </div>
+        <AppPagination v-model="currentPage" :totalPages="totalPages" mode="simple" />
       </div>
     </div>
   </div>
@@ -101,6 +93,7 @@ import { ref, onMounted, computed, watch } from 'vue'
 import api from '@/services/axios'
 import SidebarMenu from '../../components/FreelancerPageMenu/SidebarMenu.vue'
 import { useNotificationStore } from '@/stores/notificationStore'
+import AppPagination from '@/components/UI/AppPagination.vue'
 
 const notifications = useNotificationStore()
 const transactions = ref([])
@@ -255,37 +248,6 @@ h1 {
   margin-top: 16px;
   color: #888;
 }
-
-.pagination {
-  margin-top: 32px;
-  display: flex;
-  gap: 16px;
-  justify-content: center;
-  align-items: center;
-}
-
-.pagination .page-info {
-  font-weight: 500;
-}
-.pagination button {
-  padding: 8px 12px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-  background: #fff;
-  cursor: pointer;
-}
-
-.pagination button.active {
-  background: #5b3df5;
-  color: #fff;
-  border-color: #5b3df5;
-}
-
-.pagination button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
 table {
   width: 100%;
   border-collapse: collapse;
@@ -313,6 +275,7 @@ th {
   letter-spacing: 0.5px;
   color: #4f46e5;
 }
+
 @media (max-width: 768px) {
   .page-layout {
     flex-direction: column;

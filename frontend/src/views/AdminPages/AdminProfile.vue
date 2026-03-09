@@ -1,329 +1,52 @@
 <template>
   <div class="admin-page">
-    <header class="admin-header">
-      <div>
-        <h1>Admin Dashboard</h1>
-        <p class="subtitle">Overview of platform activity and student marketplace health.</p>
-      </div>
-      <div class="actions">
-        <RouterLink :to="{ name: 'AdminChats' }" class="btn ghost">My Chats</RouterLink>
-        <button class="btn ghost" @click="exportAdminReport" :disabled="exportingReport">
-          {{ exportingReport ? 'Downloading...' : 'Export report' }}
-        </button>
-        <button class="btn primary" @click="openAnnouncementModal">Create announcement</button>
-      </div>
-    </header>
+    <AdminHeader @createAnnouncement="showAnnouncementModal = true" />
 
     <section class="stats-grid">
-      <div class="stat-card">
-        <p class="label">Total users</p>
-        <h2>{{ stats.totalUsers }}</h2>
-        <span class="trend" :class="stats.userGrowth < 0 ? 'down' : 'up'">
-          {{ stats.userGrowth < 0 ? '▼' : '▲' }} {{ Math.abs(stats.userGrowth) }}% this month </span>
-      </div>
-      <div class="stat-card">
-        <p class="label">Student freelancers</p>
-        <h2>{{ stats.freelancers }}</h2>
-        <span class="trend" :class="stats.freelancerGrowth < 0 ? 'down' : 'up'">
-          {{ stats.freelancerGrowth < 0 ? '▼' : '▲' }} {{ Math.abs(stats.freelancerGrowth) }}% this month </span>
-      </div>
-      <div class="stat-card">
-        <p class="label">Active projects</p>
-        <h2>{{ stats.activeProjects }}</h2>
-        <span class="trend" :class="stats.projectGrowth < 0 ? 'down' : 'up'">
-          {{ stats.projectGrowth < 0 ? '▼' : '▲' }} {{ Math.abs(stats.projectGrowth) }}% this month </span>
-      </div>
-      <div class="stat-card">
-        <p class="label">Subscriptions</p>
-        <h2>{{ stats.subscriptionsCount }}</h2>
-        <span class="trend up">
-          Active: {{ stats.activeSubscriptions }} |
-          Canceled: {{ stats.canceledSubscriptions }} |
-          Free: {{ stats.freeSubscriptions }}
-        </span>
-      </div>
+      <StatCard label="Total users" :value="stats.totalUsers" :trend="stats.userGrowth" />
+      <StatCard label="Student freelancers" :value="stats.freelancers" :trend="stats.freelancerGrowth" />
+      <StatCard label="Active projects" :value="stats.activeProjects" :trend="stats.projectGrowth" />
+      <StatCard label="Subscriptions" :value="stats.subscriptionsCount">
+        <template #footer>
+          <span class="trend up">Active: {{ stats.activeSubscriptions }} | Free: {{ stats.freeSubscriptions }}</span>
+        </template>
+      </StatCard>
     </section>
 
-    <section class="admin-panels custom-admin-panels">
-      <div class="panel recent-signups-panel">
-        <div class="panel-head">
-          <h3>Recent signups</h3>
-          <select v-model="filterRole" class="filter">
-            <option value="all">All roles</option>
-            <option value="freelancer">Freelancers</option>
-            <option value="client">Clients</option>
-          </select>
-        </div>
-        <div class="table" aria-label="Recent signups table">
-          <div class="table-row header">
-            <span>User</span>
-            <span>Role</span>
-            <span>University</span>
-            <span>Joined</span>
-          </div>
-          <template v-if="filteredUsers.length">
-            <div v-for="user in filteredUsers" :key="user.id" class="table-row">
-              <span class="user">
-                <span class="avatar" :aria-label="user.name || user.email">
-                  {{ user.name ? initials(user.name) : '?' }}
-                </span>
-                <span>
-                  <strong>{{ user.name || '—' }}</strong>
-                  <small>{{ user.email }}</small>
-                </span>
-              </span>
-              <span class="role-cell">
-                <span class="pill" :class="rolePillClass(user.role)" :aria-label="user.role">
-                  {{ user.role ? capitalize(user.role) : 'User' }}
-                </span>
-              </span>
-              <span class="university-cell">
-                {{ user.university && user.university.trim() ? user.university : '—' }}
-              </span>
-              <span>{{ formatJoined(user.joined) }}</span>
-            </div>
-          </template>
-          <div v-else class="table-row empty-row">
-            <span class="empty-message" colspan="4">No recent signups found.</span>
-          </div>
-        </div>
-      </div>
-      <div class="panel system-overview-panel">
-        <div class="panel-head">
-          <h3>System overview</h3>
-          <button class="btn link">View logs</button>
-        </div>
-        <div class="system-cards">
-          <div class="system-card">
-            <p>Avg. response time</p>
-            <h4>{{ stats.avgResponse }}s</h4>
-          </div>
-          <div class="system-card">
-            <p>Support tickets</p>
-            <h4>{{ stats.tickets }}</h4>
-          </div>
-          <div class="system-card">
-            <p>Stripe status</p>
-            <h4 class="status ok">Operational</h4>
-          </div>
-        </div>
-        <div v-if="showAnnouncementModal" class="modal-overlay-task" @click.self="closeAnnouncementModal">
-          <div class="modal-task">
-            <div class="modal-header">
-              <h2>Create Announcement</h2>
-              <button @click="closeAnnouncementModal" class="close-btn">✖</button>
-            </div>
+    <div class="admin-panels custom-admin-panels">
+      <RecentSignupsTable :users="filteredUsers" v-model:filter="filterRole" />
+    </div>
 
-            <div class="form-group">
-              <label>Title</label>
-              <input v-model="announcementTitle" placeholder="Enter title..." />
-            </div>
-
-            <div class="form-group">
-              <label>Content</label>
-              <textarea v-model="announcementContent" rows="4" placeholder="Write announcement..."></textarea>
-            </div>
-
-            <div class="form-group checkbox">
-              <label>
-                <input type="checkbox" v-model="announcementActive" />
-                Active
-              </label>
-            </div>
-
-            <div class="modal-actions">
-              <button class="btn primary" @click="createAnnouncement" :disabled="announcementLoading">
-                {{ announcementLoading ? 'Creating...' : 'Create' }}
-              </button>
-              <button class="btn ghost" @click="closeAnnouncementModal" :disabled="announcementLoading">
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="admin-panels managers-section">
+    <section class="managers-section">
       <div class="panel">
-        <div class="panel-head">
-          <h3>Managers</h3>
-          <RouterLink :to="{ name: 'CreateManager' }" class="btn link">
-            Add Manager
-          </RouterLink>
-        </div>
-        <div class="manager-list">
-          <div v-for="manager in managers" :key="manager.id" class="manager-card">
-            <div class="manager-content">
-              <div class="manager-meta">
-                <span class="avatar manager">{{ initials(manager.name) }}</span>
-                <div>
-                  <strong>{{ manager.name }}</strong>
-                  <small>{{ manager.email }}</small>
-                </div>
-              </div>
-              <div class="manager-info">
-                <span class="pill" :class="manager.status">{{ manager.status }}</span>
-                <span class="department">{{ manager.department }}</span>
-              </div>
-            </div>
-            <div class="manager-actions">
-              <button class="btn ghost" @click="openMessageModal(manager)">Message</button>
-              <button class="btn rem" @click="askDeleteManager(manager)" :disabled="deletingManagerId === manager.id">
-                {{ deletingManagerId === manager.id ? 'Removing...' : 'Remove' }}
-              </button>
-              <button class="btn task" @click="openModal(manager)">Task</button>
-            </div>
-          </div>
-          <div v-if="isOpen" class="modal-overlay-task" @click.self="closeModal">
-            <div class="modal-task">
-              <div class="modal-header">
-                <h2>Create Task</h2>
-                <button @click="closeModal" class="close-btn">✖</button>
-              </div>
-
-              <div class="form-group">
-                <label>Task title</label>
-                <input v-model="taskTitle" placeholder="Enter a task title..." />
-              </div>
-
-              <div class="form-group">
-                <label>Description</label>
-                <textarea v-model="taskDescription" placeholder="Describe the task..." rows="4"></textarea>
-              </div>
-
-              <div class="form-group">
-                <label>Deadline</label>
-                <input ref="deadlineInput" placeholder="Select deadline" class="date-input" />
-              </div>
-
-              <div class="modal-actions">
-                <button class="btn primary" @click="createTask" :disabled="taskLoading">{{ taskLoading ? 'Creating...' :
-                  'Create Task' }}</button>
-                <button class="btn ghost" @click="closeModal" :disabled="taskLoading">Cancel</button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <h3>Managers</h3>
+        <ManagerCard v-for="m in managers" :key="m.id" :manager="m" @task="openTaskModal" @delete="askDeleteManager"
+          @message="openMessageModal" />
       </div>
     </section>
 
-    <section class="quick-actions">
-      <h3>Quick actions</h3>
-      <div class="action-grid">
-        <button class="action-card">
-          <h4>Verify student account</h4>
-          <p>Approve or reject new freelancer signups.</p>
-        </button>
-        <RouterLink :to="{ name: 'ReportAdmin' }" class="action-card">
-          <h4>Audit messages</h4>
-          <p>Review reported chats and apply actions.</p>
-        </RouterLink>
-      </div>
-    </section>
-
-    <div v-if="toast.show" :class="['custom-toast', toast.type]">
-      {{ toast.message }}
-    </div>
-
-    <div v-if="showDeleteModal" class="modal-overlay">
-      <div class="modal-dialog">
-        <h4>Delete manager?</h4>
-        <p>Are you sure you want to delete <b>{{ managerToDelete?.name }}</b>?</p>
-        <div class="modal-actions">
-          <button class="btn rem" @click="confirmDeleteManager">Delete</button>
-          <button class="btn ghost" @click="cancelDeleteManager">Cancel</button>
-        </div>
-      </div>
-    </div>
-
-    <div v-if="showMessageModal" class="modal-overlay">
-      <div class="modal-dialog">
-        <h4>Send message to {{ messageRecipient?.name || messageRecipient?.email }}</h4>
-        <textarea v-model="messageBody" placeholder="Write your message..." rows="6"
-          style="width:100%;padding:10px;border-radius:8px;border:1px solid #e5e7eb"></textarea>
-        <div style="display:flex;gap:12px;justify-content:center;margin-top:14px;">
-          <button class="btn primary" @click="sendMessage" :disabled="messageLoading">{{ messageLoading ? 'Sending...' :
-            'Send' }}</button>
-          <button class="btn ghost" @click="closeMessageModal" :disabled="messageLoading">Cancel</button>
-        </div>
-      </div>
-    </div>
+    <TaskModal v-if="taskModalVisible" :manager="selectedManager" @submit="handleTaskSubmit" />
+    <AnnouncementModal v-if="showAnnouncementModal" />
   </div>
 </template>
 
 <script setup>
-import { computed, onMounted, reactive, ref, nextTick } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import api from '@/services/axios'
-import flatpickr from 'flatpickr'
-import 'flatpickr/dist/flatpickr.min.css'
+import AdminHeader from '@/components/admin/AdminHeader.vue'
+import ManagerCard from '@/components/admin/ManagerCard.vue'
+import StatCard from '@/components/admin/StatCard.vue'
+import RecentSignupsTable from '@/components/admin/RecentSignupsTable.vue'
+import TaskModal from '@/components/admin/TaskModal.vue'
+import AnnouncementModal from '@/components/admin/AnnouncementModal.vue'
 
 const filterRole = ref('all')
+const recentUsers = ref([])
+const managers = ref([])
 const showAnnouncementModal = ref(false)
-const announcementTitle = ref('')
-const announcementContent = ref('')
-const announcementActive = ref(true)
-const announcementLoading = ref(false)
-const exportingReport = ref(false)
 
-const exportAdminReport = async () => {
-  exportingReport.value = true
-  try {
-    const response = await api.get('/admin/export-report', {
-      responseType: 'blob'
-    })
-
-    const url = window.URL.createObjectURL(new Blob([response.data]))
-    const link = document.createElement('a')
-    link.href = url
-    link.setAttribute('download', 'admin_report.xlsx')
-    document.body.appendChild(link)
-    link.click()
-    link.remove()
-    window.URL.revokeObjectURL(url)
-
-    showToast('Report downloaded successfully', 'success')
-  } catch (err) {
-    console.error(err)
-    showToast('Failed to download report', 'error')
-  } finally {
-    exportingReport.value = false
-  }
-}
-const openAnnouncementModal = () => {
-  announcementTitle.value = ''
-  announcementContent.value = ''
-  announcementActive.value = true
-  showAnnouncementModal.value = true
-}
-
-const closeAnnouncementModal = () => {
-  showAnnouncementModal.value = false
-}
-
-const createAnnouncement = async () => {
-  if (!announcementTitle.value.trim()) {
-    showToast('Title is required', 'error')
-    return
-  }
-
-  announcementLoading.value = true
-
-  try {
-    await api.post('/admin/news', {
-      title: announcementTitle.value,
-      content: announcementContent.value,
-      is_active: announcementActive.value,
-    })
-
-    showToast('Announcement created successfully', 'success')
-    closeAnnouncementModal()
-  } catch {
-    showToast('Failed to create announcement', 'error')
-  } finally {
-    announcementLoading.value = false
-  }
-}
+const taskModalVisible = ref(false)
+const selectedManager = ref(null)
 
 const stats = reactive({
   totalUsers: 0,
@@ -343,29 +66,25 @@ const stats = reactive({
 const loadAdminStats = async () => {
   try {
     const { data } = await api.get('/admin/stats')
-    if (typeof data?.total_users === 'number') {
-      stats.totalUsers = data.total_users
-      stats.freelancers = data.total_freelancers
-      stats.activeProjects = data.active_projects
+    if (data) {
+      stats.totalUsers = data.total_users || 0
+      stats.freelancers = data.total_freelancers || 0
+      stats.activeProjects = data.active_projects || 0
+
       recentUsers.value = (data.recent_signups || []).map((user) => ({
         ...user,
         joined: user.created_at ? new Date(user.created_at).toLocaleDateString() : '—',
       }))
 
-    }
+      if (data.subscriptions) {
+        stats.subscriptionsCount = data.subscriptions.subs_count
+        stats.activeSubscriptions = data.subscriptions.subs_active
+        stats.freeSubscriptions = data.subscriptions.subs_free
+      }
 
-    if (data?.subscriptions) {
-      const subs = data.subscriptions
-      stats.subscriptionsCount = subs.subs_count
-      stats.activeSubscriptions = subs.subs_active
-      stats.canceledSubscriptions = subs.subs_canceled
-      stats.freeSubscriptions = subs.subs_free
-    }
-
-    if (typeof data?.user_growth === 'number') {
-      stats.userGrowth = data.user_growth
-      stats.freelancerGrowth = data.freelancer_growth
-      stats.projectGrowth = data.project_growth
+      stats.userGrowth = data.user_growth || 0
+      stats.freelancerGrowth = data.freelancer_growth || 0
+      stats.projectGrowth = data.project_growth || 0
     }
   } catch (error) {
     console.error('Failed to load admin stats', error)
@@ -380,50 +99,25 @@ const loadManagers = async () => {
     console.error('Failed to load managers', error)
   }
 }
-
-onMounted(() => {
-  loadAdminStats()
-  loadManagers()
-})
-
-const recentUsers = ref([])
-
-
-const managers = ref([])
-const deletingManagerId = ref(null)
-const toast = ref({ show: false, message: '', type: 'success' })
-const showToast = (message, type = 'success') => {
-  toast.value = { show: true, message, type }
-  setTimeout(() => { toast.value.show = false }, 2500)
+const openTaskModal = (manager) => {
+  selectedManager.value = manager
+  taskModalVisible.value = true
 }
 
-const showDeleteModal = ref(false)
-const managerToDelete = ref(null)
-
-const askDeleteManager = (manager) => {
-  managerToDelete.value = manager
-  showDeleteModal.value = true
+const handleTaskSubmit = () => {
+  taskModalVisible.value = false
+  selectedManager.value = null
 }
 
-const confirmDeleteManager = async () => {
-  if (!managerToDelete.value) return
-  deletingManagerId.value = managerToDelete.value.id
-  showDeleteModal.value = false
-  try {
-    await api.delete(`/admin/managers/${managerToDelete.value.id}`)
-    managers.value = managers.value.filter((m) => m.id !== managerToDelete.value.id)
-    showToast('Manager deleted successfully', 'success')
-  } catch {
-    showToast('Failed to delete manager', 'error')
-  } finally {
-    deletingManagerId.value = null
-    managerToDelete.value = null
+const askDeleteManager = async (manager) => {
+  if (confirm(`Delete manager ${manager.name}?`)) {
+    try {
+      await api.delete(`/admin/managers/${manager.id}`)
+      managers.value = managers.value.filter(m => m.id !== manager.id)
+    } catch (e) {
+      console.error(e)
+    }
   }
-}
-
-const cancelDeleteManager = () => {
-  showDeleteModal.value = false
-  managerToDelete.value = null
 }
 
 const filteredUsers = computed(() => {
@@ -431,247 +125,13 @@ const filteredUsers = computed(() => {
   return recentUsers.value.filter((user) => user.role === filterRole.value)
 })
 
-const initials = (name) => {
-  if (!name) return '?'
-  return name
-    .split(' ')
-    .filter(Boolean)
-    .map((part) => part[0])
-    .slice(0, 2)
-    .join('')
-    .toUpperCase()
-}
-
-const capitalize = (str) =>
-  typeof str === 'string' && str.length ? str.charAt(0).toUpperCase() + str.slice(1) : str
-
-const rolePillClass = (role) => {
-  switch ((role || '').toLowerCase()) {
-    case 'freelancer':
-      return 'freelancer-pill'
-    case 'client':
-      return 'client-pill'
-    case 'admin':
-      return 'admin-pill'
-    default:
-      return 'user-pill'
-  }
-}
-
-const formatJoined = (date) => {
-  if (!date || date === '—') return '—'
-  const d = new Date(date)
-  if (isNaN(d)) return date
-  return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
-}
-
-const showMessageModal = ref(false)
-const messageRecipient = ref(null)
-const messageBody = ref('')
-const messageLoading = ref(false)
-
-
-const openMessageModal = (manager) => {
-  messageRecipient.value = manager
-  messageBody.value = ''
-  showMessageModal.value = true
-}
-
-const closeMessageModal = () => {
-  showMessageModal.value = false
-  messageRecipient.value = null
-  messageBody.value = ''
-}
-
-const sendMessage = async () => {
-  if (!messageRecipient.value) return
-  if (!messageBody.value.trim()) {
-    showToast('Please write a message first', 'error')
-    return
-  }
-  messageLoading.value = true
-  try {
-    await api.post('/messages', {
-      receiver_id: messageRecipient.value.user_id || messageRecipient.value.id,
-      body: messageBody.value,
-    })
-    showToast('Message sent', 'success')
-    closeMessageModal()
-  } catch {
-    showToast('Failed to send message', 'error')
-  } finally {
-    messageLoading.value = false
-  }
-}
-
-const isOpen = ref(false)
-const openModal = async (manager) => {
-  selectedManager.value = manager
-  taskTitle.value = ''
-  taskDescription.value = ''
-  taskDeadline.value = ''
-  isOpen.value = true
-
-  await nextTick()
-  initDatePicker()
-}
-const closeModal = () => {
-  isOpen.value = false
-  taskDeadline.value = ''
-
-  if (datePickerInstance) {
-    datePickerInstance.clear()
-  }
-}
-
-const selectedManager = ref(null)
-const taskTitle = ref('')
-const taskDescription = ref('')
-const taskLoading = ref(false)
-const deadlineInput = ref(null)
-const taskDeadline = ref('')
-
-
-const createTask = async () => {
-  if (!taskTitle.value.trim()) {
-    showToast('Task title is required', 'error')
-    return
-  }
-
-  if (!selectedManager.value) return
-
-  taskLoading.value = true
-
-  try {
-    await api.post('/admin/tasks', {
-      manager_id: selectedManager.value.id,
-      title: taskTitle.value,
-      description: taskDescription.value,
-      deadline: taskDeadline.value,
-    })
-
-    showToast('Task created successfully', 'success')
-    closeModal()
-  } catch {
-    showToast('Failed to create task', 'error')
-  } finally {
-    taskLoading.value = false
-  }
-}
-
-let datePickerInstance = null
-const initDatePicker = () => {
-  if (!deadlineInput.value) return
-
-  if (datePickerInstance) {
-    datePickerInstance.destroy()
-  }
-
-  datePickerInstance = flatpickr(deadlineInput.value, {
-    dateFormat: "Y-m-d",
-    minDate: "today",
-    onChange: (selectedDates, dateStr) => {
-      taskDeadline.value = dateStr
-    }
-  })
-}
+onMounted(() => {
+  loadAdminStats()
+  loadManagers()
+})
 </script>
 
 <style scoped>
-.modal-overlay-task {
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.55);
-  backdrop-filter: blur(4px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-  animation: fadeIn 0.2s ease;
-}
-
-.modal-task {
-  width: 100%;
-  max-width: 500px;
-  background: #ffffff;
-  border-radius: 16px;
-  padding: 28px;
-  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.15);
-  animation: slideUp 0.25s ease;
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-}
-
-.modal-header h2 {
-  font-size: 20px;
-  font-weight: 600;
-  margin: 0;
-}
-
-.close-btn {
-  background: none;
-  border: none;
-  font-size: 18px;
-  cursor: pointer;
-  opacity: 0.6;
-  transition: 0.2s;
-}
-
-.close-btn:hover {
-  opacity: 1;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 18px;
-}
-
-.form-group label {
-  font-size: 14px;
-  font-weight: 500;
-  margin-bottom: 6px;
-  color: #334155;
-}
-
-.form-group input,
-.form-group textarea {
-  padding: 10px 12px;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  font-size: 14px;
-  transition: 0.2s;
-  resize: none;
-}
-
-.form-group input:focus,
-.form-group textarea:focus {
-  border-color: #6366f1;
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
-}
-
-.form-group.checkbox {
-  flex-direction: row;
-  align-items: center;
-}
-
-.form-group.checkbox input {
-  margin-right: 8px;
-}
-
-.modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  margin-top: 20px;
-}
-
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -694,101 +154,6 @@ const initDatePicker = () => {
   }
 }
 
-.date-input {
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 10px 12px;
-  font-size: 14px;
-  cursor: pointer;
-}
-
-.flatpickr-calendar {
-  border-radius: 16px;
-  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15);
-}
-
-.modal-overlay-task {
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.45);
-  backdrop-filter: blur(4px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 20000;
-  animation: fadeIn 0.2s ease;
-}
-
-.modal-task {
-  background: white;
-  width: 420px;
-  max-width: 92%;
-  border-radius: 20px;
-  padding: 26px;
-  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.15);
-  animation: scaleIn 0.2s ease;
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 18px;
-}
-
-.modal-header h2 {
-  font-size: 20px;
-  font-weight: 700;
-}
-
-.close-btn {
-  background: transparent;
-  border: none;
-  font-size: 18px;
-  cursor: pointer;
-  color: #6b7280;
-}
-
-.close-btn:hover {
-  color: #111827;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-bottom: 16px;
-}
-
-.form-group label {
-  font-size: 13px;
-  font-weight: 600;
-  color: #374151;
-}
-
-.form-group input,
-.form-group textarea {
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 10px 12px;
-  font-size: 14px;
-  transition: border 0.2s, box-shadow 0.2s;
-}
-
-.form-group input:focus,
-.form-group textarea:focus {
-  outline: none;
-  border-color: #7c3aed;
-  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
-}
-
-.modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  margin-top: 8px;
-}
-
 @keyframes fadeIn {
   from {
     opacity: 0
@@ -809,19 +174,6 @@ const initDatePicker = () => {
     opacity: 1;
     transform: scale(1);
   }
-}
-
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(40, 40, 60, 0.18);
-  z-index: 10000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .modal-dialog {
@@ -852,7 +204,6 @@ const initDatePicker = () => {
   justify-content: center;
 }
 
-/* Toast styles */
 .custom-toast {
   position: fixed;
   bottom: 32px;
@@ -914,21 +265,6 @@ const initDatePicker = () => {
   cursor: pointer;
 }
 
-.btn.primary {
-  background: #5b3df5;
-  color: white;
-}
-
-.btn.ghost {
-  background: white;
-  border: 1px solid #e5e7eb;
-  color: #4338ca;
-}
-
-.btn.ghost:hover {
-  background: #4338ca;
-  color: white;
-}
 
 .btn.task {
   background: linear-gradient(135deg, #5D3A9B, #7c3aed);
@@ -964,36 +300,6 @@ const initDatePicker = () => {
   margin-bottom: 30px;
 }
 
-.stat-card {
-  background: white;
-  padding: 18px;
-  border-radius: 16px;
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
-}
-
-.stat-card .label {
-  color: #6b7280;
-  font-size: 13px;
-  margin-bottom: 6px;
-}
-
-.stat-card h2 {
-  margin: 0 0 6px;
-}
-
-.trend {
-  font-size: 12px;
-  color: #6b7280;
-}
-
-.trend.up {
-  color: #16a34a;
-}
-
-.trend.down {
-  color: #dc2626;
-}
-
 .admin-panels {
   display: grid;
   gap: 20px;
@@ -1010,211 +316,13 @@ const initDatePicker = () => {
   min-width: 0;
 }
 
-.system-overview-panel {
-  grid-column: 2 / 3;
-  min-width: 0;
-}
-
 .managers-section {
   margin-top: 20px;
-}
-
-.panel {
-  background: white;
-  border-radius: 20px;
-  padding: 20px;
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
-}
-
-.panel-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-}
-
-.filter {
-  border-radius: 10px;
-  border: 1px solid #e5e7eb;
-  padding: 6px 10px;
-}
-
-.table {
-  display: grid;
-  gap: 10px;
-}
-
-.table-row {
-  display: grid;
-  grid-template-columns: 220px 120px 220px 120px;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 0;
-  border-bottom: 1px solid #f1f5f9;
-  font-size: 14px;
-}
-
-.role-cell {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  min-width: 80px;
-}
-
-.table-row.header {
-  font-weight: 600;
-  color: #6b7280;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.user {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.user small {
-  display: block;
-  color: #94a3b8;
-}
-
-.avatar {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background: #e0e7ff;
-  display: grid;
-  place-items: center;
-  font-weight: 600;
-  color: #4338ca;
-}
-
-.pill {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  text-transform: capitalize;
-  background: #e5e7eb;
-}
-
-.pill.freelancer-pill {
-  background: #ede9fe;
-  color: #6d28d9;
-}
-
-.pill.client-pill {
-  background: #dcfce7;
-  color: #15803d;
-}
-
-.pill.admin-pill {
-  background: #fee2e2;
-  color: #b91c1c;
-}
-
-.pill.user-pill {
-  background: #e5e7eb;
-  color: #64748b;
-}
-
-.university-cell {
-  word-break: break-word;
-  overflow-wrap: anywhere;
-  max-width: 220px;
-  white-space: pre-line;
-}
-
-.empty-row {
-  text-align: center;
-  color: #a1a1aa;
-  font-style: italic;
-  grid-column: 1 / -1;
-}
-
-.empty-message {
-  grid-column: 1 / -1;
-  width: 100%;
-  text-align: center;
-  padding: 18px 0;
-  color: #a1a1aa;
-  font-size: 15px;
 }
 
 .manager-list {
   display: grid;
   gap: 12px;
-}
-
-.manager-card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
-  padding: 12px;
-  border-radius: 16px;
-  border: 1px solid #eef2ff;
-  background: #f9f9ff;
-}
-
-.manager-content {
-  display: grid;
-  gap: 8px;
-  min-width: 220px;
-  flex: 1 1 260px;
-}
-
-.manager-meta {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.manager-meta small {
-  display: block;
-  color: #94a3b8;
-}
-
-.avatar.manager {
-  background: #fff0f7;
-  color: #be185d;
-}
-
-.manager-info {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 10px;
-  align-items: center;
-  font-size: 13px;
-}
-
-.pill.active {
-  background: #dcfce7;
-  color: #15803d;
-}
-
-.pill.away {
-  background: #fef3c7;
-  color: #b45309;
-}
-
-.department {
-  color: #6b7280;
-}
-
-.manager-actions {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  flex: 0 0 auto;
-}
-
-.manager-actions .btn {
-  white-space: nowrap;
 }
 
 .system-cards {
@@ -1279,6 +387,7 @@ const initDatePicker = () => {
 .action-card p {
   color: #6b7280;
 }
+
 .action-card h4 {
   color: black;
 }

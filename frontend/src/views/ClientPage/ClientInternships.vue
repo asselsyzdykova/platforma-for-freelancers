@@ -11,15 +11,7 @@
         </div>
         <div v-else class="internships-list">
           <InternshipsCard v-for="intern in internships" :key="intern.id" :intern="intern" @deleted="handleDeleted" />
-          <div class="pagination" v-if="totalPages > 1">
-            <button :disabled="currentPage === 1" @click="currentPage--">Prev</button>
-
-            <span class="page-info">
-              Page {{ currentPage }} of {{ totalPages }}
-            </span>
-
-            <button :disabled="currentPage === totalPages" @click="currentPage++">Next</button>
-          </div>
+          <AppPagination v-model="currentPage" :totalPages="totalPages" mode="simple" />
         </div>
       </div>
     </div>
@@ -30,6 +22,7 @@
 import api from '@/services/axios'
 import ClientSidebar from '@/components/ClientPageMenu/SidebarMenu.vue'
 import InternshipsCard from '@/components/Intern/InternshipsCard.vue'
+import AppPagination from '@/components/UI/AppPagination.vue'
 import { ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -108,35 +101,5 @@ watch(
   display: flex;
   flex-direction: column;
   gap: 20px;
-}
-
-.pagination {
-  margin-top: 32px;
-  display: flex;
-  gap: 16px;
-  justify-content: center;
-  align-items: center;
-}
-
-.pagination .page-info {
-  font-weight: 500;
-}
-.pagination button {
-  padding: 8px 12px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-  background: #fff;
-  cursor: pointer;
-}
-
-.pagination button.active {
-  background: #5b3df5;
-  color: #fff;
-  border-color: #5b3df5;
-}
-
-.pagination button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
 }
 </style>

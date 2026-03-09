@@ -10,56 +10,24 @@
         </div>
       </div>
 
-      <div v-if="showDeleteModal" class="modal-backdrop" @click.self="closeDeleteModal">
-        <div class="modal-card">
-          <h3>Delete project?</h3>
-          <p>This action can’t be undone.</p>
-          <div class="modal-actions">
-            <button class="secondary" @click="closeDeleteModal">Cancel</button>
-            <button class="danger" @click="confirmDelete">Delete</button>
-          </div>
-        </div>
-      </div>
+      <BaseModal v-if="showDeleteModal" title="Delete project?" @close="closeDeleteModal">
+        <p>This action can’t be undone.</p>
+        <template #actions>
+          <button class="secondary" @click="closeDeleteModal">Cancel</button>
+          <button class="danger" @click="confirmDelete">Delete</button>
+        </template>
+      </BaseModal>
 
-      <div v-if="showResultModal" class="modal-backdrop" @click.self="closeResultModal">
-        <div class="modal-card" :class="resultType">
-          <h3>{{ resultTitle }}</h3>
-          <p>{{ resultMessage }}</p>
-          <div class="modal-actions">
-            <button class="primary-btn" @click="closeResultModal">OK</button>
-          </div>
-        </div>
-      </div>
+      <BaseModal v-if="showResultModal" :title="resultTitle" :type="resultType" @close="closeResultModal">
+        <p>{{ resultMessage }}</p>
+        <template #actions>
+          <button class="primary-btn" @click="closeResultModal">OK</button>
+        </template>
+      </BaseModal>
 
       <h1>CLIENT PROFILE</h1>
 
-      <div class="client-card" v-if="client">
-        <div class="left">
-          <div class="avatar">
-            <img v-if="client.avatar_url" :src="client.avatar_url" alt="Avatar" />
-          </div>
-          <h2>{{ client.user?.name }}</h2>
-          <p class="company" v-if="client.company">{{ client.company }}</p>
-          <p class="location">📍 {{ client.location }}</p>
-        </div>
-
-        <div class="right">
-          <p><strong>Projects posted:</strong> {{ stats.posted }}</p>
-          <p>
-            <strong>Rating:</strong> ⭐ {{ client.rating ?? '—' }}
-            <span class="reviews">({{ client.reviews ?? 0 }} reviews)</span>
-          </p>
-          <p><strong>Active projects:</strong> {{ stats.active }}</p>
-          <p><strong>Completed:</strong> {{ stats.completed }}</p>
-          <p><strong>Member since:</strong> {{ memberSince }}</p>
-
-          <RouterLink :to="{ name: 'EditClientProfile' }" exact-active-class="active" class="edit-btn">Edit Page
-          </RouterLink>
-
-          <RouterLink :to="{ name: 'CreateProject' }" exact-active-class="active" class="primary-btn">+ Create Project
-          </RouterLink>
-        </div>
-      </div>
+      <ClientHeaderCard v-if="client" :client="client" :stats="stats" :userCreatedAt="userCreatedAt" />
 
       <section class="intern">
         <div class="intern-header">
@@ -77,15 +45,7 @@
             <ActiveProjectCard v-for="project in projects" :key="project.id" :project="project" @delete="deleteProject"
               @view="viewProposals" />
           </div>
-
-          <div class="pagination" v-if="totalPages > 1">
-            <button :disabled="currentPage === 1" @click="currentPage--">Prev</button>
-            <button v-for="page in totalPages" :key="page" :class="{ active: page === currentPage }"
-              @click="currentPage = page">
-              {{ page }}
-            </button>
-            <button :disabled="currentPage === totalPages" @click="currentPage++">Next</button>
-          </div>
+          <AppPagination v-model="currentPage" :totalPages="totalPages" mode="simple" />
         </template>
 
         <p v-else class="empty">No active projects yet</p>
@@ -98,14 +58,20 @@
 import api from '@/services/axios'
 import { useNotificationStore } from '@/stores/notificationStore'
 import ClientSidebar from '@/components/ClientPageMenu/SidebarMenu.vue'
-import ActiveProjectCard from '@/components/ClientPageMenu/ActiveProjectCard.vue';
+import ActiveProjectCard from '@/components/ClientPageMenu/ActiveProjectCard.vue'
+import BaseModal from '@/components/ClientPageMenu/BaseModal.vue'
+import ClientHeaderCard from '@/components/ClientPageMenu/ClientHeaderCard.vue'
+import AppPagination from '@/components/UI/AppPagination.vue'
 
 export default {
   name: 'ClientProfile',
 
   components: {
     ClientSidebar,
-    ActiveProjectCard
+    ActiveProjectCard,
+    BaseModal,
+    ClientHeaderCard,
+    AppPagination
   },
 
   data() {
@@ -153,12 +119,6 @@ export default {
   },
 
   computed: {
-    memberSince() {
-      const createdAt = this.userCreatedAt || this.client?.user?.created_at || this.client?.created_at
-      if (!createdAt) return '—'
-      return new Date(createdAt).getFullYear()
-    },
-
     hasUnread() {
       return this.notifications.some((n) => !n.is_read)
     },
@@ -313,11 +273,6 @@ export default {
   border-radius: 50%;
 }
 
-.reviews {
-  color: #777;
-  font-size: 14px;
-}
-
 .profile-layout {
   display: flex;
   min-height: 100vh;
@@ -339,50 +294,6 @@ export default {
   padding: 30px;
 }
 
-.client-card {
-  display: flex;
-  justify-content: space-between;
-  background: #fff;
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
-  margin-bottom: 40px;
-}
-
-.left {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.avatar img {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-.company {
-  color: #666;
-}
-
-.right {
-  text-align: right;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.edit-btn {
-  margin-top: 12px;
-  padding: 10px 16px;
-  border-radius: 10px;
-  border: none;
-  background: #111;
-  color: #fff;
-  cursor: pointer;
-  text-align: center;
-}
 
 .projects h2 {
   margin-bottom: 20px;
@@ -396,21 +307,6 @@ export default {
 
 .empty {
   color: #777;
-}
-
-.primary-btn {
-  margin-top: 10px;
-  padding: 12px 18px;
-  border-radius: 10px;
-  border: none;
-  background: #5b4b8a;
-  color: white;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.primary-btn:hover {
-  opacity: 0.9;
 }
 
 .notifications {
@@ -463,73 +359,9 @@ export default {
   float: right;
 }
 
-.modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.modal-card {
-  background: #fff;
-  padding: 24px;
-  border-radius: 16px;
-  width: 100%;
-  max-width: 420px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-}
-
-.modal-card.success h3 {
-  color: #16a34a;
-}
-
-.modal-card.error h3 {
-  color: #ef4444;
-}
-
-.modal-card h3 {
-  margin-bottom: 8px;
-}
-
 .modal-card p {
   color: #666;
   margin-bottom: 20px;
-}
-
-.modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-}
-
-.pagination {
-  margin-top: 24px;
-  display: flex;
-  gap: 8px;
-  justify-content: center;
-  align-items: center;
-}
-
-.pagination button {
-  padding: 8px 12px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-  background: #fff;
-  cursor: pointer;
-}
-
-.pagination button.active {
-  background: #5b3df5;
-  color: #fff;
-  border-color: #5b3df5;
-}
-
-.pagination button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
 }
 
 .intern {
@@ -570,19 +402,6 @@ export default {
     padding: 15px;
     box-sizing: border-box;
     padding-top: 40px;
-  }
-
-  .client-card {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: 20px;
-  }
-
-  .right {
-    gap: 12px;
-    width: 100%;
-    padding: 0 10px;
   }
 
   .top-bar {
@@ -631,11 +450,6 @@ export default {
   .actions a {
     width: 100%;
     text-align: center;
-  }
-
-  .modal-card {
-    width: 90%;
-    margin: 0 10px;
   }
 
   h1 {

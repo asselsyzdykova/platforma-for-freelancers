@@ -18,15 +18,7 @@
       <FreelancerCard v-for="freelancer in freelancers" :key="freelancer.id" :freelancer="freelancer" />
     </div>
 
-    <div class="pagination" v-if="totalPages > 1">
-      <button :disabled="currentPage === 1" @click="currentPage--">Prev</button>
-
-      <span class="page-info">
-        Page {{ currentPage }} of {{ totalPages }}
-      </span>
-
-      <button :disabled="currentPage === totalPages" @click="currentPage++">Next</button>
-    </div>
+    <AppPagination v-model="currentPage" :totalPages="totalPages" mode="simple" />
 
     <p v-if="!freelancers.length" class="empty">No freelancers found</p>
   </div>
@@ -37,6 +29,7 @@ import { ref, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import api from '@/services/axios'
 import FreelancerCard from '@/components/HomePage/FreelancerCard.vue'
+import AppPagination from '@/components/UI/AppPagination.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -51,11 +44,11 @@ const totalPages = ref(1)
 const currentPage = ref(Number(route.query.page) || 1)
 const categories = ref([])
 
-const loadCategories = async() => {
+const loadCategories = async () => {
   try {
     const res = await api.get('/freelancers/skills')
     categories.value = res.data || []
-  } catch(e) {
+  } catch (e) {
     console.error('failed to load categories', e)
   }
 }
@@ -145,36 +138,5 @@ watch(currentPage, (newPage, oldPage) => {
 .empty {
   margin-top: 40px;
   color: #888;
-}
-
-.pagination {
-  margin-top: 32px;
-  display: flex;
-  gap: 16px;
-  justify-content: center;
-  align-items: center;
-}
-
-.pagination .page-info {
-  font-weight: 500;
-}
-
-.pagination button {
-  padding: 8px 12px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-  background: #fff;
-  cursor: pointer;
-}
-
-.pagination button.active {
-  background: #5b3df5;
-  color: #fff;
-  border-color: #5b3df5;
-}
-
-.pagination button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
 }
 </style>

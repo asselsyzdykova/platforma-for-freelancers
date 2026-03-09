@@ -15,11 +15,7 @@
         </template>
       </div>
 
-      <div class="pagination" v-if="totalPages > 1">
-        <button :disabled="currentPage === 1" @click="currentPage--">Prev</button>
-        <span class="page-info">Page {{ currentPage }} of {{ totalPages }}</span>
-        <button :disabled="currentPage === totalPages" @click="currentPage++">Next</button>
-      </div>
+      <AppPagination v-model="currentPage" :totalPages="totalPages" mode="simple" />
     </div>
   </div>
 </template>
@@ -28,6 +24,7 @@
 import { ref, onMounted, watch } from 'vue'
 import SidebarMenu from '@/components/FreelancerPageMenu/SidebarMenu.vue'
 import ProposalsCard from '@/components/FreelancerPageMenu/ProposalsCard.vue'
+import AppPagination from '@/components/UI/AppPagination.vue'
 import api from '@/services/axios'
 
 const proposals = ref([])
@@ -117,32 +114,6 @@ h1 {
   font-size: 16px;
   padding: 40px 0;
 }
-
-.pagination {
-  margin-top: 32px;
-  display: flex;
-  gap: 16px;
-  justify-content: center;
-  align-items: center;
-}
-
-.pagination .page-info {
-  font-weight: 500;
-}
-
-.pagination button {
-  padding: 8px 12px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-  background: #fff;
-  cursor: pointer;
-}
-
-.pagination button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
 @media (max-width: 768px) {
   .content {
     padding: 20px;

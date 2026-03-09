@@ -7,15 +7,7 @@
       <div class="internships-grid">
         <InternCard v-for="intern in interns" :key="intern.id" :intern="intern" />
       </div>
-      <div class="pagination" v-if="totalPages > 1">
-        <button :disabled="currentPage === 1" @click="currentPage--">Prev</button>
-
-        <span class="page-info">
-          Page {{ currentPage }} of {{ totalPages }}
-        </span>
-
-        <button :disabled="currentPage === totalPages" @click="currentPage++">Next</button>
-      </div>
+      <AppPagination v-model="currentPage" :totalPages="totalPages" mode="simple" />
     </div>
   </div>
 </template>
@@ -24,7 +16,7 @@ import { ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import InternCard from '@/components/Intern/InternCard.vue'
 import api from '@/services/axios'
-
+import AppPagination from '@/components/UI/AppPagination.vue'
 const route = useRoute()
 const router = useRouter()
 
@@ -96,6 +88,10 @@ watch(
   gap: 28px 24px;
 }
 
+.page-info {
+  font-size: 1rem;
+  color: #555;
+}
 
 @media (max-width: 900px) {
   .internships-grid {
@@ -125,32 +121,5 @@ watch(
   .first-block h2 {
     font-size: 24px;
   }
-}
-
-.pagination {
-  margin-top: 32px;
-  display: flex;
-  gap: 16px;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.pagination button {
-  padding: 8px 14px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-  background: #fff;
-  cursor: pointer;
-}
-
-.pagination button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.page-info {
-  font-size: 1rem;
-  color: #555;
 }
 </style>

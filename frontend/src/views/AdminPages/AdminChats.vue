@@ -27,15 +27,7 @@
             </div>
           </div>
 
-          <div class="pagination" v-if="totalPages > 1">
-            <button :disabled="currentPage === 1" @click="currentPage--">Prev</button>
-
-            <span class="page-info">
-              Page {{ currentPage }} of {{ totalPages }}
-            </span>
-
-            <button :disabled="currentPage === totalPages" @click="currentPage++">Next</button>
-          </div>
+          <AppPagination v-model="currentPage" :totalPages="totalPages" mode="simple" />
         </template>
 
         <p v-else class="empty">No conversations yet</p>
@@ -46,9 +38,13 @@
 
 <script>
 import api from '@/services/axios'
+import AppPagination from '@/components/UI/AppPagination.vue';
 
 export default {
   name: 'AdminChats',
+  components:{
+    AppPagination
+  },
   data() {
     return {
       conversations: [],
@@ -203,6 +199,7 @@ export default {
 .pagination .page-info {
   font-weight: 500;
 }
+
 .pagination button {
   padding: 6px 10px;
   border-radius: 8px;
