@@ -24,7 +24,6 @@
           @message="openMessageModal" />
       </div>
     </section>
-
     <TaskModal v-if="taskModalVisible" :manager="selectedManager" @submit="handleTaskSubmit" />
     <AnnouncementModal v-if="showAnnouncementModal" />
   </div>
@@ -59,8 +58,6 @@ const stats = reactive({
   activeSubscriptions: 0,
   canceledSubscriptions: 0,
   freeSubscriptions: 0,
-  avgResponse: 1.8,
-  tickets: 14,
 })
 
 const loadAdminStats = async () => {
@@ -177,8 +174,14 @@ onMounted(() => {
   font-size: 12px;
   font-weight: 600;
 }
-.trend.up { color: #16a34a; }
-.trend.down { color: #dc2626; }
+
+.trend.up {
+  color: #16a34a;
+}
+
+.trend.down {
+  color: #dc2626;
+}
 
 @media (max-width: 900px) {
   .custom-admin-panels {
@@ -187,6 +190,49 @@ onMounted(() => {
 
   .admin-page {
     padding: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-page {
+    padding: 16px 12px 40px;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .admin-panels,
+  .custom-admin-panels {
+    grid-template-columns: 1fr !important;
+    gap: 16px;
+  }
+
+  .panel {
+    padding: 16px;
+    border-radius: 16px;
+  }
+
+  :deep(.table-wrapper) {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .panel h3 {
+    font-size: 16px;
+    margin-bottom: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  h1 {
+    font-size: 20px;
   }
 }
 </style>
