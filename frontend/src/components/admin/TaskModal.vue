@@ -64,6 +64,7 @@ const submit = () => emit('submit', { ...form, manager_id: props.manager.id })
   font-size: 14px;
   cursor: pointer;
 }
+
 .modal-overlay-task {
   position: fixed;
   inset: 0;
@@ -75,6 +76,7 @@ const submit = () => emit('submit', { ...form, manager_id: props.manager.id })
   z-index: 9999;
   animation: fadeIn 0.2s ease;
 }
+
 .modal-task {
   width: 100%;
   max-width: 500px;
@@ -176,5 +178,17 @@ const submit = () => emit('submit', { ...form, manager_id: props.manager.id })
 .btn.ghost:hover {
   background: #4338ca;
   color: white;
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 </style>

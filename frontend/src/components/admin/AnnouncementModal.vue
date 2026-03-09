@@ -62,6 +62,31 @@ const submit = async () => {
 </script>
 
 <style scoped>
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 15px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkbox-group input {
+  width: 18px;
+  height: 18px;
+  accent-color: #5b3df5;
+}
 .modal-overlay {
   position: fixed;
   top: 0;

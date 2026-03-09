@@ -132,165 +132,10 @@ onMounted(() => {
 </script>
 
 <style scoped>
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(15px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0
-  }
-
-  to {
-    opacity: 1
-  }
-}
-
-@keyframes scaleIn {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-.modal-dialog {
-  background: #fff;
-  border-radius: 18px;
-  box-shadow: 0 8px 32px rgba(80, 80, 120, 0.13);
-  padding: 32px 28px 22px;
-  min-width: 320px;
-  max-width: 90vw;
-  text-align: center;
-}
-
-.modal-dialog h4 {
-  margin-bottom: 12px;
-  font-size: 1.18em;
-  font-weight: 700;
-  color: #b91c1c;
-}
-
-.modal-dialog p {
-  color: #444;
-  margin-bottom: 18px;
-}
-
-.modal-actions {
-  display: flex;
-  gap: 16px;
-  justify-content: center;
-}
-
-.custom-toast {
-  position: fixed;
-  bottom: 32px;
-  left: 50%;
-  transform: translateX(-50%);
-  min-width: 220px;
-  max-width: 90vw;
-  background: #fff;
-  color: #222;
-  border-radius: 12px;
-  box-shadow: 0 6px 24px rgba(80, 80, 120, 0.13);
-  padding: 12px 20px;
-  font-size: 0.98rem;
-  font-weight: 600;
-  z-index: 10001;
-  text-align: center;
-  opacity: 0.98;
-}
-
-.custom-toast.success {
-  border: 2px solid #16a34a;
-  color: #15803d
-}
-
-.custom-toast.error {
-  border: 2px solid #dc2626;
-  color: #b91c1c
-}
-
 .admin-page {
   padding: 32px 40px 60px;
   background: #f7f6ff;
   min-height: 100vh;
-}
-
-.admin-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 16px;
-  margin-bottom: 28px;
-}
-
-.subtitle {
-  color: #6b7280;
-  margin-top: 6px;
-}
-
-.actions {
-  display: flex;
-  gap: 12px;
-}
-
-.btn {
-  border: none;
-  border-radius: 12px;
-  padding: 10px 16px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-
-.btn.task {
-  background: linear-gradient(135deg, #5D3A9B, #7c3aed);
-  cursor: pointer;
-  color: white;
-  border: 1px solid black;
-}
-
-.btn.task:hover {
-  background: #e6e0ff;
-  color: black;
-}
-
-.btn.link {
-  background: transparent;
-  color: #5b3df5;
-}
-
-.btn.rem {
-  background: #fee2e2;
-  color: #b91c1c;
-  border: 1px solid #fecaca;
-}
-
-.btn.rem:hover {
-  background: #fecaca;
 }
 
 .stats-grid {
@@ -311,105 +156,37 @@ onMounted(() => {
   align-items: start;
 }
 
-.recent-signups-panel {
-  grid-column: 1 / 2;
-  min-width: 0;
-}
-
 .managers-section {
   margin-top: 20px;
 }
 
-.manager-list {
-  display: grid;
-  gap: 12px;
-}
-
-.system-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 12px;
-  margin-bottom: 16px;
-}
-
-.system-card {
-  background: #f8fafc;
-  border-radius: 14px;
-  padding: 12px;
-}
-
-.status.ok {
-  color: #16a34a;
-}
-
-.announcements ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.announcements li {
-  display: flex;
-  justify-content: space-between;
-  padding: 8px 0;
-  border-bottom: 1px solid #f1f5f9;
-  font-size: 14px;
-}
-
-.quick-actions {
-  margin-top: 30px;
-}
-
-.action-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 16px;
-  margin-top: 12px;
-}
-
-.action-card {
-  text-align: left;
-  padding: 16px;
-  border-radius: 16px;
-  border: 1px solid #e5e7eb;
+.panel {
   background: white;
-  cursor: pointer;
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
 }
 
-.action-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
+.panel h3 {
+  margin-bottom: 16px;
+  font-size: 18px;
+  font-weight: 700;
 }
 
-.action-card p {
-  color: #6b7280;
+.trend {
+  font-size: 12px;
+  font-weight: 600;
 }
-
-.action-card h4 {
-  color: black;
-}
+.trend.up { color: #16a34a; }
+.trend.down { color: #dc2626; }
 
 @media (max-width: 900px) {
-  .admin-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .table-row {
+  .custom-admin-panels {
     grid-template-columns: 1fr;
-    gap: 6px;
   }
 
-  .manager-card {
-    grid-template-columns: 1fr;
-    justify-items: flex-start;
-  }
-
-  .table-row.header {
-    display: none;
+  .admin-page {
+    padding: 20px;
   }
 }
 </style>
