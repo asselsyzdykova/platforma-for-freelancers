@@ -88,6 +88,8 @@ const getInitials = (name) => {
 .pill.active {
   background: #dcfce7;
   color: #15803d;
+  border-radius: 8px;
+  padding: 3px;
 }
 
 .pill.away {
@@ -97,5 +99,80 @@ const getInitials = (name) => {
 
 .department {
   color: #6b7280;
+}
+
+.btn {
+  border: none;
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn.task {
+  background: linear-gradient(135deg, #6366f1, #a855f7);
+  color: white;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+}
+
+.btn.task:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 15px rgba(99, 102, 241, 0.3);
+  filter: brightness(1.1);
+}
+
+.btn.rem {
+  background: #fff1f2;
+  color: #e11d48;
+  border: 1px solid #ffe4e6;
+}
+
+.btn.rem:hover {
+  background: #ffe4e6;
+  color: #be123c;
+}
+
+.btn.ghost {
+  background: white;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+}
+
+.btn.ghost:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #1e293b;
+}
+
+.btn:active {
+  transform: scale(0.96);
+}
+
+@media (max-width: 600px) {
+  .manager-card {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .manager-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .btn.task {
+    grid-column: span 2;
+    padding: 12px;
+  }
+
+  .btn.ghost, .btn.rem {
+    padding: 10px;
+  }
 }
 </style>

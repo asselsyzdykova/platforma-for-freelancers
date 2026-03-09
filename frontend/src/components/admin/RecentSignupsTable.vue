@@ -182,4 +182,60 @@ const rolePillClass = (role) => {
   font-style: italic;
   grid-column: 1 / -1;
 }
+
+@media (max-width: 850px) {
+  .table-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    padding: 16px 0;
+    position: relative;
+  }
+
+  .table-row.header {
+    display: none;
+  }
+  .user {
+    margin-bottom: 4px;
+  }
+
+  .role-cell {
+    justify-content: flex-start;
+  }
+
+  .university-cell::before {
+    content: "University: ";
+    font-weight: 600;
+    color: #94a3b8;
+    font-size: 12px;
+  }
+
+  .table-row > span:last-child {
+    color: #94a3b8;
+    font-size: 12px;
+  }
+
+  .table-row > span:last-child::before {
+    content: "Joined: ";
+    font-weight: 600;
+  }
+
+  .university-cell {
+    max-width: 100%;
+  }
+}
+@media (max-width: 480px) {
+  .panel {
+    padding: 12px;
+  }
+
+  .panel-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .filter {
+    width: 100%;
+  }
+}
 </style>

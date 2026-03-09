@@ -211,4 +211,72 @@ export default {
   background: #5b3df5;
   color: #fff
 }
+@media (max-width: 768px) {
+  .admin-header {
+    padding: 16px 20px;
+  }
+
+  .chats-wrapper {
+    padding: 10px 16px;
+  }
+
+  .conversation {
+    grid-template-columns: 44px 1fr;
+    gap: 8px 12px;
+    padding: 12px;
+  }
+
+  .avatar-placeholder {
+    width: 44px;
+    height: 44px;
+    grid-row: span 2;
+  }
+
+  .content {
+    min-width: 0;
+  }
+
+  .content .body {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+  }
+
+  .meta {
+    grid-column: 2;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 10px;
+    margin-top: -4px;
+  }
+
+  .time {
+    font-size: 11px;
+    order: 1;
+  }
+
+  .unread-count {
+    order: 2;
+    padding: 2px 6px;
+    font-size: 10px;
+    min-width: 18px;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-header h1 {
+    font-size: 20px;
+  }
+
+  .content .body {
+    max-width: 150px;
+  }
+
+  .conversation {
+    padding: 10px;
+  }
+}
 </style>

@@ -16,16 +16,21 @@
     <div class="admin-panels custom-admin-panels">
       <RecentSignupsTable :users="filteredUsers" v-model:filter="filterRole" />
     </div>
-
     <section class="managers-section">
       <div class="panel">
-        <h3>Managers</h3>
+        <div class="panel-header-with-action">
+          <h3>Managers</h3>
+          <RouterLink :to="{ name: 'CreateManager' }" class="btn-add">
+            + Add Manager
+          </RouterLink>
+        </div>
+
         <ManagerCard v-for="m in managers" :key="m.id" :manager="m" @task="openTaskModal" @delete="askDeleteManager"
           @message="openMessageModal" />
       </div>
     </section>
     <TaskModal v-if="taskModalVisible" :manager="selectedManager" @submit="handleTaskSubmit" />
-    <AnnouncementModal v-if="showAnnouncementModal" />
+    <AnnouncementModal v-if="showAnnouncementModal" @close="showAnnouncementModal = false" @success="loadAdminStats" />
   </div>
 </template>
 
@@ -43,7 +48,6 @@ const filterRole = ref('all')
 const recentUsers = ref([])
 const managers = ref([])
 const showAnnouncementModal = ref(false)
-
 const taskModalVisible = ref(false)
 const selectedManager = ref(null)
 
@@ -133,6 +137,41 @@ onMounted(() => {
   padding: 32px 40px 60px;
   background: #f7f6ff;
   min-height: 100vh;
+}
+
+.panel-header-with-action {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.panel-header-with-action h3 {
+  margin-bottom: 0;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.btn-add {
+  background: #f0fdf4;
+  color: #16a34a;
+  border: 1px solid #bbf7d0;
+  padding: 6px 12px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.btn-add:hover {
+  background: #dcfce7;
+  border-color: #86efac;
+  transform: translateY(-1px);
 }
 
 .stats-grid {
@@ -229,6 +268,10 @@ onMounted(() => {
 @media (max-width: 480px) {
   .stats-grid {
     grid-template-columns: 1fr;
+  }
+
+  .panel-header-with-action {
+    flex-direction: row;
   }
 
   h1 {
