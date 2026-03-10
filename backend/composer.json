@@ -13,6 +13,7 @@
         "league/flysystem-aws-s3-v3": "3.0",
         "maatwebsite/excel": "^3.1.67",
         "pusher/pusher-php-server": "^7.2",
+        "resend/resend-php": "^1.1",
         "stripe/stripe-php": "^19.2"
     },
     "require-dev": {

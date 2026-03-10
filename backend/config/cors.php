@@ -12,7 +12,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['https://platforma-for-freelancers.vercel.app',
+    'allowed_origins' => ['https://bezrab.space',
     'http://localhost:5173'],
 
     'allowed_origins_patterns' => [],
