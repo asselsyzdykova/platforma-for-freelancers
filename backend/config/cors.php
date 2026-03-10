@@ -13,6 +13,7 @@ return [
     'allowed_methods' => ['*'],
 
     'allowed_origins' => ['https://bezrab.space',
+    'https://www.bezrab.space',
     'http://localhost:5173'],
 
     'allowed_origins_patterns' => [],
