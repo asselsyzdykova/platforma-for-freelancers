@@ -28,13 +28,13 @@
               </div>
 
               <div class="m-status">
-                <button v-if="m.status === 'pending'" @click="payMilestone(m.id)" class="pay-btn"
+                <button v-if="m.payment_status === 'pending'" @click="payMilestone(m.id)" class="pay-btn"
                   :disabled="payingId === m.id">
                   {{ payingId === m.id ? 'Processing...' : 'Pay Now' }}
                 </button>
 
-                <span v-else-if="m.status === 'paid'" class="status-paid">Paid ✅</span>
-                <span v-else-if="m.status === 'completed'" class="status-completed">Completed</span>
+                <span v-else-if="m.payment_status === 'paid'" class="status-paid">Paid ✅</span>
+                <span v-else-if="m.payment_status === 'completed'" class="status-completed">Completed</span>
                 <span v-else class="status-other">{{ m.status }}</span>
               </div>
             </div>
@@ -198,5 +198,12 @@ onMounted(loadProjects)
 .status-badge.active {
   background: #d4edda;
   color: #155724;
+}
+.status-completed {
+  color: #555;
+  background: #eee;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 13px;
 }
 </style>

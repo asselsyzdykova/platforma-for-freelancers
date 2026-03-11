@@ -13,7 +13,9 @@ class Milestone extends Model
     protected $fillable = [
         'project_id',
         'title',
-        'price'
+        'price',
+        'payment_status',
+        'paid_at',
     ];
 
     protected $casts = [
