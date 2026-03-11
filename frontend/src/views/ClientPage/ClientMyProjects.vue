@@ -55,7 +55,9 @@ import api from '@/services/axios'
 import ClientSidebar from '@/components/ClientPageMenu/SidebarMenu.vue'
 import { useNotificationStore } from '@/stores/notificationStore'
 import AppPagination from '@/components/UI/AppPagination.vue'
+import { useRoute } from 'vue-router'
 
+const route = useRoute()
 const notifications = useNotificationStore()
 const projects = ref([])
 const loading = ref(true)
@@ -98,7 +100,14 @@ watch(currentPage, () => {
   loadProjects()
   window.scrollTo({ top: 0, behavior: 'smooth' })
 })
-onMounted(loadProjects)
+onMounted(() => {
+  if (route.query.payment === 'success') {
+    notifications.success('Payment successful! Your project status is being updated.')
+    loadProjects()
+  }
+
+  loadProjects()
+})
 </script>
 
 <style scoped>

@@ -14,7 +14,7 @@ class MilestonePaymentController extends Controller
     {
         $milestone = Milestone::findOrFail($id);
 
-        if ($milestone->status === 'paid') {
+        if ($milestone->payment_status === 'paid') {
             return response()->json(['message' => 'This stage has already been paid for.'], 400);
         }
 
@@ -49,11 +49,9 @@ class MilestonePaymentController extends Controller
         ]);
     }
 
-    public function createMilestoneCheckout(Request $request, $id)
+    public function createMilestoneCheckout($id)
     {
         $milestone = Milestone::findOrFail($id);
-        $user = $request->user();
-
         Stripe::setApiKey(config('services.stripe.secret'));
 
         $session = Session::create([
@@ -83,16 +81,16 @@ class MilestonePaymentController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'project_id' => 'required|exists:projects,id',
+            'project_id' => 'required|exists:freelancer_projects,id',
             'title' => 'required|string|max:255',
             'amount' => 'required|numeric|min:1',
         ]);
 
         $milestone = Milestone::create([
-            'project_id' => $validated['project_id'],
+            'freelancer_project_id' => $validated['project_id'],
             'title' => $validated['title'],
-            'amount' => $validated['amount'],
-            'status' => 'pending',
+            'price' => $validated['amount'],
+            'payment_status' => 'pending',
         ]);
 
         return response()->json($milestone);

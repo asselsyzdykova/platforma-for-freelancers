@@ -24,6 +24,7 @@ use App\Http\Controllers\Api\NewsController;
 use App\Http\Controllers\Api\SupportController;
 use App\Http\Controllers\Api\ReportController;
 use App\Http\Controllers\Api\MilestonePaymentController;
+use App\Http\Controllers\Api\StripeWebhookController;
 
 
 Route::middleware(['auth:sanctum', 'blocked'])->group(function () {
@@ -71,7 +72,7 @@ Route::middleware(['auth:sanctum', 'blocked'])->group(function () {
 
     //milelstones
     Route::post('/milestones/{id}/pay', [MilestonePaymentController::class, 'pay']);
-
+    Route::post('/webhooks/stripe', [StripeWebhookController::class, 'handle']);
     //admin
     Route::get('/admin/stats', [AdminController::class, 'adminStats']);
     Route::get('/admin/managers', [ManagerController::class, 'index']);
