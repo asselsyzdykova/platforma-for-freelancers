@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Project;
 use Illuminate\Support\Facades\Auth;
+use App\Models\FreelancerProject;
 
 class ClientProjectController extends Controller
 {
@@ -14,7 +15,7 @@ class ClientProjectController extends Controller
         $perPage = (int) $request->get('per_page', 3);
         $perPage = $perPage > 0 ? min($perPage, 50) : 3;
 
-        $query = Project::where('client_id', Auth::id())
+        $query = FreelancerProject::where('client_id', Auth::id())
         ->with(['freelancer', 'milestones']);
 
         $paginated = $query->latest('created_at')->paginate($perPage);

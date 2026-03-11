@@ -11,7 +11,7 @@
         <div v-for="project in projects" :key="project.id" class="project-card">
           <div class="project-header">
             <div>
-              <h3>{{ project.title }}</h3>
+              <h3>{{ project.name  || project.title}}</h3>
               <p class="freelancer">Freelancer: <strong>{{ project.freelancer?.name || 'Not assigned' }}</strong></p>
             </div>
             <span class="status-badge" :class="project.status">{{ project.status }}</span>
