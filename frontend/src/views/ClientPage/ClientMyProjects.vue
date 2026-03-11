@@ -11,7 +11,7 @@
         <div v-for="project in projects" :key="project.id" class="project-card">
           <div class="project-header">
             <div>
-              <h3>{{ project.name  || project.title}}</h3>
+              <h3>{{ project.name || project.title }}</h3>
               <p class="freelancer">Freelancer: <strong>{{ project.freelancer?.name || 'Not assigned' }}</strong></p>
             </div>
             <span class="status-badge" :class="project.status">{{ project.status }}</span>
@@ -28,8 +28,8 @@
               </div>
 
               <div class="m-status">
-                <button v-if="m.payment_status === 'pending'" @click="payMilestone(m.id)" class="pay-btn"
-                  :disabled="payingId === m.id">
+                <button v-if="!m.payment_status || m.payment_status === 'pending' || m.payment_status === 'unpaid'"
+                  @click="payMilestone(m.id)" class="pay-btn" :disabled="payingId === m.id">
                   {{ payingId === m.id ? 'Processing...' : 'Pay Now' }}
                 </button>
 
@@ -199,6 +199,7 @@ onMounted(loadProjects)
   background: #d4edda;
   color: #155724;
 }
+
 .status-completed {
   color: #555;
   background: #eee;
