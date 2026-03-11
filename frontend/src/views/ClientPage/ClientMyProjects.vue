@@ -12,7 +12,7 @@
           <div class="project-header">
             <div>
               <h3>{{ project.title }}</h3>
-              <p class="freelancer">Freelancer: <strong>{{ project.freelancer?.name }}</strong></p>
+              <p class="freelancer">Freelancer: <strong>{{ project.freelancer?.name || 'Not assigned' }}</strong></p>
             </div>
             <span class="status-badge" :class="project.status">{{ project.status }}</span>
           </div>
