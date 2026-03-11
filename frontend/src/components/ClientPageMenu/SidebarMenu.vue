@@ -9,6 +9,10 @@
         Internships
       </RouterLink>
 
+      <RouterLink :to="{ name: 'ClientProjects' }" class="menu-item" active-class="active">
+        Projects
+      </RouterLink>
+      
       <RouterLink :to="{ name: 'ClientChats' }" class="menu-item" active-class="active">
         <span>Chats</span>
         <span v-if="hasUnread" class="chat-badge"></span>
@@ -133,6 +137,7 @@ onMounted(loadUnread)
   .sidebar::-webkit-scrollbar {
     display: none;
   }
+
   .sidebar {
     -ms-overflow-style: none;
     scrollbar-width: none;

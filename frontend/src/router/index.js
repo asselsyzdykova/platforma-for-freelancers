@@ -42,6 +42,7 @@ import SupportAnswer from '@/views/ClientPage/SupportAnswer.vue'
 import ReportAdmin from '@/views/AdminPages/ReportAdmin.vue'
 import BlockedPage from '@/views/block/BlockedPage.vue'
 import ReportAnswer from '@/views/answers/ReportAnswer.vue'
+import ClientMyProjects from '@/views/ClientPage/ClientMyProjects.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -307,6 +308,11 @@ const router = createRouter({
       path: '/report-answer/:id',
       name: 'ReportAnswer',
       component: ReportAnswer,
+    },
+    {
+      path: '/client-my-projects',
+      name: 'ClientProjects',
+      component: ClientMyProjects,
     }
   ],
 })
