@@ -23,6 +23,7 @@ use App\Http\Controllers\Api\InternshipController;
 use App\Http\Controllers\Api\NewsController;
 use App\Http\Controllers\Api\SupportController;
 use App\Http\Controllers\Api\ReportController;
+use App\Http\Controllers\Api\MilestonePaymentController;
 
 
 Route::middleware(['auth:sanctum', 'blocked'])->group(function () {
@@ -63,13 +64,13 @@ Route::middleware(['auth:sanctum', 'blocked'])->group(function () {
     Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
 
     //subscriptions
-    Route::post('/create-checkout-session', [SubscriptionController::class, 'createCheckoutSession']);
-    Route::post('/paypal/create-subscription', [SubscriptionController::class, 'createPaypalSubscription']);
+    Route::post('/subscriptions/create-checkout', [SubscriptionController::class, 'createCheckoutSession']);
     Route::post('/subscriptions/confirm', [SubscriptionController::class, 'confirmCheckout']);
-    Route::post('/subscriptions/confirm-paypal', [SubscriptionController::class, 'confirmPaypalSubscription']);
-    Route::post('/subscriptions/checkout', [SubscriptionController::class, 'checkout']);
     Route::get('/billing/transactions', [SubscriptionController::class, 'transactions']);
     Route::post('/subscriptions/cancel', [SubscriptionController::class, 'cancel']);
+
+    //milelstones
+    Route::post('/milestones/{id}/pay', [MilestonePaymentController::class, 'pay']);
 
     //admin
     Route::get('/admin/stats', [AdminController::class, 'adminStats']);
@@ -138,8 +139,6 @@ Route::get('/freelancers', [FreelancerListController::class, 'index']);
 Route::get('/freelancers/skills', [FreelancerListController::class, 'skills']);
 // stripe paypal webhook
 Route::post('/stripe/webhook', [SubscriptionController::class, 'handleWebhook']);
-Route::post('/paypal/webhook', [SubscriptionController::class, 'handlePaypalWebhook']);
-
 
 //email
 Route::get('/email/verify/{id}/{hash}', [EmailVerificationController::class, '__invoke'])

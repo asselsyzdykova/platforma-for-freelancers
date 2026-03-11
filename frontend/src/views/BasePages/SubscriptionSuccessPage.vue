@@ -10,10 +10,7 @@
       <p v-else>
         {{ errorMessage || 'We could not confirm the subscription. Please contact support.' }}
       </p>
-      <p v-if="provider === 'paypal' && paypalSubscriptionId" class="session">
-        PayPal subscription: {{ paypalSubscriptionId }}
-      </p>
-      <p v-else-if="sessionId" class="session">Session: {{ sessionId }}</p>
+      <p v-if="sessionId" class="session">Session ID: {{ sessionId }}</p>
       <div class="actions">
         <RouterLink class="btn" to="/subscriptions">Back to plans</RouterLink>
         <RouterLink class="btn primary" to="/freelancer-profile">Go to profile</RouterLink>
@@ -29,39 +26,30 @@ import api from '@/services/axios'
 import { useUserStore } from '@/stores/userStore'
 
 const route = useRoute()
-const provider = computed(() => String(route.query.provider || 'stripe'))
-const sessionId = computed(() => route.query.session_id || '')
-const paypalSubscriptionId = computed(() => route.query.subscription_id || '')
 const userStore = useUserStore()
+
+const sessionId = computed(() => route.query.session_id || '')
 const status = ref('processing')
 const errorMessage = ref('')
 
 onMounted(async () => {
+  if (!sessionId.value) {
+    status.value = 'error'
+    errorMessage.value = 'Missing session ID.'
+    return
+  }
+
   try {
-    if (provider.value === 'paypal') {
-      if (!paypalSubscriptionId.value) {
-        status.value = 'error'
-        errorMessage.value = 'Missing PayPal subscription ID.'
-        return
-      }
-      await api.post('/subscriptions/confirm-paypal', {
-        subscription_id: paypalSubscriptionId.value,
-      })
-    } else {
-      if (!sessionId.value) {
-        status.value = 'error'
-        errorMessage.value = 'Missing session ID.'
-        return
-      }
-      await api.post('/subscriptions/confirm', {
-        session_id: sessionId.value,
-      })
-    }
+    await api.post('/subscriptions/confirm', {
+      session_id: sessionId.value,
+    })
+
     await userStore.loadUser()
     status.value = 'success'
   } catch (error) {
     status.value = 'error'
     errorMessage.value = error?.response?.data?.error || 'Confirmation failed.'
+    console.error('Stripe confirmation error:', error)
   }
 })
 </script>

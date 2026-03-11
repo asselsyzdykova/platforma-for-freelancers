@@ -36,11 +36,8 @@
         </ul>
 
         <div class="plan-actions">
-          <button class="btn" :class="proButton.class" :disabled="proButton.disabled" @click="proButton.onClick">
+          <button class="btn" :class="proButton.class" :disabled="proButton.disabled || loading" @click="proButton.onClick">
             {{ proButton.label }}
-          </button>
-          <button class="btn paypal" :disabled="proButton.disabled" @click="subscribePayPal('pro')">
-            Pay with PayPal
           </button>
         </div>
       </div>
@@ -58,12 +55,9 @@
         </ul>
 
         <div class="plan-actions">
-          <button class="btn" :class="premiumButton.class" :disabled="premiumButton.disabled"
+          <button class="btn" :class="premiumButton.class" :disabled="premiumButton.disabled || loading"
             @click="premiumButton.onClick">
             {{ premiumButton.label }}
-          </button>
-          <button class="btn paypal" :disabled="premiumButton.disabled" @click="subscribePayPal('premium')">
-            Pay with PayPal
           </button>
         </div>
       </div>
@@ -73,20 +67,21 @@
 
 <script setup>
 import api from '@/services/axios'
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 import { useNotificationStore } from '@/stores/notificationStore'
 
 const userStore = useUserStore()
 const notifications = useNotificationStore()
-
+const loading = ref(false)
 onMounted(() => {
   userStore.loadUser()
 })
 
 const subscribe = async (plan) => {
+  loading.value = true
   try {
-    const { data } = await api.post('/create-checkout-session', { plan })
+    const { data } = await api.post('/subscriptions/create-checkout', { plan })
     if (data?.url) {
       window.location.href = data.url
       return
@@ -103,29 +98,8 @@ const subscribe = async (plan) => {
     }
     console.error('Stripe checkout error:', error)
     notifications.error('Something went wrong with the payment. Please try again.')
-  }
-}
-
-const subscribePayPal = async (plan) => {
-  try {
-    const { data } = await api.post('/paypal/create-subscription', { plan })
-    
-    if (data?.url) {
-      window.location.href = data.url
-      return
-    }
-    throw new Error('PayPal approval URL missing from server response.')
-  } catch (error) {
-    if (error?.response?.status === 401) {
-      notifications.warning('Please log in to continue.')
-      return
-    }
-    if (error?.response?.data?.error) {
-      notifications.error(error.response.data.error)
-      return
-    }
-    console.error('PayPal checkout error:', error)
-    notifications.error('Something went wrong with PayPal. Please try again.')
+  } finally {
+    loading.value = false
   }
 }
 
@@ -267,15 +241,6 @@ const premiumButton = computed(() => {
 
 .btn.primary:hover {
   background-color: #5D3A9B
-}
-
-.btn.paypal {
-  background: #003087;
-  color: #fff;
-}
-
-.btn.paypal:hover {
-  background: #00256f;
 }
 
 .btn.disabled {
