@@ -41,7 +41,8 @@ class SubscriptionService
             'cancel_at_period_end' => true
         ]);
 
-        $endDate = Carbon::createFromTimestamp($stripeResponse->current_period_end);
+        $timestamp = $stripeResponse->current_period_end ?? time();
+        $endDate = Carbon::createFromTimestamp($timestamp);
 
         $subscription->update([
             'status' => 'canceled',
