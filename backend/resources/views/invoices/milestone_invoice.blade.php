@@ -77,7 +77,7 @@
         <div class="details">
             <h3>Invoice Details</h3>
             <p><strong>To (Client):</strong> {{ $client->name ?? 'Customer' }}</p>
-            <p><strong>From (Freelancer):</strong> {{ $freelancer->name ?? 'Freelancer' }}</p>
+            <p><strong>From (Freelancer):</strong> {{ $freelancerName ?? 'Freelancer' }}</p>
             <p><strong>Project:</strong> {{ $milestone->project->name ?? 'Project' }}</p>
             <p><strong>Milestone:</strong> {{ $milestone->title }}</p>
         </div>
