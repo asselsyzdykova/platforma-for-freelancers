@@ -104,10 +104,9 @@ const totalPages = ref(1)
 const pageSize = 8
 
 const showDeactivate = computed(() => {
-  const plan = user.value?.plan
-  if (!plan) return false
-  if (!plan || String(plan).toLowerCase() === 'free') return false;
-  return user.value?.subscription_status === 'active';
+  const status = user.value?.subscription_status;
+  const plan = user.value?.plan;
+  return status === 'active' && plan && plan !== 'free';
 });
 
 onMounted(async () => {

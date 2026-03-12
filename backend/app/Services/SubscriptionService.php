@@ -20,6 +20,10 @@ class SubscriptionService
 
     public function handleSubscriptionSync(User $user, string $stripeSubscriptionId, ?string $priceId)
     {
+        Subscription::where('user_id', $user->id)
+            ->where('status', 'active')
+            ->update(['status' => 'expired']);
+            
         return Subscription::updateOrCreate(
             [
                 'user_id' => $user->id,
@@ -55,7 +59,7 @@ class SubscriptionService
     {
         $milestone = Milestone::find($milestoneId);
         if ($milestone) {
-            $milestone->update(['payment_status' => 'paid','paid_at' => now()]);
+            $milestone->update(['payment_status' => 'paid', 'paid_at' => now()]);
             Log::info("Milestone {$milestoneId} marked as paid.");
             return true;
         }
