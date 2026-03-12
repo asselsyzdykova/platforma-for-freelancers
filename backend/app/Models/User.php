@@ -135,6 +135,17 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function getPlanAttribute()
     {
-        return $this->subscription?->plan ?? 'free';
+        if (!$this->subscription) {
+            return 'free';
+        }
+
+        $stripeId = $this->subscription->plan;
+
+        $plans = [
+            'price_1Sqft250jvgixwH9Ltabf82y' => 'pro',
+            'price_1Sqfv050jvgixwH9ZwpwB9kC'   => 'premium',
+        ];
+
+        return $plans[$stripeId] ?? 'free';
     }
 }
