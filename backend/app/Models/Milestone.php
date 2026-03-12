@@ -20,6 +20,7 @@ class Milestone extends Model
 
     protected $casts = [
         'price' => 'float',
+        'paid_at' => 'datetime',
     ];
 
     public function project()

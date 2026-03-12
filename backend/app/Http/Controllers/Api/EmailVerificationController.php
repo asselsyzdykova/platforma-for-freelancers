@@ -10,7 +10,7 @@ use Illuminate\Validation\ValidationException;
 
 class EmailVerificationController extends Controller
 {
-    public function __invoke(Request $request, $id, $hash)
+    public function __invoke($id, $hash)
     {
         $user = User::findOrFail($id);
 
@@ -26,7 +26,7 @@ class EmailVerificationController extends Controller
 
         if ($user->markEmailAsVerified()) {
             event(new Verified($user));
-            return redirect()->away('https://platforma-for-freelancers.vercel.app/verify-success');
+            return redirect()->away('https://www.bezrab.space/verify-success');
         }
 
         return response()->json(['message' => 'Invalid verification link'], 400);

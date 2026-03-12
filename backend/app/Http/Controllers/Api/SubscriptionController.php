@@ -9,6 +9,8 @@ use Illuminate\Support\Str;
 use Stripe\Stripe;
 use Stripe\Checkout\Session;
 use App\Services\SubscriptionService;
+use App\Models\Milestone;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class SubscriptionController extends Controller
 {
@@ -165,36 +167,67 @@ class SubscriptionController extends Controller
             return response()->json(['error' => 'Unauthenticated'], 401);
         }
 
-        $perPage = (int) $request->get('per_page', 8);
+        $perPage = (int) $request->input('per_page', 8);
         $perPage = $perPage > 0 ? min($perPage, 50) : 8;
 
-        $paginated = Subscription::where('user_id', $user->id)
-            ->latest('created_at')
-            ->paginate($perPage);
+        $subs = Subscription::where('user_id', $user->id)
+            ->latest()
+            ->take(100)
+            ->get();
 
-        $transactions = collect($paginated->items())->map(function ($subscription) use ($user) {
-            $plan = $subscription->plan;
-            if ($plan === config('services.stripe.price_pro')) {
-                $plan = 'pro';
-            } elseif ($plan === config('services.stripe.price_premium')) {
-                $plan = 'premium';
-            }
-
-            $label = $plan ? Str::ucfirst((string) $plan) : 'Subscription';
+        $milestones = Milestone::whereHas('project', function ($query) use ($user) {
+            $query->where('freelancer_id', $user->id);
+        })
+            ->with('project.client')
+            ->where('payment_status', 'paid')
+            ->latest()
+            ->take(100)
+            ->get();
+        $formattedSubs = $subs->map(function ($sub) use ($user) {
+            $plan = $sub->plan;
+            if ($plan === config('services.stripe.price_pro')) $plan = 'pro';
+            elseif ($plan === config('services.stripe.price_premium')) $plan = 'premium';
 
             return [
-                'date' => optional($subscription->created_at)->toDateString(),
+                'date' => optional($sub->created_at)->toDateString(),
                 'type' => 'Subscription',
-                'description' => $label,
-                'party' => $user->role ?? 'freelancer',
-                'amount' => null,
-                'status' => $subscription->status,
-                'id' => $subscription->provider_id ?? $subscription->id,
+                'description' => $plan ? 'Plan: ' . Str::ucfirst($plan) : 'Subscription',
+                'party' => 'System',
+                'amount' => '-',
+                'status' => $sub->status,
+                'id' => $sub->provider_id ?? $sub->id,
+                'raw_date' => $sub->created_at,
             ];
         });
 
+        $formattedMilestones = $milestones->map(function ($m) {
+            return [
+                'date' => optional($m->paid_at ?? $m->updated_at)->toDateString(),
+                'type' => 'Milestone Payment',
+                'description' => $m->title ?? 'Project Milestone',
+                'party' => $m->project->client->name ?? 'Client',
+                'amount' => $m->amount ? $m->amount . ' EUR' : '-',
+                'status' => 'paid',
+                'id' => 'MS-' . $m->id,
+                'raw_date' => $m->paid_at ?? $m->updated_at,
+            ];
+        });
+
+        $allTransactions = $formattedSubs->concat($formattedMilestones)
+            ->sortByDesc('raw_date')
+            ->values();
+
+        $page = $request->input('page', 1);
+        $paginated = new LengthAwarePaginator(
+            $allTransactions->forPage($page, $perPage),
+            $allTransactions->count(),
+            $perPage,
+            $page,
+            ['path' => $request->url(), 'query' => $request->query()]
+        );
+
         return response()->json([
-            'data' => $transactions,
+            'data' => $paginated->values(),
             'meta' => [
                 'current_page' => $paginated->currentPage(),
                 'last_page' => $paginated->lastPage(),
