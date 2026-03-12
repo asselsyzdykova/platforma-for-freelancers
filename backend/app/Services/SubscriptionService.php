@@ -23,7 +23,7 @@ class SubscriptionService
         Subscription::where('user_id', $user->id)
             ->where('status', 'active')
             ->update(['status' => 'expired']);
-            
+
         return Subscription::updateOrCreate(
             [
                 'user_id' => $user->id,
@@ -41,12 +41,12 @@ class SubscriptionService
 
     public function cancelStripeSubscription(Subscription $subscription)
     {
-        $stripeResponse = $this->stripe->subscriptions->update($subscription->provider_id, [
+        $stripeSub = $this->stripe->subscriptions->retrieve($subscription->provider_id);
+
+        $this->stripe->subscriptions->update($subscription->provider_id, [
             'cancel_at_period_end' => true
         ]);
-
-        $timestamp = $stripeResponse->current_period_end ?? time();
-        $endDate = Carbon::createFromTimestamp($timestamp);
+        $endDate = Carbon::createFromTimestamp($stripeSub->current_period_end);
 
         $subscription->update([
             'status' => 'canceled',

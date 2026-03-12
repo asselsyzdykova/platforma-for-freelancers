@@ -183,6 +183,7 @@ const formatTxId = (item, index) => {
   padding: 12px 20px;
   border-radius: 8px;
   font-size: 14px;
+  margin-bottom: 10px;
 }
 
 .page-layout {
