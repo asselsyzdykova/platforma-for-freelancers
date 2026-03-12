@@ -29,7 +29,7 @@ defineProps({
   align-items: center;
   justify-content: center;
   vertical-align: middle;
-  margin-left: 6px;
+  margin-left: 8px;
 }
 
 .pro {
@@ -45,12 +45,14 @@ defineProps({
 
 .verified {
   color: #1DA1F2;
-  width: 18px;
-  height: 18px;
+  width: 22px;
+  height: 22px;
+  filter: drop-shadow(0 1px 2px rgba(29, 161, 242, 0.3));
 }
 
 .check-svg {
   width: 100%;
   height: 100%;
+  display: block;
 }
 </style>

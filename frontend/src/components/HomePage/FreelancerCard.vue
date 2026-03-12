@@ -1,11 +1,8 @@
 <template>
-  <div class="card">
+  <div :class="['card', { 'premium-card': freelancer.plan === 'premium' }]">
     <img :src="freelancer.avatar_url || '/default-avatar.png'" class="avatar-img" alt="Avatar" />
     <div class="name-container">
       <h3>{{ freelancer.name }}</h3>
-      <span style="background: red; color: white; padding: 2px;">
-        PRO: {{ freelancer.is_pro }} | VER: {{ freelancer.is_verified }}
-      </span>
       <AppBadge v-if="freelancer.is_pro" type="pro" />
 
       <AppBadge v-if="freelancer.is_verified" type="verified" />
@@ -165,5 +162,21 @@ button {
 button:hover {
   background: #6c57b8;
   transform: translateY(-2px);
+}
+
+.premium-card {
+  border: 2px solid rgba(255, 215, 0, 0.3);
+  background: linear-gradient(180deg, #fdfbf0 0%, #f3efff 100%);
+  box-shadow: 0 10px 30px rgba(255, 215, 0, 0.15), 0 8px 20px rgba(91, 75, 138, 0.1);
+}
+
+.premium-card:hover {
+  box-shadow: 0 15px 35px rgba(255, 215, 0, 0.25);
+  border-color: rgba(255, 215, 0, 0.6);
+}
+
+.premium-card .view-btn {
+  background: linear-gradient(135deg, #d4af37 0%, #b8860b 100%);
+  border: none;
 }
 </style>
