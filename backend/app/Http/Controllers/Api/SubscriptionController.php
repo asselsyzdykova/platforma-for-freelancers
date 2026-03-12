@@ -11,6 +11,7 @@ use Stripe\Checkout\Session;
 use App\Services\SubscriptionService;
 use App\Models\Milestone;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Carbon\Carbon;
 
 class SubscriptionController extends Controller
 {
@@ -189,8 +190,13 @@ class SubscriptionController extends Controller
             elseif ($plan === config('services.stripe.price_premium')) $plan = 'premium';
 
             $statusLabel = $sub->status;
-            if ($sub->status === 'canceled' && $sub->end_date && $sub->end_date->isFuture()) {
-                $statusLabel = 'Active until ' . $sub->end_date->toDateString();
+            if ($sub->status === 'canceled' && $sub->end_date) {
+                $endDate = Carbon::parse($sub->end_date);
+                if ($endDate->isFuture()) {
+                    $statusLabel = 'Active until ' . $endDate->toDateString();
+                } else {
+                    $statusLabel = 'Expired';
+                }
             }
 
             return [
