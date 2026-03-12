@@ -5,8 +5,6 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Subscription;
-use App\Models\User;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Stripe\Stripe;
 use Stripe\Checkout\Session;
@@ -128,68 +126,6 @@ class SubscriptionController extends Controller
             'status' => 'ok',
             'plan' => $priceId,
         ]);
-    }
-
-
-    public function handleWebhook(Request $request)
-    {
-        $payload = $request->getContent();
-        $sigHeader = $request->header('Stripe-Signature');
-        $endpointSecret = config('services.stripe.webhook_secret');
-
-        try {
-            $event = \Stripe\Webhook::constructEvent($payload, $sigHeader, $endpointSecret);
-        } catch (\UnexpectedValueException $e) {
-            return response('Invalid payload', 400);
-        } catch (\Stripe\Exception\SignatureVerificationException $e) {
-            return response('Invalid signature', 400);
-        }
-
-        switch ($event->type) {
-            case 'checkout.session.completed':
-                $session = $event->data->object;
-
-                if (isset($session->metadata->milestone_id)) {
-                    $this->subscriptionService->processMilestonePayment($session->metadata->milestone_id);
-                    break;
-                }
-
-                $user = null;
-                if (!empty($session->client_reference_id)) {
-                    $user = User::find($session->client_reference_id);
-                } elseif (!empty($session->customer_email)) {
-                    $user = User::where('email', $session->customer_email)->first();
-                }
-
-                if ($user && !empty($session->subscription)) {
-                    $priceId = $session->metadata->price_id ?? null;
-                    $this->subscriptionService->handleSubscriptionSync($user, $session->subscription, $priceId);
-                }
-                break;
-
-            case 'invoice.payment_failed':
-                $invoice = $event->data->object;
-                if (!empty($invoice->subscription)) {
-                    Subscription::where('provider', 'stripe')
-                        ->where('provider_id', $invoice->subscription)
-                        ->update(['status' => 'expired']);
-                }
-                break;
-
-            case 'customer.subscription.deleted':
-                $subscription = $event->data->object;
-                if (!empty($subscription->id)) {
-                    Subscription::where('provider', 'stripe')
-                        ->where('provider_id', $subscription->id)
-                        ->update([
-                            'status' => 'canceled',
-                            'end_date' => now()
-                        ]);
-                }
-                break;
-        }
-
-        return response('Webhook handled', 200);
     }
 
     public function cancel(Request $request)

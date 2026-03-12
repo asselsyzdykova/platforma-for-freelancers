@@ -54,7 +54,7 @@ class SubscriptionService
     {
         $milestone = Milestone::find($milestoneId);
         if ($milestone) {
-            $milestone->update(['status' => 'paid']);
+            $milestone->update(['payment_status' => 'paid','paid_at' => now()]);
             Log::info("Milestone {$milestoneId} marked as paid.");
             return true;
         }

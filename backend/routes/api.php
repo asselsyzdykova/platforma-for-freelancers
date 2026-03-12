@@ -57,7 +57,7 @@ Route::middleware(['auth:sanctum', 'blocked'])->group(function () {
     Route::get('/freelancers/{id}', [FreelancerListController::class, 'show']);
     //freelancer projects
     Route::post('/freelancer-projects', [FreelancerProjectController::class, 'store']);
-    Route::get('/freelancer/projects',[FreelancerProjectController::class, 'freelancerProjects']);
+    Route::get('/freelancer/projects', [FreelancerProjectController::class, 'freelancerProjects']);
     //notif
     Route::get('/notifications', [NotificationController::class, 'index']);
     Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount']);
@@ -72,7 +72,6 @@ Route::middleware(['auth:sanctum', 'blocked'])->group(function () {
 
     //milelstones
     Route::post('/milestones/{id}/pay', [MilestonePaymentController::class, 'pay']);
-    Route::post('/webhooks/stripe', [StripeWebhookController::class, 'handle']);
     //admin
     Route::get('/admin/stats', [AdminController::class, 'adminStats']);
     Route::get('/admin/managers', [ManagerController::class, 'index']);
@@ -138,8 +137,8 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/freelancers', [FreelancerListController::class, 'index']);
 Route::get('/freelancers/skills', [FreelancerListController::class, 'skills']);
-// stripe paypal webhook
-Route::post('/stripe/webhook', [SubscriptionController::class, 'handleWebhook']);
+// stripe webhook
+Route::post('/webhooks/stripe', [StripeWebhookController::class, 'handle']);
 
 //email
 Route::get('/email/verify/{id}/{hash}', [EmailVerificationController::class, '__invoke'])

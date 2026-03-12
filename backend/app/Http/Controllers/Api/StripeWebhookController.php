@@ -7,9 +7,16 @@ use Illuminate\Http\Request;
 use App\Models\Milestone;
 use Stripe\Webhook;
 use Illuminate\Support\Facades\Log;
+use App\Services\SubscriptionService;
 
 class StripeWebhookController extends Controller
 {
+    protected $subscriptionService;
+
+    public function __construct(SubscriptionService $subscriptionService)
+    {
+        $this->subscriptionService = $subscriptionService;
+    }
     public function handle(Request $request)
     {
         $payload = $request->getContent();
@@ -25,29 +32,31 @@ class StripeWebhookController extends Controller
 
         $session = $event->data->object;
         $milestoneId = $session->metadata->milestone_id ?? null;
-        if (!$milestoneId) {
-            return response()->json(['status' => 'ignored_no_metadata']);
-        }
-        $milestone = Milestone::find($milestoneId);
+        switch ($event->type) {
+            case 'checkout.session.completed':
+                if ($milestoneId) {
+                    $this->subscriptionService->processMilestonePayment((int)$milestoneId);
+                } else {
+                    $user = null;
+                    if (!empty($session->client_reference_id)) {
+                        $user = \App\Models\User::find($session->client_reference_id);
+                    }
 
-        if ($milestone) {
-            switch ($event->type) {
-                case 'checkout.session.completed':
-                    $milestone->update([
-                        'payment_status' => 'paid',
-                        'paid_at' => now()
-                    ]);
-                    Log::info("Milestone $milestoneId: Payment successful");
-                    break;
+                    if ($user && !empty($session->subscription)) {
+                        $priceId = $session->metadata->price_id ?? null;
+                        $this->subscriptionService->handleSubscriptionSync($user, $session->subscription, $priceId);
+                    }
+                }
+                break;
 
-                case 'payment_intent.payment_failed':
-                case 'checkout.session.expired':
-                    $milestone->update([
-                        'payment_status' => 'pending'
-                    ]);
-                    Log::warning("Milestone $milestoneId: Payment failed or expired ($event->type)");
-                    break;
-            }
+            case 'payment_intent.payment_failed':
+            case 'checkout.session.expired':
+                $milestone = Milestone::find($milestoneId);
+                if ($milestone) {
+                    $milestone->update(['payment_status' => 'pending']);
+                    Log::warning("Milestone $milestoneId: Payment failed/expired");
+                }
+                break;
         }
 
         return response()->json(['status' => 'success']);
