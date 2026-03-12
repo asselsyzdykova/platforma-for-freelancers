@@ -13,8 +13,7 @@ class MilestonePaymentController extends Controller
 {
     public function pay($id)
     {
-        $milestone = Milestone::findOrFail($id);
-
+        $milestone = Milestone::with('project.freelancer', 'project.client')->findOrFail($id);
         if ($milestone->payment_status === 'paid') {
             return response()->json(['message' => 'This stage has already been paid for.'], 400);
         }
@@ -47,11 +46,14 @@ class MilestonePaymentController extends Controller
 
         $pdf = Pdf::loadView('invoices.milestone_invoice', [
             'milestone' => $milestone,
+            'freelancerName' => $milestone->project->freelancer->name ?? 'Freelancer',
+            'client' => $milestone->project->client,
             'paymentUrl' => $session->url,
             'date' => now()->format('Y-m-d')
         ]);
 
-        return $pdf->stream('Invoice-' . $milestone->title . '.pdf');
+        if (ob_get_contents()) ob_end_clean();
+        return $pdf->stream("Invoice_{$milestone->id}.pdf");
     }
 
     public function createMilestoneCheckout($id)
