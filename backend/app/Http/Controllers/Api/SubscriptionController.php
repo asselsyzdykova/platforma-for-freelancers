@@ -205,7 +205,7 @@ class SubscriptionController extends Controller
                 'date' => optional($m->paid_at ?? $m->updated_at)->toDateString(),
                 'type' => 'Milestone Payment',
                 'description' => $m->title ?? 'Project Milestone',
-                'party' => $m->project->client->name ?? 'Client',
+                'party' => $m->project?->client?->name ?? 'Client',
                 'amount' => $m->price ? $m->price . ' EUR' : '-',
                 'status' => 'paid',
                 'id' => 'MS-' . $m->id,
@@ -218,8 +218,9 @@ class SubscriptionController extends Controller
             ->values();
 
         $page = $request->input('page', 1);
+        $itemsForCurrentPage = $allTransactions->forPage($page, $perPage)->values();
         $paginated = new LengthAwarePaginator(
-            $allTransactions->forPage($page, $perPage),
+            $itemsForCurrentPage,
             $allTransactions->count(),
             $perPage,
             $page,
@@ -227,7 +228,7 @@ class SubscriptionController extends Controller
         );
 
         return response()->json([
-            'data' => $paginated->values(),
+            'data' => $paginated->items(),
             'meta' => [
                 'current_page' => $paginated->currentPage(),
                 'last_page' => $paginated->lastPage(),
