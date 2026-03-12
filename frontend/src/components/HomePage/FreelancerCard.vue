@@ -2,9 +2,10 @@
   <div class="card">
     <img :src="freelancer.avatar_url || '/default-avatar.png'" class="avatar-img" alt="Avatar" />
     <div class="name-container">
-    <h3>{{ freelancer.name }}</h3>
-    <AppBadge v-if="freelancer.plan === 'pro'" type="pro" />
-    <AppBadge v-if="freelancer.is_verified" type="verified" tooltipText="Verified Professional" />
+      <h3>{{ freelancer.name }}</h3>
+      <AppBadge v-if="freelancer.is_pro" type="pro" />
+
+      <AppBadge v-if="freelancer.is_verified" type="verified" />
     </div>
     <p class="role">{{ freelancer.role }}</p>
 
@@ -24,7 +25,7 @@
 </template>
 
 <script>
-import AppBadge from '../UI/AppBadge.vue';
+import AppBadge from '@/components/UI/AppBadge.vue';
 
 export default {
   name: 'FreelancerCard',
@@ -43,6 +44,7 @@ export default {
   gap: 4px;
   margin-top: 10px;
 }
+
 .avatar-img {
   width: 80px;
   height: 80px;

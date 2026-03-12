@@ -16,7 +16,7 @@ class FreelancerListController extends Controller
         $perPage = (int) request()->get('per_page', 8);
         $perPage = $perPage > 0 ? min($perPage, 50) : 8;
 
-        $query = User::where('role', 'freelancer')->with('freelancerProfile');
+        $query = User::where('role', 'freelancer')->with('freelancerProfile', 'subscription');
 
         if ($search) {
             $query->where(function ($q) use ($search) {
@@ -47,6 +47,9 @@ class FreelancerListController extends Controller
                 'name' => $user->name,
                 'role' => 'freelancer',
                 'about' => $user->freelancerProfile->about ?? '',
+                'is_pro' => $user->is_pro,
+                'is_verified' => $user->is_verified,
+                'plan' => $user->plan,
                 'rating' => $user->freelancerProfile->rating ?? 0,
                 'reviews' => $user->freelancerProfile->reviews ?? 0,
                 'location' => $user->freelancerProfile->location ?? '',
@@ -92,19 +95,20 @@ class FreelancerListController extends Controller
             'reviews'          => $profile->reviews ?? 0,
             'location'         => $profile->location ?? '',
             'skills'           => $profile->skills ?? [],
-            'avatar_url' => ($profile && $profile->avatar)? Storage::url($profile->avatar) : null,
+            'avatar_url' => ($profile && $profile->avatar) ? Storage::url($profile->avatar) : null,
             'certificate_urls' => array_map(fn($c) => Storage::url($c), $certificates),
             'university'       => $user->university,
             'study_year'       => $user->study_year,
         ]);
     }
 
-    public function skills(){
+    public function skills()
+    {
         $skills = FreelancerProfile::pluck('skills')
-        ->flatten()
-        ->unique()
-        ->filter()
-        ->values();
+            ->flatten()
+            ->unique()
+            ->filter()
+            ->values();
         return response()->json($skills);
     }
 }

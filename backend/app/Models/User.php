@@ -30,6 +30,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'study_year',
         'password',
         'role',
+        'is_verified',
     ];
 
     /**
@@ -42,7 +43,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'remember_token',
     ];
 
-    protected $appends = ['avatar_url', 'university', 'study_year', 'subscription_status', 'plan'];
+    protected $appends = ['avatar_url', 'university', 'study_year', 'subscription_status', 'plan', 'is_verified','is_pro'];
 
     /**
      * Get the attributes that should be cast.
@@ -54,9 +55,14 @@ class User extends Authenticatable implements MustVerifyEmail
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_verified' => 'boolean',
         ];
     }
 
+    public function getIsProAttribute()
+    {
+        return in_array($this->plan, ['pro', 'premium']);
+    }
     public function getAvatarUrlAttribute()
     {
         $profile = $this->freelancerProfile ?: $this->clientProfile;
