@@ -206,7 +206,7 @@ class SubscriptionController extends Controller
                 'type' => 'Milestone Payment',
                 'description' => $m->title ?? 'Project Milestone',
                 'party' => $m->project->client->name ?? 'Client',
-                'amount' => $m->amount ? $m->amount . ' EUR' : '-',
+                'amount' => $m->price ? $m->price . ' EUR' : '-',
                 'status' => 'paid',
                 'id' => 'MS-' . $m->id,
                 'raw_date' => $m->paid_at ?? $m->updated_at,

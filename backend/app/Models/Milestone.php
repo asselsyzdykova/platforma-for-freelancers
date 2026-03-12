@@ -11,11 +11,13 @@ class Milestone extends Model
     use HasFactory;
 
     protected $fillable = [
-        'project_id',
+        'freelancer_project_id',,
         'title',
         'price',
+        'status',
         'payment_status',
         'paid_at',
+        'stripe_session_id'
     ];
 
     protected $casts = [
@@ -25,6 +27,6 @@ class Milestone extends Model
 
     public function project()
     {
-        return $this->belongsTo(FreelancerProject::class, 'project_id');
+        return $this->belongsTo(FreelancerProject::class, 'freelancer_project_id');
     }
 }
