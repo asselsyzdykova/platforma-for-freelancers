@@ -3,9 +3,9 @@
     <SidebarMenu />
     <div class="billing-page">
       <h1>Billing and payments</h1>
-      <pre style="background: #fff; padding: 10px;">
-        Status: "{{ user?.subscription_status }}"
-        Plan: "{{ user?.plan }}"</pre>
+      <div v-if="user?.subscription_status === 'canceled' && user?.subscription_end_date" class="expiry-notice">
+        Your subscription remains active until <strong>{{ user.subscription_end_date }}</strong>
+      </div>
       <div class="billing-card">
         <div class="billing-actions" v-if="showDeactivate">
           <button class="danger" @click="cancelSubscription" :disabled="isCanceling">
@@ -176,6 +176,15 @@ const formatTxId = (item, index) => {
 </script>
 
 <style scoped>
+.expiry-notice {
+  background: #fef3c7;
+  border-left: 4px solid #f59e0b;
+  color: #92400e;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
 .page-layout {
   display: flex;
   min-height: 100vh;

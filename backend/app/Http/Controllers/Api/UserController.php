@@ -15,11 +15,13 @@ class UserController extends Controller
 
         $plan = 'free';
         $status = 'none';
+        $endDate = null;
         $subscription = Subscription::where('user_id', $user->id)
             ->latest('created_at')
             ->first();
         if ($subscription) {
             $status = $subscription->status;
+            $endDate = $subscription->end_date ? $subscription->end_date->toDateString() : null;
             $rawPlan = $subscription->plan;
 
             $proPrice = config('services.stripe.price_pro');
@@ -43,6 +45,7 @@ class UserController extends Controller
             'role' => $user->role ?? 'freelancer',
             'plan' => $plan,
             'subscription_status' => $status,
+            'subscription_end_date' => $endDate,
             'created_at' => $user->created_at,
         ]);
     }
