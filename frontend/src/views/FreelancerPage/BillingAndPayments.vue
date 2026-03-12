@@ -5,8 +5,7 @@
       <h1>Billing and payments</h1>
       <pre style="background: #fff; padding: 10px;">
         Status: "{{ user?.subscription_status }}"
-        Plan: "{{ user?.plan }}"
-      </pre>
+        Plan: "{{ user?.plan }}"</pre>
       <div class="billing-card">
         <div class="billing-actions" v-if="showDeactivate">
           <button class="danger" @click="cancelSubscription" :disabled="isCanceling">

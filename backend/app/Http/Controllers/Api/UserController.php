@@ -13,26 +13,24 @@ class UserController extends Controller
     {
         $user = $request->user();
 
-        $plan = null;
+        $plan = 'free';
+        $status = 'none';
         $subscription = Subscription::where('user_id', $user->id)
-            ->where('status', 'active')
             ->latest('created_at')
             ->first();
-
         if ($subscription) {
-            $plan = $subscription->plan;
-            if ($plan === env('STRIPE_PRICE_PRO')) {
+            $status = $subscription->status;
+            $rawPlan = $subscription->plan;
+
+            $proPrice = config('services.stripe.price_pro');
+            $premiumPrice = config('services.stripe.price_premium');
+
+            if ($rawPlan === $proPrice || $rawPlan === 'pro') {
                 $plan = 'pro';
-            } elseif ($plan === env('STRIPE_PRICE_PREMIUM')) {
+            } elseif ($rawPlan === $premiumPrice || $rawPlan === 'premium') {
                 $plan = 'premium';
-            } elseif ($plan === 'premium') {
-                $plan = 'premium';
-            } elseif ($plan === 'pro') {
-                $plan = 'pro';
-            } elseif ($plan === 'free') {
-                $plan = 'free';
             } else {
-                $plan = 'pro';
+                $plan = 'free';
             }
         }
 
@@ -44,6 +42,7 @@ class UserController extends Controller
             'study_year' => $user->study_year,
             'role' => $user->role ?? 'freelancer',
             'plan' => $plan,
+            'subscription_status' => $status,
             'created_at' => $user->created_at,
         ]);
     }
