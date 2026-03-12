@@ -11,7 +11,7 @@ class Milestone extends Model
     use HasFactory;
 
     protected $fillable = [
-        'freelancer_project_id',,
+        'freelancer_project_id',
         'title',
         'price',
         'status',
