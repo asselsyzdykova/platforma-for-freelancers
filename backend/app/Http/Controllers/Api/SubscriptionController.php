@@ -156,7 +156,7 @@ class SubscriptionController extends Controller
                 'message' => 'Subscription will remain active until ' . $endDate->toDateString(),
                 'end_date' => $endDate->toDateString()
             ]);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return response()->json(['error' => 'Failed to cancel subscription: ' . $e->getMessage()], 422);
         }
     }
