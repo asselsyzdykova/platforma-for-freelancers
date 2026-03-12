@@ -3,6 +3,9 @@
     <img :src="freelancer.avatar_url || '/default-avatar.png'" class="avatar-img" alt="Avatar" />
     <div class="name-container">
       <h3>{{ freelancer.name }}</h3>
+      <span style="background: red; color: white; padding: 2px;">
+        PRO: {{ freelancer.is_pro }} | VER: {{ freelancer.is_verified }}
+      </span>
       <AppBadge v-if="freelancer.is_pro" type="pro" />
 
       <AppBadge v-if="freelancer.is_verified" type="verified" />
