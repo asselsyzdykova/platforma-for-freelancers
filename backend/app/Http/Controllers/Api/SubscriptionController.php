@@ -199,7 +199,7 @@ class SubscriptionController extends Controller
                 'description' => $plan ? 'Plan: ' . Str::ucfirst($plan) : 'Subscription',
                 'party' => 'System',
                 'amount' => '-',
-                'status' => $statusLabel,,
+                'status' => $statusLabel,
                 'id' => $sub->provider_id ?? $sub->id,
                 'raw_date' => $sub->created_at,
             ];
