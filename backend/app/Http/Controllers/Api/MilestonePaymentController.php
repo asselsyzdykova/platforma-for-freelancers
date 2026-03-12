@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Stripe\Stripe;
 use Stripe\Checkout\Session;
 use App\Models\Milestone;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class MilestonePaymentController extends Controller
 {
@@ -44,9 +45,13 @@ class MilestonePaymentController extends Controller
             'stripe_session_id' => $session->id
         ]);
 
-        return response()->json([
-            'url' => $session->url
+        $pdf = Pdf::loadView('invoices.milestone_invoice', [
+            'milestone' => $milestone,
+            'paymentUrl' => $session->url,
+            'date' => now()->format('Y-m-d')
         ]);
+
+        return $pdf->stream('Invoice-' . $milestone->title . '.pdf');
     }
 
     public function createMilestoneCheckout($id)

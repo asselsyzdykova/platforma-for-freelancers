@@ -83,14 +83,16 @@ const loadProjects = async () => {
 const payMilestone = async (milestoneId) => {
   payingId.value = milestoneId
   try {
-    const { data } = await api.post(`/milestones/${milestoneId}/pay`)
+    const response = await api.post(`/milestones/${milestoneId}/pay`, {}, {
+      responseType: 'blob'
+    })
+    const file = new Blob([response.data], { type: 'application/pdf' })
+    const fileURL = URL.createObjectURL(file)
+    window.open(fileURL, '_blank')
 
-    if (data.url) {
-      window.location.href = data.url
-    }
   } catch (err) {
     console.error(err)
-    notifications.error(err.response?.data?.error || 'Payment initialization failed')
+    notifications.error('Payment initialization failed. Could not load invoice.')
   } finally {
     payingId.value = null
   }
