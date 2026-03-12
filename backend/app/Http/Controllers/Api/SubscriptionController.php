@@ -188,13 +188,18 @@ class SubscriptionController extends Controller
             if ($plan === config('services.stripe.price_pro')) $plan = 'pro';
             elseif ($plan === config('services.stripe.price_premium')) $plan = 'premium';
 
+            $statusLabel = $sub->status;
+            if ($sub->status === 'canceled' && $sub->end_date && $sub->end_date->isFuture()) {
+                $statusLabel = 'Active until ' . $sub->end_date->toDateString();
+            }
+
             return [
                 'date' => optional($sub->created_at)->toDateString(),
                 'type' => 'Subscription',
                 'description' => $plan ? 'Plan: ' . Str::ucfirst($plan) : 'Subscription',
                 'party' => 'System',
                 'amount' => '-',
-                'status' => $sub->status,
+                'status' => $statusLabel,,
                 'id' => $sub->provider_id ?? $sub->id,
                 'raw_date' => $sub->created_at,
             ];

@@ -42,7 +42,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'remember_token',
     ];
 
-    protected $appends = ['avatar_url', 'university', 'study_year'];
+    protected $appends = ['avatar_url', 'university', 'study_year', 'subscription_status', 'plan'];
 
     /**
      * Get the attributes that should be cast.
@@ -103,5 +103,32 @@ class User extends Authenticatable implements MustVerifyEmail
     public function reportsReceived()
     {
         return $this->hasMany(Report::class, 'reported_user_id');
+    }
+
+    public function subscription()
+    {
+        return $this->hasOne(Subscription::class)->latest();
+    }
+    public function hasActiveAccess(): bool
+    {
+        $sub = $this->subscription;
+        if (!$sub) return false;
+
+        if ($sub->status === 'active') return true;
+
+        if ($sub->status === 'canceled' && $sub->end_date && $sub->end_date->isFuture()) {
+            return true;
+        }
+
+        return false;
+    }
+    public function getSubscriptionStatusAttribute()
+    {
+        return $this->subscription?->status ?? 'none';
+    }
+
+    public function getPlanAttribute()
+    {
+        return $this->subscription?->plan ?? 'free';
     }
 }

@@ -106,8 +106,9 @@ const pageSize = 8
 const showDeactivate = computed(() => {
   const plan = user.value?.plan
   if (!plan) return false
-  return String(plan).toLowerCase() !== 'free'
-})
+  if (!plan || String(plan).toLowerCase() === 'free') return false;
+  return user.value?.subscription_status === 'active';
+});
 
 onMounted(async () => {
   try {
@@ -129,6 +130,10 @@ const cancelSubscription = async () => {
   try {
     await api.post('/subscriptions/cancel')
     notifications.success('Subscription deactivated')
+
+    if (user.value) {
+      user.value.subscription_status = 'canceled';
+    }
     const res = await api.get('/billing/transactions', {
       params: { page: currentPage.value, per_page: pageSize },
     })
@@ -248,6 +253,7 @@ h1 {
   margin-top: 16px;
   color: #888;
 }
+
 table {
   width: 100%;
   border-collapse: collapse;
