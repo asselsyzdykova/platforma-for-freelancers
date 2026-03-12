@@ -86,13 +86,26 @@ const payMilestone = async (milestoneId) => {
     const response = await api.post(`/milestones/${milestoneId}/pay`, {}, {
       responseType: 'blob'
     })
-    const file = new Blob([response.data], { type: 'application/pdf' })
-    const fileURL = URL.createObjectURL(file)
-    window.open(fileURL, '_blank')
+
+    const blob = new Blob([response.data], { type: 'application/pdf' })
+
+    const url = window.URL.createObjectURL(blob)
+
+    const link = document.createElement('a')
+    link.href = url
+    link.target = '_blank'
+    link.setAttribute('download', `Invoice-Milestone-${milestoneId}.pdf`)
+
+    document.body.appendChild(link)
+    link.click()
+    setTimeout(() => {
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(url)
+    }, 100)
 
   } catch (err) {
-    console.error(err)
-    notifications.error('Payment initialization failed. Could not load invoice.')
+    console.error('Full error:', err)
+    notifications.error('Could not generate invoice.')
   } finally {
     payingId.value = null
   }
