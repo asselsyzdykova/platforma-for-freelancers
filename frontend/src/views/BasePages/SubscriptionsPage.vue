@@ -3,64 +3,54 @@
     <h1 class="title">Choose Your Plan</h1>
     <p class="subtitle">Upgrade your account to get more opportunities as a freelancer.</p>
 
-    <div class="plans">
-      <!-- FREE PLAN -->
-      <div class="plan-card">
-        <h2>Free</h2>
-        <p class="price">$0 / month</p>
+    <div class="plans-grid">
+      <SubscriptionCard
+        name="Free"
+        price="0"
+        :features="[
+          { text: 'Create profile' },
+          { text: 'Browse projects' },
+          { text: '3 Proposals / month', disabled: true },
+          { text: 'No priority listing', disabled: true }
+        ]"
+        :buttonLabel="freeButton.label"
+        :buttonClass="freeButton.class"
+        :disabled="freeButton.disabled"
+      />
 
-        <ul>
-          <li>✔ Create profile</li>
-          <li>✔ Browse projects</li>
-          <li>✖ Limited proposals (3/month)</li>
-          <li>✖ No priority listing</li>
-        </ul>
+      <SubscriptionCard
+        name="Pro"
+        price="15"
+        isHighlighted
+        :features="[
+          { text: 'Unlimited proposals' },
+          { text: 'Pro Badge' },
+          { text: 'Search Boost' },
+          { text: 'Email Job Alerts' }
+        ]"
+        :buttonLabel="proButton.label"
+        :buttonClass="proButton.class"
+        :disabled="proButton.disabled"
+        :loading="loading"
+        @subscribe="proButton.onClick"
+      />
 
-        <div class="plan-actions">
-          <button class="btn" :class="freeButton.class" :disabled="freeButton.disabled">
-            {{ freeButton.label }}
-          </button>
-        </div>
-      </div>
-
-      <!-- PRO PLAN -->
-      <div class="plan-card highlighted">
-        <h2>Pro</h2>
-        <p class="price">$15 / month</p>
-
-        <ul>
-          <li>✔ Unlimited proposals</li>
-          <li>✔ Priority in search results</li>
-          <li>✔ Access to premium projects</li>
-          <li>✔ Direct client messaging</li>
-        </ul>
-
-        <div class="plan-actions">
-          <button class="btn" :class="proButton.class" :disabled="proButton.disabled || loading" @click="proButton.onClick">
-            {{ proButton.label }}
-          </button>
-        </div>
-      </div>
-
-      <!-- PREMIUM PLAN -->
-      <div class="plan-card">
-        <h2>Premium</h2>
-        <p class="price">$30 / month</p>
-
-        <ul>
-          <li>✔ All Pro features</li>
-          <li>✔ Featured freelancer badge</li>
-          <li>✔ Priority support</li>
-          <li>✔ Higher visibility</li>
-        </ul>
-
-        <div class="plan-actions">
-          <button class="btn" :class="premiumButton.class" :disabled="premiumButton.disabled || loading"
-            @click="premiumButton.onClick">
-            {{ premiumButton.label }}
-          </button>
-        </div>
-      </div>
+      <SubscriptionCard
+        name="Premium"
+        price="30"
+        :features="[
+          { text: '15 min Early Access' },
+          { text: 'Verified Status' },
+          { text: 'Featured Profile' },
+          { text: 'Priority Support' },
+          { text: 'All Pro Features' }
+        ]"
+        :buttonLabel="premiumButton.label"
+        :buttonClass="premiumButton.class"
+        :disabled="premiumButton.disabled"
+        :loading="loading"
+        @subscribe="premiumButton.onClick"
+      />
     </div>
   </div>
 </template>
@@ -70,6 +60,7 @@ import api from '@/services/axios'
 import { computed, onMounted, ref } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 import { useNotificationStore } from '@/stores/notificationStore'
+import SubscriptionCard from '@/components/UI/SubscriptionCard.vue'
 
 const userStore = useUserStore()
 const notifications = useNotificationStore()
@@ -147,32 +138,25 @@ const premiumButton = computed(() => {
 </script>
 
 <style scoped>
-.subscriptions-page {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 40px 20px;
+.title{
   text-align: center;
 }
-
-.title {
-  font-size: 36px;
-  margin-bottom: 10px;
+.subtitle{
+  text-align: center;
 }
-
-.subtitle {
-  color: #666;
-  margin-bottom: 40px;
-}
-
-.plans {
+.plans-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(260px, 1fr));
-  gap: 30px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  align-items: stretch;
+  margin: 50px auto 0;
+  max-width: 1000px;
 }
 
 @media (max-width: 980px) {
-  .plans {
-    grid-template-columns: repeat(2, minmax(240px, 1fr));
+  .plans-grid {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    justify-content: center;
   }
 }
 
@@ -182,79 +166,4 @@ const premiumButton = computed(() => {
   }
 }
 
-.plan-card {
-  border: 1px solid #e5e5e5;
-  border-radius: 12px;
-  padding: 30px 20px;
-  background: #fff;
-  transition:
-    transform 0.2s,
-    box-shadow 0.2s;
-}
-
-.plan-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-}
-
-.plan-card h2 {
-  font-size: 24px;
-  margin-bottom: 10px;
-}
-
-.price {
-  font-size: 22px;
-  font-weight: bold;
-  margin-bottom: 20px;
-}
-
-.plan-card ul {
-  list-style: none;
-  padding: 0;
-  margin-bottom: 25px;
-  text-align: left;
-}
-
-.plan-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.plan-card li {
-  margin-bottom: 10px;
-}
-
-.btn {
-  width: 100%;
-  padding: 12px;
-  border-radius: 8px;
-  border: none;
-  font-size: 16px;
-  cursor: pointer;
-}
-
-.btn.primary {
-  background-color: #5D3A9B;
-  color: white;
-}
-
-.btn.primary:hover {
-  background-color: #5D3A9B
-}
-
-.btn.disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-}
-
-.btn:disabled {
-  background-color: #ccc;
-  color: #777;
-  cursor: not-allowed;
-}
-
-.highlighted {
-  border: 2px solid #5D3A9B;
-}
 </style>
