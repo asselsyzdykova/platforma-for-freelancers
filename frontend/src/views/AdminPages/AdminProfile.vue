@@ -31,6 +31,14 @@
     </section>
     <TaskModal v-if="taskModalVisible" :manager="selectedManager" @submit="handleTaskSubmit" />
     <AnnouncementModal v-if="showAnnouncementModal" @close="showAnnouncementModal = false" @success="loadAdminStats" />
+    <div class="panel-up">
+      <div class="panel">
+        <RouterLink :to="{ name: 'ReportAdmin' }" class="action-card">
+          <h4>Manager Reports</h4>
+          <p>User complaints about managers</p>
+        </RouterLink>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -139,6 +147,16 @@ onMounted(() => {
   min-height: 100vh;
 }
 
+.action-card p {
+  color: #6b7280;
+}
+
+.action-card h4 {
+  color: black;
+}
+.panel-up{
+  margin-top: 10px;
+}
 .panel-header-with-action {
   display: flex;
   justify-content: space-between;

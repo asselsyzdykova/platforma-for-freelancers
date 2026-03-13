@@ -43,6 +43,7 @@ import ReportAdmin from '@/views/AdminPages/ReportAdmin.vue'
 import BlockedPage from '@/views/block/BlockedPage.vue'
 import ReportAnswer from '@/views/answers/ReportAnswer.vue'
 import ClientMyProjects from '@/views/ClientPage/ClientMyProjects.vue'
+import ManagerVerification from '@/views/AdminPages/ManagerVerification.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -313,6 +314,11 @@ const router = createRouter({
       path: '/client-my-projects',
       name: 'ClientProjects',
       component: ClientMyProjects,
+    },
+    {
+      path: '/manager-verification',
+      name: 'ManagerVerification',
+      component: ManagerVerification,
     }
   ],
 })

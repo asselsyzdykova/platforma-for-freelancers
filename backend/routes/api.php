@@ -25,6 +25,7 @@ use App\Http\Controllers\Api\SupportController;
 use App\Http\Controllers\Api\ReportController;
 use App\Http\Controllers\Api\MilestonePaymentController;
 use App\Http\Controllers\Api\StripeWebhookController;
+use App\Http\Controllers\Api\ManagerVerificationController;
 
 
 Route::middleware(['auth:sanctum', 'blocked'])->group(function () {
@@ -91,6 +92,9 @@ Route::middleware(['auth:sanctum', 'blocked'])->group(function () {
     Route::get('/manager/tasks', [TaskController::class, 'getManagerTasks']);
     Route::post('/manager/tasks', [TaskController::class, 'store']);
     Route::patch('/manager/tasks/{task}', [TaskController::class, 'update']);
+    Route::get('/manager/verifications', [ManagerVerificationController::class, 'index']);
+    Route::post('/manager/verifications/{user}/approve', [ManagerVerificationController::class, 'approve']);
+    Route::post('/manager/verifications/{user}/reject', [ManagerVerificationController::class, 'reject']);
 
     // Chat
     Route::get('/conversations', [ChatController::class, 'conversations']);

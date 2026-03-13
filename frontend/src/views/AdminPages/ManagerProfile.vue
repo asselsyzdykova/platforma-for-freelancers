@@ -108,15 +108,9 @@
     <section class="notes">
       <div class="panel">
         <div class="panel-head">
-          <h3>Manager notes</h3>
-          <button class="btn link">Add note</button>
-        </div>
-        <div class="notes-grid">
-          <div v-for="note in notes" :key="note.id" class="note-card">
-            <h4>{{ note.title }}</h4>
-            <p>{{ note.body }}</p>
-            <span>{{ note.date }}</span>
-          </div>
+         <RouterLink :to="{ name: 'ManagerVerification' }" class="btn link">
+          <h3>Verify Premium accounts</h3>
+        </RouterLink>
         </div>
       </div>
     </section>
