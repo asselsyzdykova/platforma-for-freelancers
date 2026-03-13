@@ -35,6 +35,8 @@
           <p v-else class="done-text">Action completed.</p>
         </div>
       </div>
+      <AppPagination v-model="currentPage" :totalPages="totalPages" mode="simple" />
+    </div>
       <div v-if="showModal" class="modal-overlay" @click.self="closeModal">
         <div class="modal-content">
           <h3>Reject Verification</h3>
@@ -52,7 +54,6 @@
           </div>
         </div>
       </div>
-      <AppPagination v-model="currentPage" :totalPages="totalPages" mode="simple" />
     </div>
 </template>
 
