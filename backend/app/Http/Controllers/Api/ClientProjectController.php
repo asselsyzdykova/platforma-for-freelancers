@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Project;
 use Illuminate\Support\Facades\Auth;
-use App\Models\FreelancerProject;
 use App\Models\User;
 use App\Mail\NewJobAlert;
 use Illuminate\Support\Facades\Mail;
@@ -18,7 +17,7 @@ class ClientProjectController extends Controller
         $perPage = (int) $request->get('per_page', 3);
         $perPage = $perPage > 0 ? min($perPage, 50) : 3;
 
-        $query = FreelancerProject::where('client_id', Auth::id())
+        $query = Project::where('client_id', Auth::id())
             ->with(['freelancer', 'milestones']);
 
         $paginated = $query->latest('created_at')->paginate($perPage);

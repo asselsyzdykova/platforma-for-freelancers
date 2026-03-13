@@ -367,7 +367,15 @@ export default {
 .intern {
   margin: 40px 0;
 }
-
+.primary-btn {
+  padding: 12px 18px;
+  border-radius: 10px;
+  background: #5b4b8a;
+  color: white;
+  font-weight: 600;
+  text-decoration: none;
+  text-align: center;
+}
 .intern-header {
   display: flex;
   justify-content: space-between;
