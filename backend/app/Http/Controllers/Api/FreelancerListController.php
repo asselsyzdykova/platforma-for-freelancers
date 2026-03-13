@@ -17,9 +17,9 @@ class FreelancerListController extends Controller
         $perPage = $perPage > 0 ? min($perPage, 50) : 8;
 
         $query = User::where('users.role', 'freelancer')
-            ->leftJoin('subscriptions', 'users.id', '=', 'subscriptions.freelancer_id')
+            ->leftJoin('subscriptions', 'users.id', '=', 'subscriptions.user_id')
             ->with(['freelancerProfile', 'subscription'])
-            ->select('users.*');
+            ->select('users.*', 'subscriptions.plan as stripe_plan');
 
         if ($search) {
             $query->where(function ($q) use ($search) {
@@ -47,7 +47,6 @@ class FreelancerListController extends Controller
 
         $freelancers = $paginated->getCollection()->map(function ($user) {
             $profile = $user->freelancerProfile;
-            $currentPlan = $user->subscription ? $user->subscription->plan : 'free';
             $certificates = $user->freelancerProfile->certificates ?? [];
             if (!is_array($certificates)) {
                 $certificates = [];
@@ -60,7 +59,7 @@ class FreelancerListController extends Controller
                 'about' => $user->freelancerProfile->about ?? '',
                 'is_pro' => $user->is_pro,
                 'is_verified' => $user->is_verified,
-                'plan' => $currentPlan,
+                'plan' => $user->plan,
                 'rating' => $user->freelancerProfile->rating ?? 0,
                 'reviews' => $user->freelancerProfile->reviews ?? 0,
                 'location' => $user->freelancerProfile->location ?? '',
