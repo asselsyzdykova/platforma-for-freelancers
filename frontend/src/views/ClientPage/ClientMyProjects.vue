@@ -68,7 +68,7 @@ const totalPages = ref(1)
 const loadProjects = async () => {
   loading.value = true
   try {
-    const res = await api.get('/client/projects', {
+    const res = await api.get('/client/projects/milestone', {
       params: { page: currentPage.value }
     })
     projects.value = res.data.data

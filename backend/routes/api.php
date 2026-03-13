@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\SubscriptionController;
 use App\Http\Controllers\Api\CityController;
 use App\Http\Controllers\Api\ManagerController;
 use App\Http\Controllers\Api\AdminController;
+use App\Http\Controllers\Api\ClientMilestonesProjectController;
 use App\Http\Controllers\Api\TaskController;
 use App\Http\Controllers\Api\EmailVerificationController;
 use App\Http\Controllers\Api\FreelancerProjectController;
@@ -46,7 +47,7 @@ Route::middleware(['auth:sanctum', 'blocked'])->group(function () {
     Route::patch('/client/projects/{id}', [ClientProjectController::class, 'update']);
     Route::get('/client/projects/{project}', [ClientProjectController::class, 'show']);
     Route::delete('/client/projects/{project}', [ProjectController::class, 'destroy']);
-
+    Route::get('/client/projects/milestone', [ClientMilestonesProjectController::class, 'index']);
     //freelancer
     Route::get('/freelancer/proposals', [ProposalController::class, 'freelancerProposals']);
     Route::get('/freelancer/profile', [FreelancerProfileController::class, 'show']);
