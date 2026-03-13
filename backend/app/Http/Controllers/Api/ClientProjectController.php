@@ -73,10 +73,17 @@ class ClientProjectController extends Controller
     }
     private function notifyMatchingFreelancers(Project $project)
     {
+        $searchTerms = array_merge([$project->category], $project->tags ?? []);
         $freelancers = User::where('role', 'freelancer')
             ->with('subscription')
-            ->whereHas('freelancerProfile', function ($q) use ($project) {
-                $q->whereJsonContains('skills', $project->category);
+            ->whereHas('freelancerProfile', function ($q) use ($searchTerms) {
+                $q->where(function ($query) use ($searchTerms) {
+                    foreach ($searchTerms as $term) {
+                        $query->orWhereJsonContains('skills', $term)
+                            ->orWhereJsonContains('skills', strtolower($term))
+                            ->orWhereJsonContains('skills', ucfirst(strtolower($term)));
+                    }
+                });
             })
             ->get();
         $proFreelancers = $freelancers->filter(function ($user) {
