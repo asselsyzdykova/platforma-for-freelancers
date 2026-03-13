@@ -73,16 +73,16 @@ class ClientProjectController extends Controller
     }
     private function notifyMatchingFreelancers(Project $project)
     {
-        $proPlans = [env('STRIPE_PRICE_PRO'), env('STRIPE_PRICE_PREMIUM')];
-
         $freelancers = User::where('role', 'freelancer')
-            ->whereIn('plan', $proPlans)
+            ->with('subscription')
             ->whereHas('freelancerProfile', function ($q) use ($project) {
                 $q->whereJsonContains('skills', $project->category);
             })
             ->get();
-
-        foreach ($freelancers as $user) {
+        $proFreelancers = $freelancers->filter(function ($user) {
+            return $user->is_pro;
+        });
+        foreach ($proFreelancers as $user) {
             Mail::to($user->email)->queue(new NewJobAlert($project));
         }
     }
