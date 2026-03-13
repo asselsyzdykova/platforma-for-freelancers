@@ -19,8 +19,8 @@ class ManagerVerificationController extends Controller
                     ->where('status', 'active');
             })
             ->with('freelancerProfile')
-            ->get();
-        $formattedCandidates = $candidates->map(function ($user) {
+            ->paginate(9);
+        $formattedCandidates = $candidates->getCollection()->transform(function ($user) {
             $profile = $user->freelancerProfile;
 
             return [
