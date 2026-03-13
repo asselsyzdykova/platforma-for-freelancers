@@ -7,6 +7,9 @@ use Illuminate\Http\Request;
 use App\Models\Project;
 use Illuminate\Support\Facades\Auth;
 use App\Models\FreelancerProject;
+use App\Models\User;
+use App\Mail\NewJobAlert;
+use Illuminate\Support\Facades\Mail;
 
 class ClientProjectController extends Controller
 {
@@ -16,7 +19,7 @@ class ClientProjectController extends Controller
         $perPage = $perPage > 0 ? min($perPage, 50) : 3;
 
         $query = FreelancerProject::where('client_id', Auth::id())
-        ->with(['freelancer', 'milestones']);
+            ->with(['freelancer', 'milestones']);
 
         $paginated = $query->latest('created_at')->paginate($perPage);
 
@@ -64,9 +67,25 @@ class ClientProjectController extends Controller
             'status' => 'In progress',
         ]);
 
+        $this->notifyMatchingFreelancers($project);
+
         return response()->json($project, 201);
     }
+    private function notifyMatchingFreelancers(Project $project)
+    {
+        $proPlans = [env('STRIPE_PRICE_PRO'), env('STRIPE_PRICE_PREMIUM')];
 
+        $freelancers = User::where('role', 'freelancer')
+            ->whereIn('plan', $proPlans)
+            ->whereHas('freelancerProfile', function ($q) use ($project) {
+                $q->whereJsonContains('skills', $project->category);
+            })
+            ->get();
+
+        foreach ($freelancers as $user) {
+            Mail::to($user->email)->queue(new NewJobAlert($project));
+        }
+    }
     public function update(Request $request, $id)
     {
         $project = Project::findOrFail($id);

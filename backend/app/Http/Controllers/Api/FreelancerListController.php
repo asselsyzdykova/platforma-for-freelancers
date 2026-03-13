@@ -33,7 +33,14 @@ class FreelancerListController extends Controller
             });
         }
 
-        $paginated = $query->orderBy('name')->paginate($perPage);
+        $query->orderByRaw("CASE
+        WHEN plan = '" . config('services.stripe.price_premium') . "' THEN 1
+        WHEN plan = '" . config('services.stripe.price_pro') . "' THEN 2
+        ELSE 3
+        END ASC")
+            ->orderBy('name', 'asc');
+
+        $paginated = $query->paginate($perPage);
 
         $freelancers = $paginated->getCollection()->map(function ($user) {
             $profile = $user->freelancerProfile;

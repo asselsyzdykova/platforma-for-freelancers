@@ -95,7 +95,7 @@ const fetchCandidates = async (page = 1) => {
 };
 
 const verifyUser = async (userId) => {
-  if (!confirm('Are you sure you want to verify this user?')) return;
+  if (!notifications.warning('Are you sure you want to verify this user?')) return;
 
   try {
     await api.post(`/manager/verifications/${userId}/approve`);

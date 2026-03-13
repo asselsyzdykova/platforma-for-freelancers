@@ -59,10 +59,6 @@ class User extends Authenticatable implements MustVerifyEmail
         ];
     }
 
-    public function getIsProAttribute()
-    {
-        return in_array($this->plan, ['pro', 'premium']);
-    }
     public function getAvatarUrlAttribute()
     {
         $profile = $this->freelancerProfile ?: $this->clientProfile;
@@ -142,10 +138,15 @@ class User extends Authenticatable implements MustVerifyEmail
         $stripeId = $this->subscription->plan;
 
         $plans = [
-            'price_1Sqft250jvgixwH9Ltabf82y' => 'pro',
-            'price_1Sqfv050jvgixwH9ZwpwB9kC'   => 'premium',
+            env('STRIPE_PRICE_PRO') => 'pro',
+            env('STRIPE_PRICE_PREMIUM')   => 'premium',
         ];
 
         return $plans[$stripeId] ?? 'free';
+    }
+
+    public function getIsProAttribute()
+    {
+        return in_array($this->plan, ['pro', 'premium']);
     }
 }
