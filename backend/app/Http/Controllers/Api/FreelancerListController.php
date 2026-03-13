@@ -16,11 +16,14 @@ class FreelancerListController extends Controller
         $perPage = (int) request()->get('per_page', 8);
         $perPage = $perPage > 0 ? min($perPage, 50) : 8;
 
-        $query = User::where('role', 'freelancer')->with('freelancerProfile', 'subscription');
+        $query = User::where('users.role', 'freelancer')
+            ->leftJoin('subscriptions', 'users.id', '=', 'subscriptions.freelancer_id')
+            ->with(['freelancerProfile', 'subscription'])
+            ->select('users.*');
 
         if ($search) {
             $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', '%' . $search . '%')
+                $q->where('users.name', 'like', '%' . $search . '%')
                     ->orWhereHas('freelancerProfile', function ($profileQuery) use ($search) {
                         $profileQuery->where('skills', 'like', '%' . $search . '%');
                     });
@@ -34,16 +37,17 @@ class FreelancerListController extends Controller
         }
 
         $query->orderByRaw("CASE
-        WHEN plan = '" . config('services.stripe.price_premium') . "' THEN 1
-        WHEN plan = '" . config('services.stripe.price_pro') . "' THEN 2
-        ELSE 3
-        END ASC")
-            ->orderBy('name', 'asc');
+            WHEN subscriptions.plan = '" . config('services.stripe.price_premium') . "' THEN 1
+            WHEN subscriptions.plan = '" . config('services.stripe.price_pro') . "' THEN 2
+            ELSE 3
+            END ASC")
+            ->orderBy('users.name', 'asc');
 
         $paginated = $query->paginate($perPage);
 
         $freelancers = $paginated->getCollection()->map(function ($user) {
             $profile = $user->freelancerProfile;
+            $currentPlan = $user->subscription ? $user->subscription->plan : 'free';
             $certificates = $user->freelancerProfile->certificates ?? [];
             if (!is_array($certificates)) {
                 $certificates = [];
@@ -56,7 +60,7 @@ class FreelancerListController extends Controller
                 'about' => $user->freelancerProfile->about ?? '',
                 'is_pro' => $user->is_pro,
                 'is_verified' => $user->is_verified,
-                'plan' => $user->plan,
+                'plan' => $currentPlan,
                 'rating' => $user->freelancerProfile->rating ?? 0,
                 'reviews' => $user->freelancerProfile->reviews ?? 0,
                 'location' => $user->freelancerProfile->location ?? '',
