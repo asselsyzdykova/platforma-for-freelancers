@@ -48,8 +48,10 @@ class ManagerVerificationController extends Controller
         Notification::create([
             'user_id' => $user->id,
             'title'   => 'Premium Verified!',
-            'message' => 'Congratulations! Your profile has been verified and your blue badge is now active.',
+            'body' => 'Congratulations! Your profile has been verified and your blue badge is now active.',
             'type'    => 'verification_approved',
+            'link'       => '/freelancer/profile',
+            'related_id' => $user->id,
             'is_read' => false,
         ]);
 
@@ -68,8 +70,10 @@ class ManagerVerificationController extends Controller
         Notification::create([
             'user_id' => $user->id,
             'title'   => 'Verification Feedback',
-            'message' => 'Your premium verification needs changes: ' . $validated['reason'],
+            'body' => 'Your premium verification needs changes: ' . $validated['reason'],
             'type'    => 'verification_rejected',
+            'link'       => '/freelancer/account',
+            'related_id' => $user->id,
             'is_read' => false,
         ]);
 

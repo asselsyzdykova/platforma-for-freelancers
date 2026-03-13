@@ -98,7 +98,7 @@ onMounted(() => {
 
 const saveChanges = async () => {
   try {
-    await api.put('/freelancer/account', form.value)
+    await api.put('/freelancer/settings', form.value)
 
     notifications.success('Profile updated successfully')
 
