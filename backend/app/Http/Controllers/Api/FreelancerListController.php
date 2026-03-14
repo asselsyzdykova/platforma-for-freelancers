@@ -37,11 +37,11 @@ class FreelancerListController extends Controller
             });
         }
 
-        $query->orderByRaw("CASE
+        $query->orderByRaw("MIN(CASE
             WHEN subscriptions.plan = '" . config('services.stripe.price_premium') . "' THEN 1
             WHEN subscriptions.plan = '" . config('services.stripe.price_pro') . "' THEN 2
             ELSE 3
-            END ASC")
+            END) ASC")
             ->orderBy('users.name', 'asc');
 
         $paginated = $query->paginate($perPage);
