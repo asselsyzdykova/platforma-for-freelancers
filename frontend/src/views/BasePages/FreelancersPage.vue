@@ -46,7 +46,7 @@ const categories = ref([])
 
 const loadCategories = async () => {
   try {
-    const res = await api.get('/freelancers/skills')
+    const res = await api.get('/skills')
     categories.value = res.data || []
   } catch (e) {
     console.error('failed to load categories', e)
