@@ -20,7 +20,7 @@ class FreelancerListController extends Controller
             ->leftJoin('subscriptions', 'users.id', '=', 'subscriptions.user_id')
             ->with(['freelancerProfile', 'subscription'])
             ->select('users.*')
-            ->groupBy('users.id');;
+            ->groupBy('users.id');
 
         if ($search) {
             $query->where(function ($q) use ($search) {
