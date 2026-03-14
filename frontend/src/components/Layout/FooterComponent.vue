@@ -3,8 +3,8 @@
     <div class="container">
       <p>© 2026 BezRab. All rights reserved.</p>
       <div class="links">
-        <a href="#">Privacy</a>
-        <a href="#">Terms</a>
+        <RouterLink :to="{ name: 'PrivacyPolicy' }" exact-active-class="active">Privacy Policy</RouterLink>
+        <RouterLink :to="{ name: 'TermsAndConditions' }" exact-active-class="active">Terms and Conditions</RouterLink>
         <a href="#">Contact</a>
       </div>
     </div>
