@@ -19,7 +19,8 @@ class FreelancerListController extends Controller
         $query = User::where('users.role', 'freelancer')
             ->leftJoin('subscriptions', 'users.id', '=', 'subscriptions.user_id')
             ->with(['freelancerProfile', 'subscription'])
-            ->select('users.*', 'subscriptions.plan as stripe_plan');
+            ->select('users.*')
+            ->groupBy('users.id');;
 
         if ($search) {
             $query->where(function ($q) use ($search) {
