@@ -54,10 +54,10 @@ const planSuffix = computed(() => {
           <RouterLink v-if="!userStore.isLoggedIn" :to="{ name: 'register' }" exact-active-class="active">Sign Up</RouterLink>
 
           <RouterLink v-if="userStore.isLoggedIn && userStore.user.role === 'freelancer'" :to="{ name: 'FreelancerProfile' }" exact-active-class="active">
-            Profile ({{ userStore.user.name }}{{ planSuffix }})
+          {{ userStore.user.name }}{{ planSuffix }}
           </RouterLink>
           <RouterLink v-else-if="userStore.isLoggedIn" :to="{ name: userStore.user.role === 'admin' ? 'AdminProfile' : userStore.user.role === 'manager' ? 'ManagerProfile' : 'ClientProfile' }" exact-active-class="active">
-            Profile ({{ userStore.user.name }})
+            {{ userStore.user.name }}
           </RouterLink>
 
           <button v-if="userStore.isLoggedIn" class="logout-btn" @click="logout">Logout</button>

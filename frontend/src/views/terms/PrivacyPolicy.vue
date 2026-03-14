@@ -575,10 +575,6 @@
         limited in some circumstances by applicable law. To request to review, update, or delete
         your personal information, please fill out and submit a data subject access request.
       </p>
-
-      <p class="generator-note">
-        This Privacy Policy was created using Termly's Privacy Policy Generator
-      </p>
     </div>
   </div>
 </template>

@@ -45,9 +45,9 @@ Route::middleware(['auth:sanctum', 'blocked'])->group(function () {
     Route::get('/client/projects', [ClientProjectController::class, 'index']);
     Route::get('/client/projects/{id}/proposals', [ProposalController::class, 'projectProposals']);
     Route::patch('/client/projects/{id}', [ClientProjectController::class, 'update']);
+    Route::get('/client/projects/milestone', [ClientMilestonesProjectController::class, 'index']);
     Route::get('/client/projects/{project}', [ClientProjectController::class, 'show']);
     Route::delete('/client/projects/{project}', [ProjectController::class, 'destroy']);
-    Route::get('/client/projects/milestone', [ClientMilestonesProjectController::class, 'index']);
     //freelancer
     Route::get('/freelancer/proposals', [ProposalController::class, 'freelancerProposals']);
     Route::get('/freelancer/profile', [FreelancerProfileController::class, 'show']);

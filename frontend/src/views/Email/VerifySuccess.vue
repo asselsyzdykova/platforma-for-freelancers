@@ -3,8 +3,8 @@
     <div class="success-card">
       <h1>🎉 Email Verified!</h1>
       <p>Your email has been successfully verified. You can now log in and start using the platform.</p>
-      <router-link :to="{ name: 'login' }" class="btn-primary">
-        Go to Login
+      <router-link :to="{ name: 'EditProfile' }" class="btn-primary">
+        Complete your profile
       </router-link>
     </div>
   </div>
